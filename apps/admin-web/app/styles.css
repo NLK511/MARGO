@@ -244,6 +244,25 @@ body {
   justify-content: flex-end;
 }
 
+.table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.table-actions button,
+.admin-table button,
+.primary-admin-button {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 8px 10px;
+}
+
 .editor-actions button:first-child {
   background: var(--color-surface-alt);
   color: var(--color-text);

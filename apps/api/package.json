@@ -11,7 +11,8 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@margo/core": "workspace:*"
+    "@margo/core": "workspace:*",
+    "@margo/db": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.20.6",

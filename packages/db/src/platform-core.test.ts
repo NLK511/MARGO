@@ -1,5 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createAuditLogService, createEventOutboxService, createPublicPageService, createTenantBrandingService } from './index';
+import {
+  BookingConflictError,
+  calculateAvailability,
+  createAuditLogService,
+  createBookingService,
+  createEventOutboxService,
+  createPublicPageService,
+  createTenantBrandingService,
+} from './index';
 
 const uuid = '00000000-0000-4000-a000-000000000001';
 
@@ -85,6 +93,89 @@ describe('tenant branding service', () => {
         layoutConfig: { nav: 'minimal' },
       },
     });
+  });
+});
+
+describe('booking availability engine', () => {
+  it('calculates capacity-aware slots and excludes overlapping bookings', () => {
+    const slots = calculateAvailability({
+      service: { id: 'dinner', durationMinutes: 60 },
+      resources: [
+        { id: 'small-table', active: true, capacity: 2 },
+        { id: 'large-table', active: true, capacity: 4 },
+      ],
+      bookings: [{ resourceId: 'large-table', startsAt: new Date('2026-05-11T09:00:00.000Z'), endsAt: new Date('2026-05-11T10:00:00.000Z'), status: 'confirmed' }],
+      date: '2026-05-11',
+      partySize: 3,
+      businessHours: { opensAt: '09:00', closesAt: '11:00' },
+      slotMinutes: 30,
+    });
+
+    expect(slots.map((slot) => slot.startsAt.toISOString())).toEqual(['2026-05-11T10:00:00.000Z']);
+    expect(slots[0]?.resourceId).toBe('large-table');
+  });
+});
+
+describe('booking service', () => {
+  function createMockBookingClient(overlapping: unknown = null) {
+    const bookingCreate = vi.fn(async () => ({ id: uuid, customerId: uuid, publicToken: 'public-token' }));
+    const eventCreate = vi.fn();
+    const timelineCreate = vi.fn();
+    const client = {
+      $transaction: vi.fn(async (callback) => callback(client)),
+      service: { findFirst: vi.fn(async () => ({ id: uuid, durationMinutes: 45 })) },
+      booking: { findFirst: vi.fn(async (args) => (args?.where?.metadata ? null : overlapping)), create: bookingCreate, update: vi.fn(), findMany: vi.fn() },
+      customer: { findFirst: vi.fn(async () => null), create: vi.fn(async () => ({ id: uuid })), update: vi.fn() },
+      eventOutbox: { create: eventCreate },
+      customerTimelineEvent: { create: timelineCreate },
+    };
+    return { client, bookingCreate, eventCreate, timelineCreate };
+  }
+
+  it('creates a booking, customer, outbox event, and CRM timeline event', async () => {
+    const { client, bookingCreate, eventCreate, timelineCreate } = createMockBookingClient();
+    const service = createBookingService(client);
+
+    await service.createPublicBooking({
+      tenantId: uuid,
+      enabledModules: ['frontpage', 'booking', 'crm'],
+      locationId: uuid,
+      serviceId: uuid,
+      resourceId: uuid,
+      startsAt: new Date('2026-05-11T09:00:00.000Z'),
+      customer: { displayName: 'Demo Patient', email: 'patient@example.test' },
+      idempotencyKey: 'idem-1',
+    });
+
+    expect(bookingCreate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ status: 'confirmed' }) }));
+    expect(eventCreate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ eventType: 'booking.created' }) }));
+    expect(timelineCreate).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ eventType: 'booking.created' }) }));
+  });
+
+  it('prevents double booking for overlapping resource slots', async () => {
+    const { client } = createMockBookingClient({ id: 'overlap' });
+    const service = createBookingService(client);
+
+    await expect(
+      service.createPublicBooking({
+        tenantId: uuid,
+        enabledModules: ['frontpage', 'booking'],
+        locationId: uuid,
+        serviceId: uuid,
+        resourceId: uuid,
+        startsAt: new Date('2026-05-11T09:00:00.000Z'),
+        customer: { displayName: 'Demo Guest', email: 'guest@example.test' },
+        idempotencyKey: 'idem-2',
+      }),
+    ).rejects.toBeInstanceOf(BookingConflictError);
+  });
+
+  it('supports restaurant and clinic smoke booking inputs', async () => {
+    const restaurant = createMockBookingClient();
+    const clinic = createMockBookingClient();
+
+    await expect(createBookingService(restaurant.client).createPublicBooking({ tenantId: uuid, enabledModules: ['booking'], locationId: uuid, serviceId: uuid, resourceId: uuid, startsAt: new Date('2026-05-11T18:00:00.000Z'), customer: { displayName: 'Restaurant Guest' }, idempotencyKey: 'restaurant' })).resolves.toMatchObject({ publicToken: 'public-token' });
+    await expect(createBookingService(clinic.client).createPublicBooking({ tenantId: uuid, enabledModules: ['booking', 'crm'], locationId: uuid, serviceId: uuid, resourceId: uuid, startsAt: new Date('2026-05-11T09:00:00.000Z'), customer: { displayName: 'Clinic Patient' }, idempotencyKey: 'clinic' })).resolves.toMatchObject({ publicToken: 'public-token' });
   });
 });
 

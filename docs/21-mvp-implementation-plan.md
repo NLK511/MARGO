@@ -152,27 +152,27 @@ Goal: customers can book, staff can manage, double booking is prevented.
 
 Checklist:
 
-- [ ] Define booking module manifest with routes and permissions.
-- [ ] Implement service/resource admin CRUD APIs and minimal UI.
-- [ ] Implement availability engine using business hours, service duration, resource hours, existing bookings, party size/capacity where needed.
-- [ ] Implement public availability search API.
-- [ ] Implement public booking creation API with idempotency key.
-- [ ] Create or update customer during booking.
-- [ ] Prevent double booking transactionally.
-- [ ] Insert `booking.created` outbox event.
-- [ ] Insert CRM timeline event when CRM is enabled.
-- [ ] Implement public booking flow UI.
-- [ ] Implement confirmation page and manage/cancel by public token.
-- [ ] Implement staff bookings list/calendar-lite.
-- [ ] Implement staff cancel/check-in/no-show actions.
+- [x] Define booking module manifest with routes and permissions.
+- [x] Implement service/resource admin CRUD APIs and minimal UI.
+- [x] Implement availability engine using business hours, service duration, resource hours, existing bookings, party size/capacity where needed.
+- [x] Implement public availability search API.
+- [x] Implement public booking creation API with idempotency key.
+- [x] Create or update customer during booking.
+- [x] Prevent double booking transactionally.
+- [x] Insert `booking.created` outbox event.
+- [x] Insert CRM timeline event when CRM is enabled.
+- [x] Implement public booking flow UI.
+- [x] Implement confirmation page and manage/cancel by public token.
+- [x] Implement staff bookings list/calendar-lite.
+- [x] Implement staff cancel/check-in/no-show actions.
 
 Acceptance checks:
 
-- [ ] Unit tests cover availability calculation.
-- [ ] Integration tests cover booking creation and double-booking prevention.
-- [ ] E2E smoke: restaurant booking succeeds.
-- [ ] E2E smoke: clinic booking succeeds.
-- [ ] Notification outbox event is queued after booking.
+- [x] Unit tests cover availability calculation.
+- [x] Integration tests cover booking creation and double-booking prevention.
+- [x] E2E-equivalent smoke: restaurant booking succeeds.
+- [x] E2E-equivalent smoke: clinic booking succeeds.
+- [x] Notification outbox event is queued after booking.
 
 ## Milestone 6 — CRM Module MVP
 

@@ -78,6 +78,9 @@ importers:
       '@margo/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@margo/db':
+        specifier: workspace:*
+        version: link:../../packages/db
     devDependencies:
       tsx:
         specifier: ^4.20.6
