@@ -1,4 +1,35 @@
-export type ModuleId = 'frontpage' | 'booking' | 'crm' | 'notifications' | string;
+export type ModuleId = 'frontpage' | 'booking' | 'crm' | 'payments' | 'notifications' | 'analytics' | string;
+
+export interface PermissionDefinition {
+  permission: string;
+  description: string;
+}
+
+export interface RouteDefinition {
+  path: string;
+  permission?: string;
+}
+
+export interface ApiRouteDefinition extends RouteDefinition {
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+}
+
+export interface EventSubscription {
+  eventType: string;
+  handler: string;
+}
+
+export interface MenuItemDefinition {
+  label: string;
+  path: string;
+  permission?: string;
+}
+
+export interface DashboardWidgetDefinition {
+  id: string;
+  title: string;
+  permission?: string;
+}
 
 export interface ModuleManifest {
   id: ModuleId;
@@ -6,6 +37,28 @@ export interface ModuleManifest {
   version: string;
   description: string;
   dependencies: ModuleId[];
+  optionalDependencies?: ModuleId[];
+  tenantConfigSchema?: unknown;
+  permissions: PermissionDefinition[];
+  publicRoutes: RouteDefinition[];
+  adminRoutes: RouteDefinition[];
+  apiRoutes: ApiRouteDefinition[];
+  eventSubscriptions: EventSubscription[];
+  menuItems: MenuItemDefinition[];
+  widgets?: DashboardWidgetDefinition[];
+}
+
+export interface ModuleDependencyIssue {
+  moduleId: ModuleId;
+  missingDependency: ModuleId;
+}
+
+export interface ModuleRegistry {
+  manifests: readonly ModuleManifest[];
+  get(moduleId: ModuleId): ModuleManifest | undefined;
+  isInstalled(moduleId: ModuleId): boolean;
+  validateEnabledModules(enabledModuleIds: readonly ModuleId[]): ModuleDependencyIssue[];
+  enabledManifests(enabledModuleIds: readonly ModuleId[]): ModuleManifest[];
 }
 
 export const coreModuleManifests: ModuleManifest[] = [
@@ -15,6 +68,21 @@ export const coreModuleManifests: ModuleManifest[] = [
     version: '0.0.0',
     description: 'Tenant public website pages and blocks.',
     dependencies: [],
+    permissions: [
+      { permission: 'site.pages.read', description: 'Read public pages.' },
+      { permission: 'site.pages.write', description: 'Create and publish public pages.' },
+    ],
+    publicRoutes: [{ path: '/' }, { path: '/t/:tenantSlug' }],
+    adminRoutes: [
+      { path: '/pages', permission: 'site.pages.read' },
+      { path: '/pages/:pageId', permission: 'site.pages.write' },
+    ],
+    apiRoutes: [
+      { method: 'GET', path: '/api/v1/public/pages/:slug' },
+      { method: 'PATCH', path: '/api/v1/admin/pages/:pageId', permission: 'site.pages.write' },
+    ],
+    eventSubscriptions: [],
+    menuItems: [{ label: 'Pages', path: '/pages', permission: 'site.pages.read' }],
   },
   {
     id: 'notifications',
@@ -22,6 +90,15 @@ export const coreModuleManifests: ModuleManifest[] = [
     version: '0.0.0',
     description: 'Outbox-backed notification requests.',
     dependencies: [],
+    permissions: [],
+    publicRoutes: [],
+    adminRoutes: [],
+    apiRoutes: [],
+    eventSubscriptions: [
+      { eventType: 'booking.created', handler: 'queueBookingConfirmation' },
+      { eventType: 'booking.cancelled', handler: 'queueBookingCancellation' },
+    ],
+    menuItems: [],
   },
   {
     id: 'booking',
@@ -29,6 +106,25 @@ export const coreModuleManifests: ModuleManifest[] = [
     version: '0.0.0',
     description: 'Public and staff booking workflows.',
     dependencies: ['notifications'],
+    optionalDependencies: ['payments'],
+    permissions: [
+      { permission: 'booking.read', description: 'Read bookings and schedules.' },
+      { permission: 'booking.write', description: 'Create and update bookings.' },
+      { permission: 'booking.cancel', description: 'Cancel bookings.' },
+    ],
+    publicRoutes: [{ path: '/booking' }, { path: '/booking/confirmation/:token' }],
+    adminRoutes: [
+      { path: '/bookings', permission: 'booking.read' },
+      { path: '/bookings/new', permission: 'booking.write' },
+    ],
+    apiRoutes: [
+      { method: 'GET', path: '/api/v1/public/availability' },
+      { method: 'POST', path: '/api/v1/public/bookings' },
+      { method: 'GET', path: '/api/v1/admin/bookings', permission: 'booking.read' },
+      { method: 'PATCH', path: '/api/v1/admin/bookings/:bookingId/cancel', permission: 'booking.cancel' },
+    ],
+    eventSubscriptions: [],
+    menuItems: [{ label: 'Bookings', path: '/bookings', permission: 'booking.read' }],
   },
   {
     id: 'crm',
@@ -36,5 +132,106 @@ export const coreModuleManifests: ModuleManifest[] = [
     version: '0.0.0',
     description: 'Customer profiles, notes, and timeline.',
     dependencies: [],
+    optionalDependencies: ['booking'],
+    permissions: [
+      { permission: 'crm.customer.read', description: 'Read customer profiles.' },
+      { permission: 'crm.customer.write', description: 'Create and update customers.' },
+      { permission: 'crm.note.write', description: 'Create customer notes.' },
+    ],
+    publicRoutes: [],
+    adminRoutes: [
+      { path: '/customers', permission: 'crm.customer.read' },
+      { path: '/customers/:customerId', permission: 'crm.customer.read' },
+    ],
+    apiRoutes: [
+      { method: 'GET', path: '/api/v1/admin/customers', permission: 'crm.customer.read' },
+      { method: 'POST', path: '/api/v1/admin/customers', permission: 'crm.customer.write' },
+      { method: 'POST', path: '/api/v1/admin/customers/:customerId/notes', permission: 'crm.note.write' },
+    ],
+    eventSubscriptions: [{ eventType: 'booking.created', handler: 'appendBookingTimelineEvent' }],
+    menuItems: [{ label: 'Customers', path: '/customers', permission: 'crm.customer.read' }],
   },
 ];
+
+export const moduleRegistry = createModuleRegistry(coreModuleManifests);
+
+export function createModuleRegistry(manifests: readonly ModuleManifest[]): ModuleRegistry {
+  const byId = new Map<ModuleId, ModuleManifest>();
+  for (const manifest of manifests) {
+    if (byId.has(manifest.id)) {
+      throw new Error(`Duplicate module manifest id: ${manifest.id}`);
+    }
+    byId.set(manifest.id, manifest);
+  }
+
+  return {
+    manifests,
+    get: (moduleId) => byId.get(moduleId),
+    isInstalled: (moduleId) => byId.has(moduleId),
+    validateEnabledModules: (enabledModuleIds) => validateModuleDependencies(enabledModuleIds, manifests),
+    enabledManifests: (enabledModuleIds) => enabledModuleIds.map((id) => byId.get(id)).filter(isManifest),
+  };
+}
+
+export function validateModuleDependencies(
+  enabledModuleIds: readonly ModuleId[],
+  manifests: readonly ModuleManifest[] = coreModuleManifests,
+): ModuleDependencyIssue[] {
+  const enabled = new Set(enabledModuleIds);
+  const byId = new Map(manifests.map((manifest) => [manifest.id, manifest]));
+  const issues: ModuleDependencyIssue[] = [];
+
+  for (const moduleId of enabled) {
+    const manifest = byId.get(moduleId);
+    if (!manifest) {
+      issues.push({ moduleId, missingDependency: moduleId });
+      continue;
+    }
+
+    for (const dependency of manifest.dependencies) {
+      if (!enabled.has(dependency)) {
+        issues.push({ moduleId, missingDependency: dependency });
+      }
+    }
+  }
+
+  return issues;
+}
+
+export function isTenantModuleEnabled(enabledModuleIds: readonly ModuleId[], moduleId: ModuleId): boolean {
+  return enabledModuleIds.includes(moduleId);
+}
+
+export type ModuleRouteAccess =
+  | { allowed: true; manifest: ModuleManifest }
+  | { allowed: false; status: 404; reason: 'module_not_installed' | 'module_disabled' }
+  | { allowed: false; status: 403; reason: 'missing_dependency'; missingDependencies: ModuleId[] };
+
+export function evaluateModuleRouteAccess(
+  moduleId: ModuleId,
+  enabledModuleIds: readonly ModuleId[],
+  registry: ModuleRegistry = moduleRegistry,
+): ModuleRouteAccess {
+  const manifest = registry.get(moduleId);
+  if (!manifest) {
+    return { allowed: false, status: 404, reason: 'module_not_installed' };
+  }
+
+  if (!isTenantModuleEnabled(enabledModuleIds, moduleId)) {
+    return { allowed: false, status: 404, reason: 'module_disabled' };
+  }
+
+  const missingDependencies = validateModuleDependencies(enabledModuleIds, registry.manifests)
+    .filter((issue) => issue.moduleId === moduleId)
+    .map((issue) => issue.missingDependency);
+
+  if (missingDependencies.length > 0) {
+    return { allowed: false, status: 403, reason: 'missing_dependency', missingDependencies };
+  }
+
+  return { allowed: true, manifest };
+}
+
+function isManifest(manifest: ModuleManifest | undefined): manifest is ModuleManifest {
+  return Boolean(manifest);
+}

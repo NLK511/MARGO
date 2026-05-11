@@ -87,23 +87,23 @@ Goal: every request resolves tenant context and module/RBAC constraints.
 
 Checklist:
 
-- [ ] Implement tenant resolver: custom hostname, subdomain, `/t/:tenantSlug` development prefix.
-- [ ] Implement tenant context type and server helper.
-- [ ] Implement module manifest type and registry.
-- [ ] Implement module dependency validation.
-- [ ] Implement tenant module enable/disable checks.
-- [ ] Implement RBAC roles and permission map from specs.
-- [ ] Implement server-side permission guard for admin APIs.
-- [ ] Implement branded 404/403 helpers.
-- [ ] Implement event outbox service.
-- [ ] Implement audit log helper for sensitive admin actions.
+- [x] Implement tenant resolver: custom hostname, subdomain, `/t/:tenantSlug` development prefix.
+- [x] Implement tenant context type and server helper.
+- [x] Implement module manifest type and registry.
+- [x] Implement module dependency validation.
+- [x] Implement tenant module enable/disable checks.
+- [x] Implement RBAC roles and permission map from specs.
+- [x] Implement server-side permission guard for admin APIs.
+- [x] Implement branded 404/403 helpers.
+- [x] Implement event outbox service.
+- [x] Implement audit log helper for sensitive admin actions.
 
 Acceptance checks:
 
-- [ ] Unit tests cover tenant resolution order.
-- [ ] Unit tests cover module dependency validation.
-- [ ] Unit tests cover RBAC allowed/denied paths.
-- [ ] Disabled module routes return 404/403.
+- [x] Unit tests cover tenant resolution order.
+- [x] Unit tests cover module dependency validation.
+- [x] Unit tests cover RBAC allowed/denied paths.
+- [x] Disabled module routes return 404/403.
 
 ## Milestone 3 — Theme and Branding MVP
 
