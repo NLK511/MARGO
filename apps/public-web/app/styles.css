@@ -1,0 +1,27 @@
+:root {
+  color-scheme: light;
+  --color-bg: #f7fafc;
+  --color-text: #10233a;
+  --color-primary: #2d7dd2;
+  --color-surface: #ffffff;
+  --color-border: #d7e3ea;
+  --radius-md: 16px;
+  --font-sans: Inter, system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+.page-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
