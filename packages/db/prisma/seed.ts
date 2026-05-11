@@ -252,10 +252,36 @@ async function seedTenant(seed: SeedTenant) {
       {
         tenantId: tenant.id,
         pageId: page.id,
+        type: 'rich-text',
+        variant: 'default',
+        position: 1,
+        props: { title: 'About us', body: seed.page.heroBody },
+      },
+      {
+        tenantId: tenant.id,
+        pageId: page.id,
+        type: 'service-list',
+        variant: 'cards',
+        position: 2,
+        props: { title: seed.services?.length ? 'Services' : 'Highlights' },
+      },
+      {
+        tenantId: tenant.id,
+        pageId: page.id,
         type: 'location',
         variant: 'card',
-        position: 1,
+        position: 3,
         props: { locationName: location.name, address: seed.location.address, phone: seed.location.phone },
+      },
+      {
+        tenantId: tenant.id,
+        pageId: page.id,
+        type: seed.modules.includes('booking') ? 'cta' : 'contact-form',
+        variant: seed.modules.includes('booking') ? 'banner' : 'placeholder',
+        position: 4,
+        props: seed.modules.includes('booking')
+          ? { title: seed.page.ctaLabel, body: 'Choose a convenient time online.', label: seed.page.ctaLabel }
+          : { title: 'Contact us' },
       },
     ],
   });

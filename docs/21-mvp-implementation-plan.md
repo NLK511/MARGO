@@ -131,20 +131,20 @@ Goal: publish branded public pages from configurable blocks.
 
 Checklist:
 
-- [ ] Define frontpage module manifest with routes and permissions.
-- [ ] Implement public page fetch API/service.
-- [ ] Implement block renderer for MVP blocks: hero, service list, location/opening hours, CTA, rich text, contact form placeholder.
-- [ ] Implement homepage route for tenant slug/host.
-- [ ] Implement branded missing page.
-- [ ] Implement admin page list/edit/publish screens.
-- [ ] Implement SEO metadata fields.
-- [ ] Hide booking/CRM links when modules are disabled.
+- [x] Define frontpage module manifest with routes and permissions.
+- [x] Implement public page fetch API/service.
+- [x] Implement block renderer for MVP blocks: hero, service list, location/opening hours, CTA, rich text, contact form placeholder.
+- [x] Implement homepage route for tenant slug/host.
+- [x] Implement branded missing page.
+- [x] Implement admin page list/edit/publish screens.
+- [x] Implement SEO metadata fields.
+- [x] Hide booking/CRM links when modules are disabled.
 
 Acceptance checks:
 
-- [ ] Frontpage-only tenant homepage renders with no booking/CRM links.
-- [ ] Mobile layout smoke test passes.
-- [ ] Public page unit tests cover published/draft/missing page behavior.
+- [x] Frontpage-only tenant homepage renders with no booking/CRM links.
+- [x] Mobile layout smoke test passes.
+- [x] Public page unit tests cover published/draft/missing page behavior.
 
 ## Milestone 5 — Booking Module MVP
 

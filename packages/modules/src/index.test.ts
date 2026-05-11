@@ -12,6 +12,7 @@ describe('module registry', () => {
     const registry = createModuleRegistry(coreModuleManifests);
 
     expect(registry.isInstalled('frontpage')).toBe(true);
+    expect(registry.get('frontpage')?.apiRoutes.map((route) => route.path)).toContain('/api/v1/admin/pages/:pageId/publish');
     expect(registry.get('booking')?.dependencies).toEqual(['notifications']);
     expect(registry.get('crm')?.permissions.map((permission) => permission.permission)).toContain('crm.customer.read');
   });

@@ -94,6 +94,9 @@ importers:
       '@margo/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@margo/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@margo/themes':
         specifier: workspace:*
         version: link:../../packages/themes

@@ -118,11 +118,171 @@ type TenantBrandingClient = {
   };
 };
 
+type PublicPageClient = {
+  publicPage: {
+    findFirst(args: unknown): Promise<PublicPageWithRelations | null>;
+    findMany(args: unknown): Promise<PublicPageListItem[]>;
+    update(args: unknown): Promise<unknown>;
+  };
+};
+
+export interface PublicPageBlockRecord {
+  id: string;
+  type: string;
+  variant: string;
+  props: Prisma.JsonValue;
+  position: number;
+}
+
+export interface PublicPageServiceRecord {
+  slug: string;
+  name: string;
+  description?: string | null;
+  durationMinutes: number;
+  priceMinor?: number | null;
+  currency?: string | null;
+}
+
+export interface PublicPageLocationRecord {
+  name: string;
+  address?: Prisma.JsonValue;
+  phone?: string | null;
+  email?: string | null;
+}
+
+export interface PublicPageRecord {
+  id: string;
+  tenantId: string;
+  slug: string;
+  locale: string;
+  title: string;
+  seo: Prisma.JsonValue;
+  status: string;
+  layoutPreset: string;
+  blocks: PublicPageBlockRecord[];
+  services: PublicPageServiceRecord[];
+  locations: PublicPageLocationRecord[];
+}
+
+export interface PublicPageListItem {
+  id: string;
+  slug: string;
+  locale: string;
+  title: string;
+  status: string;
+  updatedAt: Date;
+}
+
+interface PublicPageWithRelations {
+  id: string;
+  tenantId: string;
+  slug: string;
+  locale: string;
+  title: string;
+  seo: Prisma.JsonValue;
+  status: string;
+  layoutPreset: string;
+  blocks: Array<{ id: string; type: string; variant: string; props: Prisma.JsonValue; position: number }>;
+  tenant: {
+    services: Array<{
+      slug: string;
+      name: string;
+      description?: string | null;
+      durationMinutes: number;
+      priceMinor?: number | null;
+      currency?: string | null;
+    }>;
+    locations: Array<{ name: string; address?: Prisma.JsonValue; phone?: string | null; email?: string | null }>;
+  };
+}
+
 export interface TenantThemePersistenceInput {
   tenantId: string;
   themePresetId: string;
   themeOverrides?: Prisma.InputJsonObject;
   layoutConfig?: Prisma.InputJsonObject;
+}
+
+export function createPublicPageService(client: PublicPageClient = prisma as unknown as PublicPageClient) {
+  return {
+    async findPublishedPage(input: { tenantId: string; slug?: string; locale?: string }): Promise<PublicPageRecord | null> {
+      const page = await client.publicPage.findFirst({
+        where: {
+          tenantId: input.tenantId,
+          slug: input.slug ?? 'home',
+          locale: input.locale ?? 'en',
+          status: 'published',
+        },
+        include: {
+          blocks: { orderBy: { position: 'asc' } },
+          tenant: { include: { services: { where: { active: true } }, locations: { where: { active: true } } } },
+        },
+      });
+
+      return page ? mapPublicPageRecord(page) : null;
+    },
+
+    async findPageForAdmin(input: { tenantId: string; pageId: string }): Promise<PublicPageRecord | null> {
+      const page = await client.publicPage.findFirst({
+        where: { tenantId: input.tenantId, id: input.pageId },
+        include: {
+          blocks: { orderBy: { position: 'asc' } },
+          tenant: { include: { services: { where: { active: true } }, locations: { where: { active: true } } } },
+        },
+      });
+
+      return page ? mapPublicPageRecord(page) : null;
+    },
+
+    listPages(input: { tenantId: string; locale?: string }): Promise<PublicPageListItem[]> {
+      return client.publicPage.findMany({
+        where: { tenantId: input.tenantId, ...(input.locale ? { locale: input.locale } : {}) },
+        select: { id: true, slug: true, locale: true, title: true, status: true, updatedAt: true },
+        orderBy: [{ status: 'asc' }, { updatedAt: 'desc' }],
+      });
+    },
+
+    publishPage(input: { tenantId: string; pageId: string }) {
+      return client.publicPage.update({
+        where: { id: input.pageId, tenantId: input.tenantId },
+        data: { status: 'published' },
+      });
+    },
+  };
+}
+
+function mapPublicPageRecord(page: PublicPageWithRelations): PublicPageRecord {
+  return {
+    id: page.id,
+    tenantId: page.tenantId,
+    slug: page.slug,
+    locale: page.locale,
+    title: page.title,
+    seo: page.seo,
+    status: page.status,
+    layoutPreset: page.layoutPreset,
+    blocks: page.blocks.map((block) => ({
+      id: block.id,
+      type: block.type,
+      variant: block.variant,
+      props: block.props,
+      position: block.position,
+    })),
+    services: page.tenant.services.map((service) => ({
+      slug: service.slug,
+      name: service.name,
+      description: service.description,
+      durationMinutes: service.durationMinutes,
+      priceMinor: service.priceMinor,
+      currency: service.currency,
+    })),
+    locations: page.tenant.locations.map((location) => ({
+      name: location.name,
+      address: location.address,
+      phone: location.phone,
+      email: location.email,
+    })),
+  };
 }
 
 export function createTenantBrandingService(client: TenantBrandingClient = prisma) {
