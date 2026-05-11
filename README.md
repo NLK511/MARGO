@@ -21,6 +21,21 @@ Local infrastructure:
 docker compose -f infra/docker-compose.yml up -d
 ```
 
+Database setup:
+
+```bash
+cp .env.example .env
+docker compose -f infra/docker-compose.yml up -d postgres
+pnpm db:migrate
+pnpm db:seed
+```
+
+Seed tenants:
+
+- `bistro-frontpage` — frontpage-only restaurant
+- `table-and-co` — restaurant with booking
+- `oak-clinic` — clinic with booking + CRM
+
 Verification commands:
 
 ```bash
@@ -28,6 +43,7 @@ pnpm lint
 pnpm typecheck
 pnpm test
 pnpm build
+pnpm --filter @margo/db db:validate
 ```
 
 ## Planning

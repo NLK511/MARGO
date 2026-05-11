@@ -65,21 +65,21 @@ Goal: implement the tenant-safe data model and demo data.
 
 Checklist:
 
-- [ ] Add Prisma schema for core tables: tenants, domains, locations, users, role_bindings, tenant_modules, tenant_branding, audit_logs, event_outbox.
-- [ ] Add frontpage tables: public pages and page blocks/config storage.
-- [ ] Add booking tables: services, resources, bookings.
-- [ ] Add CRM tables: customers, customer_notes, customer_tags, assignments, timeline events/custom fields if needed.
-- [ ] Add unique/index constraints needed for tenant isolation and booking lookups.
-- [ ] Add seed script for three MVP tenants.
-- [ ] Seed theme branding and module enablement per tenant.
-- [ ] Seed services/resources for restaurant and clinic demos.
-- [ ] Seed admin users and role bindings.
+- [x] Add Prisma schema for core tables: tenants, domains, locations, users, role_bindings, tenant_modules, tenant_branding, audit_logs, event_outbox.
+- [x] Add frontpage tables: public pages and page blocks/config storage.
+- [x] Add booking tables: services, resources, bookings.
+- [x] Add CRM tables: customers, customer_notes, customer_tags, assignments, timeline events/custom fields if needed.
+- [x] Add unique/index constraints needed for tenant isolation and booking lookups.
+- [x] Add seed script for three MVP tenants.
+- [x] Seed theme branding and module enablement per tenant.
+- [x] Seed services/resources for restaurant and clinic demos.
+- [x] Seed admin users and role bindings.
 
 Acceptance checks:
 
-- [ ] `pnpm db:migrate` applies cleanly.
-- [ ] `pnpm db:seed` creates the three tenants.
-- [ ] Tests verify every business table includes `tenant_id` where required.
+- [x] `pnpm db:migrate` applies cleanly.
+- [x] `pnpm db:seed` creates the three tenants.
+- [x] Tests verify every business table includes `tenant_id` where required.
 
 ## Milestone 2 — Platform Core
 

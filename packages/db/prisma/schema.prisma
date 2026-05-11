@@ -1,0 +1,415 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id              String           @id @default(uuid()) @db.Uuid
+  slug            String           @unique
+  legalName       String           @map("legal_name")
+  displayName     String           @map("display_name")
+  primaryLocale   String           @default("en") @map("primary_locale")
+  timezone        String           @default("Europe/Paris")
+  defaultCurrency String           @default("EUR") @map("default_currency")
+  plan            String           @default("starter")
+  clinicMode      Boolean          @default(false) @map("clinic_mode")
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  domains         Domain[]
+  locations       Location[]
+  users           User[]
+  roleBindings    RoleBinding[]
+  modules         TenantModule[]
+  branding        TenantBranding?
+  auditLogs       AuditLog[]
+  outboxEvents    EventOutbox[]
+  publicPages     PublicPage[]
+  pageBlocks      PageBlock[]
+  services        Service[]
+  resources       Resource[]
+  bookings        Booking[]
+  customers       Customer[]
+  customerNotes   CustomerNote[]
+  customerTags    CustomerTag[]
+  customFields    CustomFieldDefinition[]
+  customValues    CustomFieldValue[]
+  timelineEvents  CustomerTimelineEvent[]
+  tagAssignments  CustomerTagAssignment[]
+
+  @@map("tenants")
+}
+
+model Domain {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  hostname  String   @unique
+  status    String   @default("pending")
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("domains")
+}
+
+model Location {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  name      String
+  timezone  String
+  address   Json?
+  phone     String?
+  email     String?
+  active    Boolean  @default(true)
+
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  services  Service[]
+  resources Resource[]
+  bookings  Booking[]
+
+  @@index([tenantId])
+  @@map("locations")
+}
+
+model User {
+  id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String?  @map("tenant_id") @db.Uuid
+  email          String
+  displayName    String?  @map("display_name")
+  externalAuthId String?  @map("external_auth_id")
+  status         String   @default("active")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  tenant       Tenant?        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  roleBindings RoleBinding[]
+  notes        CustomerNote[]
+  auditLogs    AuditLog[]
+
+  @@index([tenantId, email])
+  @@map("users")
+}
+
+model RoleBinding {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  role      String
+  scopeType String   @default("tenant") @map("scope_type")
+  scopeId   String?  @map("scope_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, userId])
+  @@map("role_bindings")
+}
+
+model TenantModule {
+  tenantId   String    @map("tenant_id") @db.Uuid
+  moduleId   String    @map("module_id")
+  enabled    Boolean   @default(true)
+  config     Json      @default("{}")
+  enabledAt  DateTime  @default(now()) @map("enabled_at") @db.Timestamptz(6)
+  disabledAt DateTime? @map("disabled_at") @db.Timestamptz(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@id([tenantId, moduleId])
+  @@map("tenant_modules")
+}
+
+model TenantBranding {
+  tenantId      String   @id @map("tenant_id") @db.Uuid
+  logoUrl       String?  @map("logo_url")
+  faviconUrl    String?  @map("favicon_url")
+  themePresetId String   @default("clinical-calm") @map("theme_preset_id")
+  themeOverrides Json    @default("{}") @map("theme_overrides")
+  layoutConfig   Json    @default("{}") @map("layout_config")
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("tenant_branding")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String?  @map("tenant_id") @db.Uuid
+  actorUserId String?  @map("actor_user_id") @db.Uuid
+  action      String
+  entityType  String?  @map("entity_type")
+  entityId    String?  @map("entity_id") @db.Uuid
+  metadata    Json     @default("{}")
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  actor  User?   @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, createdAt])
+  @@map("audit_logs")
+}
+
+model EventOutbox {
+  id              String    @id @default(uuid()) @db.Uuid
+  tenantId        String?   @map("tenant_id") @db.Uuid
+  eventType       String    @map("event_type")
+  aggregateType   String    @map("aggregate_type")
+  aggregateId     String    @map("aggregate_id") @db.Uuid
+  payload         Json
+  status          String    @default("pending")
+  attempts        Int       @default(0)
+  nextAttemptAt   DateTime  @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  processedAt     DateTime? @map("processed_at") @db.Timestamptz(6)
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, status, nextAttemptAt])
+  @@map("event_outbox")
+}
+
+model PublicPage {
+  id           String   @id @default(uuid()) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  slug         String
+  locale       String   @default("en")
+  title        String
+  seo          Json     @default("{}")
+  status       String   @default("draft")
+  layoutPreset String   @default("classic") @map("layout_preset")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  blocks PageBlock[]
+
+  @@unique([tenantId, locale, slug])
+  @@index([tenantId, status])
+  @@map("public_pages")
+}
+
+model PageBlock {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  pageId    String   @map("page_id") @db.Uuid
+  type      String
+  variant   String
+  props     Json     @default("{}")
+  visibility Json?
+  position  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  page   PublicPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, pageId, position])
+  @@map("page_blocks")
+}
+
+model Service {
+  id                  String   @id @default(uuid()) @db.Uuid
+  tenantId            String   @map("tenant_id") @db.Uuid
+  locationId          String?  @map("location_id") @db.Uuid
+  slug                String
+  name                String
+  description         String?
+  verticalType        String   @default("generic") @map("vertical_type")
+  durationMinutes     Int      @map("duration_minutes")
+  bufferBeforeMinutes Int      @default(0) @map("buffer_before_minutes")
+  bufferAfterMinutes  Int      @default(0) @map("buffer_after_minutes")
+  priceMinor          Int?     @map("price_minor")
+  currency            String?
+  requiresPayment     Boolean  @default(false) @map("requires_payment")
+  depositMinor        Int?     @map("deposit_minor")
+  active              Boolean  @default(true)
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  location Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  bookings Booking[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, active])
+  @@map("services")
+}
+
+model Resource {
+  id           String  @id @default(uuid()) @db.Uuid
+  tenantId     String  @map("tenant_id") @db.Uuid
+  locationId   String? @map("location_id") @db.Uuid
+  resourceType String  @map("resource_type")
+  name         String
+  capacity     Int?
+  active       Boolean @default(true)
+  metadata     Json    @default("{}")
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  location Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  bookings Booking[]
+
+  @@index([tenantId, active])
+  @@map("resources")
+}
+
+model Booking {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
+  locationId  String   @map("location_id") @db.Uuid
+  serviceId   String   @map("service_id") @db.Uuid
+  resourceId  String?  @map("resource_id") @db.Uuid
+  customerId  String   @map("customer_id") @db.Uuid
+  startsAt    DateTime @map("starts_at") @db.Timestamptz(6)
+  endsAt      DateTime @map("ends_at") @db.Timestamptz(6)
+  status      String
+  source      String   @default("public_web")
+  publicToken String   @unique @map("public_token")
+  notes       String?
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  location Location  @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  service  Service   @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  resource Resource? @relation(fields: [resourceId], references: [id], onDelete: SetNull)
+  customer Customer  @relation(fields: [customerId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, startsAt])
+  @@index([tenantId, customerId])
+  @@index([tenantId, resourceId, startsAt])
+  @@map("bookings")
+}
+
+model Customer {
+  id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String   @map("tenant_id") @db.Uuid
+  profileKind    String   @default("customer") @map("profile_kind")
+  firstName      String?  @map("first_name")
+  lastName       String?  @map("last_name")
+  displayName    String?  @map("display_name")
+  email          String?
+  phone          String?
+  dateOfBirth    DateTime? @map("date_of_birth") @db.Date
+  preferredLocale String? @map("preferred_locale")
+  marketingOptIn Boolean  @default(false) @map("marketing_opt_in")
+  smsOptIn       Boolean  @default(false) @map("sms_opt_in")
+  metadata       Json     @default("{}")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant         Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  bookings       Booking[]
+  notes          CustomerNote[]
+  tagAssignments CustomerTagAssignment[]
+  timelineEvents CustomerTimelineEvent[]
+
+  @@index([tenantId, email])
+  @@index([tenantId, phone])
+  @@map("customers")
+}
+
+model CustomerNote {
+  id           String   @id @default(uuid()) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  customerId   String   @map("customer_id") @db.Uuid
+  authorUserId String?  @map("author_user_id") @db.Uuid
+  visibility   String   @default("internal")
+  body         String
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  author   User?    @relation(fields: [authorUserId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, customerId, createdAt])
+  @@map("customer_notes")
+}
+
+model CustomerTag {
+  id       String  @id @default(uuid()) @db.Uuid
+  tenantId String  @map("tenant_id") @db.Uuid
+  name     String
+  color    String?
+
+  tenant      Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assignments CustomerTagAssignment[]
+
+  @@unique([tenantId, name])
+  @@map("customer_tags")
+}
+
+model CustomerTagAssignment {
+  tenantId   String @map("tenant_id") @db.Uuid
+  customerId String @map("customer_id") @db.Uuid
+  tagId      String @map("tag_id") @db.Uuid
+
+  tenant   Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tag      CustomerTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([tenantId, customerId, tagId])
+  @@map("customer_tag_assignments")
+}
+
+model CustomFieldDefinition {
+  id         String  @id @default(uuid()) @db.Uuid
+  tenantId   String  @map("tenant_id") @db.Uuid
+  entityType String  @map("entity_type")
+  key        String
+  label      String
+  fieldType  String  @map("field_type")
+  required   Boolean @default(false)
+  options    Json?
+  position   Int     @default(0)
+  active     Boolean @default(true)
+
+  tenant Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  values CustomFieldValue[]
+
+  @@unique([tenantId, entityType, key])
+  @@map("custom_field_definitions")
+}
+
+model CustomFieldValue {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @map("tenant_id") @db.Uuid
+  entityType        String   @map("entity_type")
+  entityId          String   @map("entity_id") @db.Uuid
+  fieldDefinitionId String   @map("field_definition_id") @db.Uuid
+  value             Json?
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant          Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  fieldDefinition CustomFieldDefinition @relation(fields: [fieldDefinitionId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, entityType, entityId])
+  @@map("custom_field_values")
+}
+
+model CustomerTimelineEvent {
+  id            String   @id @default(uuid()) @db.Uuid
+  tenantId      String   @map("tenant_id") @db.Uuid
+  customerId    String   @map("customer_id") @db.Uuid
+  eventType     String   @map("event_type")
+  aggregateType String?  @map("aggregate_type")
+  aggregateId   String?  @map("aggregate_id") @db.Uuid
+  payload       Json     @default("{}")
+  occurredAt    DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, customerId, occurredAt])
+  @@map("customer_timeline_events")
+}

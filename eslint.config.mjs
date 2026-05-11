@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint';
 
 export default [
   {
-    ignores: ['.next/**', 'dist/**', 'node_modules/**', 'coverage/**', 'pnpm-lock.yaml'],
+    ignores: ['.next/**', 'dist/**', 'node_modules/**', 'coverage/**', 'pnpm-lock.yaml', '**/next-env.d.ts'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
