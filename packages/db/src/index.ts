@@ -548,6 +548,193 @@ function createPublicBookingToken(tenantId: string, idempotencyKey: string, star
   return Buffer.from(`${tenantId}:${idempotencyKey}:${startsAt.toISOString()}`).toString('base64url').slice(0, 40);
 }
 
+export type CrmProfileKind = 'customer' | 'patient';
+
+export interface CrmLabels {
+  singular: string;
+  plural: string;
+  bookingSingular: string;
+  bookingPlural: string;
+}
+
+export function getCrmLabels(input: { profileKind?: string | null; verticalType?: string | null; tenantModules?: string[] } = {}): CrmLabels {
+  const isClinic = input.profileKind === 'patient' || input.verticalType === 'clinic';
+  return isClinic
+    ? { singular: 'Patient', plural: 'Patients', bookingSingular: 'Appointment', bookingPlural: 'Appointments' }
+    : { singular: 'Customer', plural: 'Customers', bookingSingular: 'Booking', bookingPlural: 'Bookings' };
+}
+
+export interface CrmCustomerListItem {
+  id: string;
+  displayName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  profileKind: string;
+  updatedAt: Date;
+}
+
+export interface CrmTimelineItem {
+  id: string;
+  type: string;
+  title: string;
+  body?: string | null;
+  occurredAt: Date;
+  payload?: Prisma.JsonValue;
+}
+
+export interface CrmCustomerNoteRecord {
+  id: string;
+  body: string;
+  visibility: string;
+  createdAt: Date;
+  authorName?: string | null;
+}
+
+export interface CrmCustomerProfile extends CrmCustomerListItem {
+  firstName?: string | null;
+  lastName?: string | null;
+  notes: CrmCustomerNoteRecord[];
+  timeline: CrmTimelineItem[];
+  customFields: Array<{ id: string; key: string; label: string; fieldType: string; required: boolean; options?: Prisma.JsonValue }>;
+}
+
+type CrmClient = {
+  customer: {
+    findMany(args: unknown): Promise<CrmCustomerListItem[]>;
+    findFirst(args: unknown): Promise<(CrmCustomerListItem & { firstName?: string | null; lastName?: string | null }) | null>;
+  };
+  customerNote: {
+    findMany(args: unknown): Promise<Array<{ id: string; body: string; visibility: string; createdAt: Date; author?: { displayName?: string | null } | null }>>;
+    create(args: unknown): Promise<{ id: string; body: string; visibility: string; createdAt: Date; author?: { displayName?: string | null } | null }>;
+  };
+  customerTimelineEvent: {
+    findMany(args: unknown): Promise<Array<{ id: string; eventType: string; payload: Prisma.JsonValue; occurredAt: Date }>>;
+    create(args: unknown): Promise<unknown>;
+  };
+  customFieldDefinition: {
+    findMany(args: unknown): Promise<Array<{ id: string; key: string; label: string; fieldType: string; required: boolean; options?: Prisma.JsonValue }>>;
+    create(args: unknown): Promise<unknown>;
+  };
+};
+
+export function createCrmService(client: CrmClient = prisma as unknown as CrmClient) {
+  return {
+    searchCustomers(input: { tenantId: string; query?: string; take?: number }): Promise<CrmCustomerListItem[]> {
+      const search = input.query?.trim();
+      return client.customer.findMany({
+        where: {
+          tenantId: input.tenantId,
+          ...(search
+            ? {
+                OR: [
+                  { displayName: { contains: search, mode: 'insensitive' } },
+                  { email: { contains: search, mode: 'insensitive' } },
+                  { phone: { contains: search, mode: 'insensitive' } },
+                ],
+              }
+            : {}),
+        },
+        select: { id: true, displayName: true, email: true, phone: true, profileKind: true, updatedAt: true },
+        orderBy: { updatedAt: 'desc' },
+        take: input.take ?? 25,
+      });
+    },
+
+    async getCustomerProfile(input: { tenantId: string; customerId: string }): Promise<CrmCustomerProfile | null> {
+      const customer = await client.customer.findFirst({
+        where: { tenantId: input.tenantId, id: input.customerId },
+        select: { id: true, displayName: true, firstName: true, lastName: true, email: true, phone: true, profileKind: true, updatedAt: true },
+      });
+      if (!customer) return null;
+
+      const [notes, events, customFields] = await Promise.all([
+        client.customerNote.findMany({
+          where: { tenantId: input.tenantId, customerId: input.customerId },
+          include: { author: { select: { displayName: true } } },
+          orderBy: { createdAt: 'desc' },
+        }),
+        client.customerTimelineEvent.findMany({
+          where: { tenantId: input.tenantId, customerId: input.customerId, eventType: { not: 'customer.note.created' } },
+          orderBy: { occurredAt: 'desc' },
+        }),
+        client.customFieldDefinition.findMany({ where: { tenantId: input.tenantId, entityType: 'customer', active: true }, orderBy: { position: 'asc' } }),
+      ]);
+
+      const mappedNotes = notes.map(mapCrmNoteRecord);
+      return {
+        ...customer,
+        notes: mappedNotes,
+        customFields,
+        timeline: mergeCrmTimeline(mappedNotes, events),
+      };
+    },
+
+    async addCustomerNote(input: { tenantId: string; customerId: string; authorUserId?: string | null; body: string; visibility?: string }) {
+      const note = await client.customerNote.create({
+        data: {
+          tenantId: input.tenantId,
+          customerId: input.customerId,
+          authorUserId: input.authorUserId,
+          body: input.body,
+          visibility: input.visibility ?? 'internal',
+        },
+      });
+
+      await client.customerTimelineEvent.create({
+        data: {
+          tenantId: input.tenantId,
+          customerId: input.customerId,
+          eventType: 'customer.note.created',
+          aggregateType: 'customer_note',
+          aggregateId: note.id,
+          payload: { body: input.body, visibility: note.visibility },
+        },
+      });
+
+      return note;
+    },
+
+    listCustomFieldDefinitions(input: { tenantId: string }) {
+      return client.customFieldDefinition.findMany({ where: { tenantId: input.tenantId, entityType: 'customer', active: true }, orderBy: { position: 'asc' } });
+    },
+
+    createCustomFieldDefinition(input: { tenantId: string; key: string; label: string; fieldType: string; required?: boolean; options?: Prisma.InputJsonValue; position?: number }) {
+      return client.customFieldDefinition.create({
+        data: {
+          tenantId: input.tenantId,
+          entityType: 'customer',
+          key: input.key,
+          label: input.label,
+          fieldType: input.fieldType,
+          required: input.required ?? false,
+          options: input.options,
+          position: input.position ?? 0,
+          active: true,
+        },
+      });
+    },
+  };
+}
+
+function mapCrmNoteRecord(note: { id: string; body: string; visibility: string; createdAt: Date; author?: { displayName?: string | null } | null }): CrmCustomerNoteRecord {
+  return { id: note.id, body: note.body, visibility: note.visibility, createdAt: note.createdAt, authorName: note.author?.displayName };
+}
+
+function mergeCrmTimeline(
+  notes: CrmCustomerNoteRecord[],
+  events: Array<{ id: string; eventType: string; payload: Prisma.JsonValue; occurredAt: Date }>,
+): CrmTimelineItem[] {
+  const noteItems = notes.map((note) => ({ id: note.id, type: 'customer.note.created', title: 'Note added', body: note.body, occurredAt: note.createdAt }));
+  const eventItems = events.map((event) => ({
+    id: event.id,
+    type: event.eventType,
+    title: event.eventType === 'booking.created' ? 'Appointment booked' : event.eventType,
+    occurredAt: event.occurredAt,
+    payload: event.payload,
+  }));
+  return [...noteItems, ...eventItems].sort((left, right) => right.occurredAt.getTime() - left.occurredAt.getTime());
+}
+
 export function createEventOutboxService(client: EventOutboxClient = prisma) {
   return {
     enqueue<TPayload extends Prisma.InputJsonValue>(event: DomainEventInput<TPayload>) {

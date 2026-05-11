@@ -3,6 +3,7 @@ import {
   BookingConflictError,
   calculateAvailability,
   createAuditLogService,
+  createBookingAdminService,
   createBookingService,
   createEventOutboxService,
   createPublicPageService,
@@ -58,12 +59,13 @@ describe('public page service', () => {
     await expect(service.findPublishedPage({ tenantId: uuid, slug: 'missing' })).resolves.toBeNull();
   });
 
-  it('lists admin pages regardless of publication status', async () => {
+  it('lists admin pages regardless of publication status with tenant isolation', async () => {
     const updatedAt = new Date('2026-01-01T00:00:00Z');
     const findMany = vi.fn(async () => [{ id: uuid, slug: 'home', locale: 'en', title: 'Home', status: 'draft', updatedAt }]);
     const service = createPublicPageService({ publicPage: { findFirst: vi.fn(), findMany, update: vi.fn() } });
 
     await expect(service.listPages({ tenantId: uuid })).resolves.toEqual([{ id: uuid, slug: 'home', locale: 'en', title: 'Home', status: 'draft', updatedAt }]);
+    expect(findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { tenantId: uuid } }));
   });
 });
 
@@ -113,6 +115,24 @@ describe('booking availability engine', () => {
 
     expect(slots.map((slot) => slot.startsAt.toISOString())).toEqual(['2026-05-11T10:00:00.000Z']);
     expect(slots[0]?.resourceId).toBe('large-table');
+  });
+});
+
+describe('booking admin service', () => {
+  it('scopes staff booking lists and service queries to the current tenant', async () => {
+    const serviceFindMany = vi.fn(async () => []);
+    const bookingFindMany = vi.fn(async () => []);
+    const admin = createBookingAdminService({
+      service: { findMany: serviceFindMany, create: vi.fn(), update: vi.fn() },
+      resource: { findMany: vi.fn(async () => []), create: vi.fn(), update: vi.fn() },
+      booking: { findMany: bookingFindMany },
+    });
+
+    await admin.listServices({ tenantId: uuid });
+    await admin.listBookings({ tenantId: uuid, from: new Date('2026-05-11T00:00:00Z'), to: new Date('2026-05-12T00:00:00Z') });
+
+    expect(serviceFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: { tenantId: uuid } }));
+    expect(bookingFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ tenantId: uuid }) }));
   });
 });
 

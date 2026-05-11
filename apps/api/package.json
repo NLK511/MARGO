@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@margo/core": "workspace:*",
-    "@margo/db": "workspace:*"
+    "@margo/db": "workspace:*",
+    "@margo/modules": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.20.6",

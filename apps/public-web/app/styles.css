@@ -235,6 +235,33 @@ a { color: inherit; }
   margin: 0;
 }
 
+.booking-details-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.booking-details-form label {
+  font-weight: 900;
+}
+
+.booking-details-form input {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  color: var(--color-text);
+  font: inherit;
+  padding: 12px 14px;
+}
+
+.form-help,
+.form-error {
+  font-size: 0.92rem;
+  margin: 0 0 8px;
+}
+
+.form-help { color: var(--color-text-muted); }
+.form-error { color: #b91c1c; }
+
 .booking-columns {
   display: grid;
   gap: 18px;

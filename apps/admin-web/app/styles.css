@@ -26,8 +26,55 @@ body {
   font-weight: var(--font-body-weight, 400);
 }
 
-.page-shell {
+.admin-shell {
   min-height: 100vh;
+}
+
+.admin-shell-header {
+  align-items: center;
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  border-bottom: 1px solid var(--color-border);
+  display: grid;
+  gap: 16px;
+  grid-template-columns: auto 1fr auto;
+  padding: 14px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.admin-brand {
+  color: var(--color-primary);
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+
+.admin-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-nav a,
+.admin-user-pill {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 8px 12px;
+  text-decoration: none;
+}
+
+.admin-user-pill {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.page-shell {
+  min-height: calc(100vh - 70px);
   display: grid;
   place-items: center;
   padding: 24px;
@@ -268,7 +315,39 @@ body {
   color: var(--color-text);
 }
 
+.auth-page,
+.empty-state-page {
+  place-items: center;
+}
+
+.module-settings-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.module-settings-row {
+  align-items: center;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr auto;
+  padding: 14px;
+}
+
+.module-settings-row p {
+  color: var(--color-text-muted);
+  margin: 4px 0 0;
+}
+
 @media (max-width: 840px) {
+  .admin-shell-header {
+    align-items: start;
+    grid-template-columns: 1fr;
+  }
+
   .admin-grid {
     grid-template-columns: 1fr;
   }

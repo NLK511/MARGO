@@ -131,6 +131,22 @@ POST   /api/admin/custom-fields
 PATCH  /api/admin/custom-fields/:id
 ```
 
+## MVP Implementation Status
+
+Implemented for MVP:
+
+- Customer search/list service and admin screen.
+- Customer profile service and admin screen.
+- Customer note creation service and profile note form shell.
+- Timeline merge for notes and booking-created events.
+- Clinic labels: Customer/Customers become Patient/Patients and Booking/Bookings become Appointment/Appointments.
+- Basic custom field definition service and settings screen shell.
+
+Deferred post-MVP:
+
+- CSV import with preview/validation.
+- Full custom field value editing on customer profiles.
+
 ## Acceptance Criteria
 
 - Staff can search customers.
@@ -138,7 +154,7 @@ PATCH  /api/admin/custom-fields/:id
 - Staff can add notes.
 - Booking events appear in timeline.
 - Tenant can define custom fields.
-- CSV import works with preview/validation.
+- CSV import works with preview/validation. *(Post-MVP)*
 - Clinic mode can relabel customer as patient.
 
 ---

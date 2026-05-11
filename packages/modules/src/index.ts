@@ -157,11 +157,18 @@ export const coreModuleManifests: ModuleManifest[] = [
     adminRoutes: [
       { path: '/customers', permission: 'crm.customer.read' },
       { path: '/customers/:customerId', permission: 'crm.customer.read' },
+      { path: '/customers/:customerId/notes', permission: 'crm.note.write' },
+      { path: '/crm/custom-fields', permission: 'crm.customer.write' },
     ],
     apiRoutes: [
       { method: 'GET', path: '/api/v1/admin/customers', permission: 'crm.customer.read' },
+      { method: 'GET', path: '/api/v1/admin/customers/:customerId', permission: 'crm.customer.read' },
       { method: 'POST', path: '/api/v1/admin/customers', permission: 'crm.customer.write' },
+      { method: 'GET', path: '/api/v1/admin/customers/:customerId/timeline', permission: 'crm.customer.read' },
+      { method: 'GET', path: '/api/v1/admin/customers/:customerId/notes', permission: 'crm.customer.read' },
       { method: 'POST', path: '/api/v1/admin/customers/:customerId/notes', permission: 'crm.note.write' },
+      { method: 'GET', path: '/api/v1/admin/crm/custom-fields', permission: 'crm.customer.read' },
+      { method: 'POST', path: '/api/v1/admin/crm/custom-fields', permission: 'crm.customer.write' },
     ],
     eventSubscriptions: [{ eventType: 'booking.created', handler: 'appendBookingTimelineEvent' }],
     menuItems: [{ label: 'Customers', path: '/customers', permission: 'crm.customer.read' }],

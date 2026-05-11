@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import Link from 'next/link';
+import { cookies } from 'next/headers';
+import { DEFAULT_DEV_SESSION, getAdminNavigation, parseDevSessionCookie } from './admin-context';
 import './styles.css';
 
 export const metadata: Metadata = {
@@ -7,10 +10,27 @@ export const metadata: Metadata = {
   description: 'Tenant administration surface for MARGO.',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const cookieStore = await cookies();
+  const session = parseDevSessionCookie(cookieStore.get('margo_dev_session')?.value) ?? DEFAULT_DEV_SESSION;
+  const navigation = getAdminNavigation(session);
+
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <div className="admin-shell">
+          <header className="admin-shell-header">
+            <Link className="admin-brand" href="/" aria-label="MARGO admin home">MARGO</Link>
+            <nav className="admin-nav" aria-label="Admin navigation">
+              {navigation.map((item) => <Link key={item.path} href={item.path}>{item.label}</Link>)}
+              {session.enabledModules.includes('booking') ? <Link href="/booking/services">Services</Link> : null}
+              {session.enabledModules.includes('booking') ? <Link href="/booking/resources">Resources</Link> : null}
+            </nav>
+            <div className="admin-user-pill" aria-label="Signed in user">Dev owner · {session.tenantName}</div>
+          </header>
+          {children}
+        </div>
+      </body>
     </html>
   );
 }

@@ -38,6 +38,42 @@ export interface TenantResolutionInput {
 
 export const MARGO_PLATFORM_NAME = 'MARGO';
 
+const PII_KEYS = new Set(['email', 'phone', 'firstName', 'lastName', 'displayName', 'name', 'address']);
+
+export function redactPii<T>(value: T): T | '[redacted]' {
+  if (Array.isArray(value)) {
+    return value.map((item) => redactPii(item)) as T;
+  }
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, nested]) => [key, PII_KEYS.has(key) ? '[redacted]' : redactPii(nested)]),
+    ) as T;
+  }
+  return value;
+}
+
+export function createSafeLogEntry(input: { message: string; metadata?: Record<string, unknown> }) {
+  return { message: input.message, metadata: redactPii(input.metadata ?? {}) };
+}
+
+export function assertCsrfOrNonCookieAuth(input: { method: string; headers: Record<string, string | undefined> }): void {
+  const method = input.method.toUpperCase();
+  if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return;
+  if (input.headers.authorization?.startsWith('Bearer ')) return;
+  const csrfHeader = input.headers['x-margo-csrf-token'];
+  const csrfCookie = input.headers['x-margo-csrf-cookie'];
+  if (!csrfHeader || !csrfCookie || csrfHeader !== csrfCookie) {
+    throw new CsrfProtectionError();
+  }
+}
+
+export class CsrfProtectionError extends Error {
+  constructor() {
+    super('Mutation requests must use bearer auth or a matching CSRF token.');
+    this.name = 'CsrfProtectionError';
+  }
+}
+
 const DEFAULT_LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1']);
 
 export function hasModule(context: Pick<TenantContext, 'enabledModules'>, moduleId: string): boolean {

@@ -1,9 +1,33 @@
 import { describe, expect, it } from 'vitest';
-import { getApiStatus, searchPublicAvailability } from '../src/main';
+import { getAdminMe, getAdminModules, getAdminTenant, getApiStatus, searchPublicAvailability } from '../src/main';
+import type { AdminPrincipal, TenantContext } from '@margo/core';
+
+const tenant: TenantContext = {
+  tenantId: 'tenant-1',
+  slug: 'oak-clinic',
+  displayName: 'Oak Clinic',
+  enabledModules: ['frontpage', 'notifications', 'booking', 'crm'],
+  locale: 'en',
+  timezone: 'Europe/Paris',
+  themePresetId: 'clinical-calm',
+};
+
+const owner: AdminPrincipal = { userId: 'user-1', tenantId: 'tenant-1', roles: ['tenant_owner'] };
 
 describe('api bootstrap', () => {
   it('reports ready status', () => {
     expect(getApiStatus()).toMatchObject({ service: 'margo-api', status: 'ready' });
+  });
+
+  it('exposes admin me, tenant, and module settings helpers', () => {
+    expect(getAdminMe({ principal: owner, tenant }).permissions).toContain('tenant.modules.manage');
+    expect(getAdminTenant({ principal: owner, tenant })).toMatchObject({ slug: 'oak-clinic', displayName: 'Oak Clinic' });
+    expect(getAdminModules({ principal: owner, tenant }).map((module) => module.id)).toEqual(['frontpage', 'notifications', 'booking', 'crm']);
+    expect(getAdminModules({ principal: owner, tenant }).find((module) => module.id === 'booking')?.menuItems).toHaveLength(1);
+  });
+
+  it('denies admin APIs for another tenant', () => {
+    expect(() => getAdminMe({ principal: { ...owner, tenantId: 'other-tenant' }, tenant })).toThrow('Principal cannot access this tenant.');
   });
 
   it('exposes public availability search', () => {

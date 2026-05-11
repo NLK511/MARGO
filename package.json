@@ -9,6 +9,7 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "test": "turbo test",
+    "e2e": "vitest run tests/e2e --passWithNoTests",
     "format:check": "prettier --check .",
     "db:migrate": "pnpm --filter @margo/db db:migrate",
     "db:seed": "pnpm --filter @margo/db db:seed"

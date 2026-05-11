@@ -1,3 +1,4 @@
+import React from 'react';
 import { calculateAvailability } from '@margo/db';
 
 const restaurantSlots = calculateAvailability({
@@ -28,7 +29,17 @@ export default function PublicBookingPage() {
         <h1>Choose a time</h1>
         <p>Public booking flow MVP with availability-backed slot choices and idempotent booking submission handled by the API layer.</p>
 
-        <div className="booking-columns">
+        <form className="booking-details-form" aria-label="Booking details" noValidate>
+          <label htmlFor="customerName">Your name</label>
+          <input id="customerName" name="customerName" aria-invalid="false" aria-describedby="name-help" autoComplete="name" required />
+          <p id="name-help" className="form-help">Required so staff can identify the reservation.</p>
+
+          <label htmlFor="customerEmail">Email</label>
+          <input id="customerEmail" name="customerEmail" type="email" aria-invalid="true" aria-describedby="email-error" autoComplete="email" required />
+          <p id="email-error" className="form-error" role="alert">Enter a valid email address before submitting.</p>
+        </form>
+
+        <div className="booking-columns" aria-live="polite">
           <SlotList title="Restaurant smoke" slots={restaurantSlots} confirmationToken="restaurant-demo" />
           <SlotList title="Clinic smoke" slots={clinicSlots} confirmationToken="clinic-demo" />
         </div>

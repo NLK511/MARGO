@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { demoFrontpage } from './demo-frontpage';
 import { FrontpageShell } from './frontpage';
+import PublicBookingPage from './booking/page';
 
 describe('frontpage rendering', () => {
   it('renders a frontpage-only tenant without booking or CRM links', () => {
@@ -20,5 +21,14 @@ describe('frontpage rendering', () => {
 
     expect(css).toContain('@media (max-width: 720px)');
     expect(css).toContain('grid-template-columns: 1fr;');
+  });
+
+  it('renders booking form labels and accessible error messaging', () => {
+    const html = renderToStaticMarkup(<PublicBookingPage />);
+
+    expect(html).toContain('aria-label="Booking details"');
+    expect(html).toContain('for="customerName"');
+    expect(html).toContain('role="alert"');
+    expect(html).toContain('aria-live="polite"');
   });
 });

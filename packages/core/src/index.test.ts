@@ -9,6 +9,9 @@ import {
   guardAdminPermission,
   PermissionDeniedError,
   requirePermission,
+  assertCsrfOrNonCookieAuth,
+  CsrfProtectionError,
+  createSafeLogEntry,
   TenantAccessDeniedError,
   UnauthenticatedError,
   resolveTenantContext,
@@ -133,5 +136,24 @@ describe('branded errors', () => {
       'editorial-bistro',
     );
     expect(brandedForbidden({ ...tenants.clinic!, resolutionMethod: 'custom-domain' }).status).toBe(403);
+  });
+});
+
+describe('hardening helpers', () => {
+  it('redacts PII from safe log entries recursively', () => {
+    const entry = createSafeLogEntry({
+      message: 'booking.created',
+      metadata: { customer: { email: 'guest@example.com', phone: '+331', id: 'cus_1' }, status: 'confirmed' },
+    });
+
+    expect(entry.metadata).toEqual({ customer: { email: '[redacted]', phone: '[redacted]', id: 'cus_1' }, status: 'confirmed' });
+  });
+
+  it('allows bearer-auth mutations and rejects cookie mutations without CSRF', () => {
+    expect(() => assertCsrfOrNonCookieAuth({ method: 'POST', headers: { authorization: 'Bearer dev' } })).not.toThrow();
+    expect(() =>
+      assertCsrfOrNonCookieAuth({ method: 'PATCH', headers: { 'x-margo-csrf-token': 'a', 'x-margo-csrf-cookie': 'a' } }),
+    ).not.toThrow();
+    expect(() => assertCsrfOrNonCookieAuth({ method: 'DELETE', headers: {} })).toThrow(CsrfProtectionError);
   });
 });

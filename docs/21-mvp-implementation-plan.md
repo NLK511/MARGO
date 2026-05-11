@@ -180,20 +180,20 @@ Goal: staff can manage customers and see booking history.
 
 Checklist:
 
-- [ ] Define CRM module manifest with routes and permissions.
-- [ ] Implement customer search/list API and UI.
-- [ ] Implement customer profile API and UI.
-- [ ] Implement customer note create/list API and UI.
-- [ ] Implement timeline query with booking and note events.
-- [ ] Implement clinic labels: Patient/Patients, Appointment/Appointments.
-- [ ] Implement custom field schema basics if time allows; otherwise persist as post-MVP P1 item with documented omission.
+- [x] Define CRM module manifest with routes and permissions.
+- [x] Implement customer search/list API and UI.
+- [x] Implement customer profile API and UI.
+- [x] Implement customer note create/list API and UI.
+- [x] Implement timeline query with booking and note events.
+- [x] Implement clinic labels: Patient/Patients, Appointment/Appointments.
+- [x] Implement custom field schema basics if time allows; otherwise persist as post-MVP P1 item with documented omission.
 
 Acceptance checks:
 
-- [ ] Staff can search customers.
-- [ ] Staff can add a note.
-- [ ] Booking-created timeline event appears on customer profile.
-- [ ] Clinic tenant displays patient labels.
+- [x] Staff can search customers.
+- [x] Staff can add a note.
+- [x] Booking-created timeline event appears on customer profile.
+- [x] Clinic tenant displays patient labels.
 
 ## Milestone 7 — Admin Shell and Operations MVP
 
@@ -201,19 +201,19 @@ Goal: tenant users can operate the MVP safely.
 
 Checklist:
 
-- [ ] Implement dev/admin login flow.
-- [ ] Implement admin shell navigation based on enabled modules and RBAC.
-- [ ] Implement `/admin/me`, `/admin/tenant`, `/admin/modules` APIs.
-- [ ] Implement tenant module settings read UI.
-- [ ] Implement module route guards in admin app.
-- [ ] Add empty/loading/error states for core screens.
-- [ ] Add responsive admin layout.
+- [x] Implement dev/admin login flow.
+- [x] Implement admin shell navigation based on enabled modules and RBAC.
+- [x] Implement `/admin/me`, `/admin/tenant`, `/admin/modules` APIs.
+- [x] Implement tenant module settings read UI.
+- [x] Implement module route guards in admin app.
+- [x] Add empty/loading/error states for core screens.
+- [x] Add responsive admin layout.
 
 Acceptance checks:
 
-- [ ] RBAC prevents unauthorized actions server-side.
-- [ ] Module-disabled admin routes are inaccessible.
-- [ ] Admin shell works on mobile viewport.
+- [x] RBAC prevents unauthorized actions server-side.
+- [x] Module-disabled admin routes are inaccessible.
+- [x] Admin shell works on mobile viewport.
 
 ## Milestone 8 — Testing, Accessibility, and Hardening
 
@@ -221,38 +221,38 @@ Goal: make the MVP reliable enough for demos and iteration.
 
 Checklist:
 
-- [ ] Add unit test suite for core services.
-- [ ] Add integration tests for tenant-isolated queries.
-- [ ] Add E2E smoke suite for required MVP scenarios.
-- [ ] Add accessibility checks for public homepage and booking form.
-- [ ] Add form validation and accessible error messages.
-- [ ] Ensure PII is not logged by app logger.
-- [ ] Ensure mutation endpoints enforce CSRF or non-cookie auth constraints.
-- [ ] Document local development commands.
-- [ ] Document known MVP limitations.
+- [x] Add unit test suite for core services.
+- [x] Add integration tests for tenant-isolated queries.
+- [x] Add E2E smoke suite for required MVP scenarios.
+- [x] Add accessibility checks for public homepage and booking form.
+- [x] Add form validation and accessible error messages.
+- [x] Ensure PII is not logged by app logger.
+- [x] Ensure mutation endpoints enforce CSRF or non-cookie auth constraints.
+- [x] Document local development commands.
+- [x] Document known MVP limitations.
 
 Acceptance checks:
 
-- [ ] `pnpm lint` passes.
-- [ ] `pnpm typecheck` passes.
-- [ ] `pnpm test` passes.
-- [ ] `pnpm e2e` passes locally or in CI environment.
-- [ ] `pnpm build` passes.
+- [x] `pnpm lint` passes.
+- [x] `pnpm typecheck` passes.
+- [x] `pnpm test` passes.
+- [x] `pnpm e2e` passes locally or in CI environment.
+- [x] `pnpm build` passes.
 
 ## MVP Completion Criteria
 
 The MVP is complete only when all of these are checked:
 
-- [ ] Three seed tenants are available and documented.
-- [ ] Public homepage works for all seed tenants.
-- [ ] Frontpage-only tenant has no booking/CRM links or routes.
-- [ ] Restaurant booking demo works end-to-end.
-- [ ] Clinic booking + CRM demo works end-to-end.
-- [ ] Tenant owner can change theme preset and preview public page.
-- [ ] Staff can view bookings and customers.
-- [ ] Staff can add customer notes.
-- [ ] RBAC and tenant isolation are tested.
-- [ ] All core commands pass: install, lint, typecheck, test, build, E2E smoke.
+- [x] Three seed tenants are available and documented.
+- [x] Public homepage works for all seed tenants.
+- [x] Frontpage-only tenant has no booking/CRM links or routes.
+- [x] Restaurant booking demo works end-to-end.
+- [x] Clinic booking + CRM demo works end-to-end.
+- [x] Tenant owner can change theme preset and preview public page.
+- [x] Staff can view bookings and customers.
+- [x] Staff can add customer notes.
+- [x] RBAC and tenant isolation are tested.
+- [x] All core commands pass: install, lint, typecheck, test, build, E2E smoke.
 
 ## How to Maintain This Plan
 
