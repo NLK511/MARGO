@@ -1,7 +1,36 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createAuditLogService, createEventOutboxService } from './index';
+import { createAuditLogService, createEventOutboxService, createTenantBrandingService } from './index';
 
 const uuid = '00000000-0000-4000-a000-000000000001';
+
+describe('tenant branding service', () => {
+  it('persists tenant theme preset and overrides', () => {
+    const upsert = vi.fn((args: unknown) => args);
+    const service = createTenantBrandingService({ tenantBranding: { upsert } });
+
+    service.saveTheme({
+      tenantId: uuid,
+      themePresetId: 'organic-wellness',
+      themeOverrides: { colors: { primary: '#111111' } },
+      layoutConfig: { nav: 'minimal' },
+    });
+
+    expect(upsert).toHaveBeenCalledWith({
+      where: { tenantId: uuid },
+      update: {
+        themePresetId: 'organic-wellness',
+        themeOverrides: { colors: { primary: '#111111' } },
+        layoutConfig: { nav: 'minimal' },
+      },
+      create: {
+        tenantId: uuid,
+        themePresetId: 'organic-wellness',
+        themeOverrides: { colors: { primary: '#111111' } },
+        layoutConfig: { nav: 'minimal' },
+      },
+    });
+  });
+});
 
 describe('event outbox service', () => {
   it('creates durable pending domain events', () => {

@@ -108,6 +108,44 @@ type AuditLogClient = {
   };
 };
 
+type TenantBrandingClient = {
+  tenantBranding: {
+    upsert(args: {
+      where: { tenantId: string };
+      update: Prisma.TenantBrandingUncheckedUpdateInput;
+      create: Prisma.TenantBrandingUncheckedCreateInput;
+    }): unknown;
+  };
+};
+
+export interface TenantThemePersistenceInput {
+  tenantId: string;
+  themePresetId: string;
+  themeOverrides?: Prisma.InputJsonObject;
+  layoutConfig?: Prisma.InputJsonObject;
+}
+
+export function createTenantBrandingService(client: TenantBrandingClient = prisma) {
+  return {
+    saveTheme(input: TenantThemePersistenceInput) {
+      return client.tenantBranding.upsert({
+        where: { tenantId: input.tenantId },
+        update: {
+          themePresetId: input.themePresetId,
+          themeOverrides: input.themeOverrides ?? {},
+          layoutConfig: input.layoutConfig ?? {},
+        },
+        create: {
+          tenantId: input.tenantId,
+          themePresetId: input.themePresetId,
+          themeOverrides: input.themeOverrides ?? {},
+          layoutConfig: input.layoutConfig ?? {},
+        },
+      });
+    },
+  };
+}
+
 export function createEventOutboxService(client: EventOutboxClient = prisma) {
   return {
     enqueue<TPayload extends Prisma.InputJsonValue>(event: DomainEventInput<TPayload>) {

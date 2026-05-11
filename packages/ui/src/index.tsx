@@ -17,7 +17,7 @@ export function ShellCard({
         borderRadius: 'var(--radius-md)',
         background: 'var(--color-surface)',
         padding: '32px',
-        boxShadow: '0 18px 60px rgb(15 23 42 / 0.08)',
+        boxShadow: 'var(--shadow-card, 0 18px 60px rgb(15 23 42 / 0.08))',
       }}
     >
       <p
@@ -32,7 +32,17 @@ export function ShellCard({
       >
         {eyebrow}
       </p>
-      <h1 style={{ fontSize: 'clamp(2rem, 6vw, 4rem)', lineHeight: 1, margin: '0 0 16px' }}>{title}</h1>
+      <h1
+        style={{
+          fontFamily: 'var(--font-display, var(--font-sans))',
+          fontSize: 'clamp(2rem, 6vw, 4rem)',
+          fontWeight: 'var(--font-heading-weight, 700)',
+          lineHeight: 1,
+          margin: '0 0 16px',
+        }}
+      >
+        {title}
+      </h1>
       <div style={{ fontSize: '1.1rem', lineHeight: 1.7 }}>{children}</div>
     </section>
   );

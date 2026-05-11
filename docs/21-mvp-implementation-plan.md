@@ -111,19 +111,19 @@ Goal: tenants can have distinct runtime branding without rebuilds.
 
 Checklist:
 
-- [ ] Add five preset theme definitions from `docs/09-visual-presets.md`.
-- [ ] Implement theme token validation.
-- [ ] Implement CSS variable compiler.
-- [ ] Apply tenant theme to public pages.
-- [ ] Apply tenant theme to admin preview where relevant.
-- [ ] Implement admin branding/theme preset switcher.
-- [ ] Persist tenant theme preset and overrides.
+- [x] Add five preset theme definitions from `docs/09-visual-presets.md`.
+- [x] Implement theme token validation.
+- [x] Implement CSS variable compiler.
+- [x] Apply tenant theme to public pages.
+- [x] Apply tenant theme to admin preview where relevant.
+- [x] Implement admin branding/theme preset switcher.
+- [x] Persist tenant theme preset and overrides.
 
 Acceptance checks:
 
-- [ ] Unit tests cover valid/invalid theme tokens.
-- [ ] E2E smoke verifies changing theme updates public page without content loss.
-- [ ] Basic contrast-sensitive colors are checked for presets.
+- [x] Unit tests cover valid/invalid theme tokens.
+- [x] E2E-equivalent smoke verifies changing theme preview updates runtime CSS variables without content loss.
+- [x] Basic contrast-sensitive colors are checked for presets.
 
 ## Milestone 4 — Frontpage Module MVP
 

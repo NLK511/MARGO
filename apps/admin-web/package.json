@@ -12,6 +12,7 @@
   "dependencies": {
     "@margo/core": "workspace:*",
     "@margo/modules": "workspace:*",
+    "@margo/themes": "workspace:*",
     "@margo/ui": "workspace:*",
     "next": "^15.5.6",
     "react": "^19.1.0",

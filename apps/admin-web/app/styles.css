@@ -1,12 +1,18 @@
 :root {
   color-scheme: light;
-  --color-bg: #f8f1e8;
-  --color-text: #2f231b;
-  --color-primary: #8b3d1f;
-  --color-surface: #fff9f1;
-  --color-border: #d7c2ae;
+  --color-bg: #f7fafc;
+  --color-text: #10233a;
+  --color-text-muted: #5a6b7b;
+  --color-primary: #2d7dd2;
+  --color-primary-contrast: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-alt: #eef6f8;
+  --color-border: #d7e3ea;
   --radius-md: 16px;
+  --shadow-card: 0 18px 60px rgb(15 23 42 / 0.08);
   --font-sans: Inter, system-ui, sans-serif;
+  --font-display: Inter, system-ui, sans-serif;
+  --font-heading-weight: 700;
 }
 
 * { box-sizing: border-box; }
@@ -17,6 +23,7 @@ body {
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
+  font-weight: var(--font-body-weight, 400);
 }
 
 .page-shell {
@@ -24,4 +31,91 @@ body {
   display: grid;
   place-items: center;
   padding: 24px;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 24px;
+  width: min(100%, 1120px);
+}
+
+.theme-preview-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.theme-switcher {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+}
+
+.theme-switcher label {
+  font-weight: 800;
+}
+
+.theme-switcher select {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  color: var(--color-text);
+  font: inherit;
+  padding: 12px 14px;
+}
+
+.form-help {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.theme-preview {
+  align-self: stretch;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 360px;
+  padding: 32px;
+}
+
+.theme-preview h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: var(--font-heading-weight);
+  line-height: 1;
+  margin: 0 0 16px;
+}
+
+.preview-eyebrow {
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.theme-preview button {
+  align-self: flex-start;
+  background: var(--color-primary);
+  border: 0;
+  border-radius: 999px;
+  color: var(--color-primary-contrast);
+  font: inherit;
+  font-weight: 800;
+  margin-top: 20px;
+  padding: 12px 18px;
+}
+
+@media (max-width: 840px) {
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
 }
