@@ -16,6 +16,14 @@ describe('frontpage rendering', () => {
     expect(html).not.toContain('Client portal');
   });
 
+  it('preserves tenant context in public booking links', () => {
+    const model = { ...demoFrontpage, tenant: { ...demoFrontpage.tenant, slug: 'oak-clinic', enabledModules: ['frontpage', 'booking', 'crm'] } };
+    const html = renderToStaticMarkup(<FrontpageShell model={model} />);
+
+    expect(html).toContain('/t/oak-clinic/booking');
+    expect(html).not.toContain('href="/booking"');
+  });
+
   it('keeps a mobile layout smoke rule for narrow screens', () => {
     const css = readFileSync(join(process.cwd(), 'app/styles.css'), 'utf8');
 
@@ -26,9 +34,11 @@ describe('frontpage rendering', () => {
   it('renders booking form labels and accessible error messaging', () => {
     const html = renderToStaticMarkup(<PublicBookingPage />);
 
+    expect(html).toContain('data-tenant="oak-clinic"');
     expect(html).toContain('aria-label="Booking details"');
     expect(html).toContain('for="customerName"');
     expect(html).toContain('role="alert"');
     expect(html).toContain('aria-live="polite"');
+    expect(html).not.toContain('Dinner reservation');
   });
 });

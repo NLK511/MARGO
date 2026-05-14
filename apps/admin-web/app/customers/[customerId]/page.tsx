@@ -1,23 +1,31 @@
+import { notFound } from 'next/navigation';
 import { ShellCard } from '@margo/ui';
 import { getCrmLabels } from '@margo/db';
+import { getTenantAdminDemoData } from '../../admin-context';
+import { getCurrentDevSession } from '../../session';
 
 type CustomerProfileProps = { params: Promise<{ customerId: string }> };
 
-const labels = getCrmLabels({ profileKind: 'patient' });
-const timeline = [
-  { id: 'booking-created', title: `${labels.bookingSingular} booked`, body: 'Initial consultation · 09:00', when: 'Today' },
-  { id: 'seed-note', title: 'Note added', body: 'Seed note for clinic CRM demo.', when: 'Yesterday' },
-];
-
 export default async function CustomerProfilePage({ params }: CustomerProfileProps) {
   const { customerId } = await params;
+  const session = await getCurrentDevSession();
+  const labels = getCrmLabels({ profileKind: session.tenantSlug === 'oak-clinic' ? 'patient' : 'customer' });
+  const data = getTenantAdminDemoData(session);
+  const customer = data.customers.find((item) => item.id === customerId);
+  if (!customer) notFound();
+
+  const timeline = [
+    { id: 'booking-created', title: `${labels.bookingSingular} booked`, body: `${data.bookings[0]?.service ?? 'Demo booking'} · ${data.bookings[0]?.time ?? '09:00'}`, when: 'Today' },
+    { id: 'seed-note', title: 'Note added', body: `Seed note for ${session.tenantName} CRM demo.`, when: 'Yesterday' },
+  ];
+
   return (
     <main className="page-shell admin-page-shell">
       <section className="admin-stack profile-layout">
-        <ShellCard eyebrow="CRM" title={`Demo ${labels.singular}`}>
-          <p>{labels.singular} ID: {customerId}</p>
-          <p>Email: patient@oakclinic.example</p>
-          <p>Phone: +33 1 23 45 67 89</p>
+        <ShellCard eyebrow="CRM" title={customer.name}>
+          <p>{labels.singular} ID: {customer.id}</p>
+          <p>Email: {customer.email}</p>
+          <p>Phone: {customer.phone}</p>
         </ShellCard>
 
         <form className="editor-form note-form" aria-label={`Add ${labels.singular.toLowerCase()} note`}>

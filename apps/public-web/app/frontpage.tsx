@@ -27,14 +27,14 @@ export function FrontpageShell({ model }: { model: TenantFrontpageModel }) {
         <nav>
           <a href="#services">Services</a>
           <a href="#location">Location</a>
-          {hasBooking ? <a href="/booking">Booking</a> : null}
+          {hasBooking ? <a href={`/t/${model.tenant.slug}/booking`}>Booking</a> : null}
           {hasCrm ? <a href="/portal">Client portal</a> : null}
         </nav>
       </header>
 
       <article className="frontpage-content" aria-label={model.page.title}>
         {model.page.blocks.map((block) => (
-          <FrontpageBlock key={block.id} block={block} services={model.page.services} locations={model.page.locations} hasBooking={hasBooking} />
+          <FrontpageBlock key={block.id} block={block} services={model.page.services} locations={model.page.locations} hasBooking={hasBooking} tenantSlug={model.tenant.slug} />
         ))}
       </article>
     </main>
@@ -59,11 +59,13 @@ function FrontpageBlock({
   services,
   locations,
   hasBooking,
+  tenantSlug,
 }: {
   block: PublicPageBlockRecord;
   services: PublicPageServiceRecord[];
   locations: PublicPageLocationRecord[];
   hasBooking: boolean;
+  tenantSlug: string;
 }) {
   const props = toRecord(block.props);
 
@@ -75,7 +77,7 @@ function FrontpageBlock({
           <h1>{stringProp(props, 'headline', 'Welcome')}</h1>
           <p>{stringProp(props, 'body', '')}</p>
           <div className="hero-actions">
-            <a className="primary-action" href={hasBooking ? '/booking' : '#contact'}>
+            <a className="primary-action" href={hasBooking ? `/t/${tenantSlug}/booking` : '#contact'}>
               {stringProp(props, 'ctaLabel', hasBooking ? 'Book now' : 'Contact us')}
             </a>
           </div>
@@ -116,7 +118,7 @@ function FrontpageBlock({
         <section className="block cta-block">
           <h2>{stringProp(props, 'title', 'Ready to start?')}</h2>
           <p>{stringProp(props, 'body', 'Get in touch with our team today.')}</p>
-          <a className="primary-action" href={hasBooking ? '/booking' : '#contact'}>
+          <a className="primary-action" href={hasBooking ? `/t/${tenantSlug}/booking` : '#contact'}>
             {stringProp(props, 'label', hasBooking ? 'Book now' : 'Contact us')}
           </a>
         </section>

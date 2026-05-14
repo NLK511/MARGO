@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { cookies } from 'next/headers';
-import { DEFAULT_DEV_SESSION, getAdminNavigation, parseDevSessionCookie } from './admin-context';
+import { getAdminNavigation } from './admin-context';
+import { getCurrentDevSession } from './session';
 import './styles.css';
 
 export const metadata: Metadata = {
@@ -11,8 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const cookieStore = await cookies();
-  const session = parseDevSessionCookie(cookieStore.get('margo_dev_session')?.value) ?? DEFAULT_DEV_SESSION;
+  const session = await getCurrentDevSession();
   const navigation = getAdminNavigation(session);
 
   return (

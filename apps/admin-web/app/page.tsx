@@ -1,11 +1,10 @@
-import { cookies } from 'next/headers';
 import { ShellCard } from '@margo/ui';
-import { DEFAULT_DEV_SESSION, getModuleSettings, parseDevSessionCookie } from './admin-context';
+import { getModuleSettings } from './admin-context';
+import { getCurrentDevSession } from './session';
 import { ThemePresetSwitcher } from './theme-preset-switcher';
 
 export default async function AdminHomePage() {
-  const cookieStore = await cookies();
-  const session = parseDevSessionCookie(cookieStore.get('margo_dev_session')?.value) ?? DEFAULT_DEV_SESSION;
+  const session = await getCurrentDevSession();
   const modules = getModuleSettings(session);
 
   return (

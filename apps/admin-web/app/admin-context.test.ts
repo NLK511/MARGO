@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createDevSession, getAdminNavigation, getModuleSettings, isAdminRouteAllowed, parseDevSessionCookie, serializeDevSessionCookie } from './admin-context';
+import { createDevSession, getAdminNavigation, getModuleSettings, getTenantAdminDemoData, isAdminRouteAllowed, parseDevSessionCookie, serializeDevSessionCookie } from './admin-context';
 
 describe('admin dev auth and module guards', () => {
   it('round-trips the dev login cookie without losing tenant modules', () => {
@@ -30,5 +30,15 @@ describe('admin dev auth and module guards', () => {
     const settings = getModuleSettings(createDevSession('table-and-co'));
     expect(settings.find((module) => module.id === 'booking')?.enabled).toBe(true);
     expect(settings.find((module) => module.id === 'crm')?.enabled).toBe(false);
+  });
+
+  it('keeps demo admin data strictly scoped to the signed-in tenant', () => {
+    const clinicData = getTenantAdminDemoData(createDevSession('oak-clinic'));
+    const restaurantData = getTenantAdminDemoData(createDevSession('table-and-co'));
+
+    expect(clinicData.bookings.map((booking) => booking.service)).toEqual(['Initial consultation']);
+    expect(clinicData.bookings.map((booking) => booking.service)).not.toContain('Dinner reservation');
+    expect(restaurantData.customers).toEqual([]);
+    expect(restaurantData.resources.map((resource) => resource.name)).not.toContain('Dr. Ada Martin');
   });
 });

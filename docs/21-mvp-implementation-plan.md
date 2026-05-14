@@ -254,6 +254,10 @@ The MVP is complete only when all of these are checked:
 - [x] RBAC and tenant isolation are tested.
 - [x] All core commands pass: install, lint, typecheck, test, build, E2E smoke.
 
+## MVP Correction Log
+
+- [x] 2026-05-11: Fixed demo admin/public surfaces that used mixed static tenant data. Requirement confirmed: non-platform admin users must only see the tenant bound to their authenticated session, and public booking links must preserve tenant context.
+
 ## How to Maintain This Plan
 
 - Before starting a task, change its checkbox from `[ ]` to `[~]`.

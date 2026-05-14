@@ -1,9 +1,8 @@
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { DEFAULT_DEV_SESSION, getModuleSettings, parseDevSessionCookie } from '../../admin-context';
+import { getModuleSettings } from '../../admin-context';
+import { getCurrentDevSession } from '../../session';
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const session = parseDevSessionCookie(cookieStore.get('margo_dev_session')?.value) ?? DEFAULT_DEV_SESSION;
+  const session = await getCurrentDevSession();
   return NextResponse.json({ modules: getModuleSettings(session) });
 }
