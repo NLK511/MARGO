@@ -17,7 +17,7 @@ pnpm stop
 pnpm deploy
 ```
 
-Run them as your normal user, not with sudo.
+Run them as your normal user, not with sudo. Docker must already be available to your user.
 
 Apps:
 

@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if [[ ${EUID:-$(id -u)} -eq 0 ]]; then
-  echo "Do not run pnpm deploy with sudo. Use a regular user; the stack script will sudo docker when needed." >&2
+  echo "Do not run pnpm deploy with sudo." >&2
   exit 1
 fi
 

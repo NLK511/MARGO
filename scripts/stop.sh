@@ -6,7 +6,7 @@ PID_DIR="$ROOT_DIR/.margo/pids"
 COMPOSE_FILE="$ROOT_DIR/infra/docker-compose.yml"
 
 if [[ ${EUID:-$(id -u)} -eq 0 ]]; then
-  echo "Do not run pnpm stop with sudo. The script uses sudo only for docker when needed." >&2
+  echo "Do not run pnpm stop with sudo." >&2
   exit 1
 fi
 
@@ -50,13 +50,16 @@ stop_matching_processes "admin-web" "$ROOT_DIR/apps/admin-web/.+next dev.+--port
 stop_matching_processes "public-web" "$ROOT_DIR/apps/public-web/.+next dev.+--port 3000"
 stop_matching_processes "api" "$ROOT_DIR/apps/api/.+(tsx|vite|node|next).+3002"
 
-if command -v docker >/dev/null 2>&1; then
-  if docker info >/dev/null 2>&1; then
-    docker compose -f "$COMPOSE_FILE" down
-  elif command -v sudo >/dev/null 2>&1; then
-    sudo docker compose -f "$COMPOSE_FILE" down
-  fi
+if ! command -v docker >/dev/null 2>&1; then
+  echo "docker is required to stop the local stack" >&2
+  exit 1
 fi
+if ! docker info >/dev/null 2>&1; then
+  echo "docker daemon is not available to stop the local stack" >&2
+  exit 1
+fi
+
+docker compose -f "$COMPOSE_FILE" down
 
 rm -rf "$PID_DIR" "$ROOT_DIR/.margo/logs"
 

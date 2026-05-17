@@ -7,7 +7,7 @@ LOG_DIR="$ROOT_DIR/.margo/logs"
 COMPOSE_FILE="$ROOT_DIR/infra/docker-compose.yml"
 
 if [[ ${EUID:-$(id -u)} -eq 0 ]]; then
-  echo "Do not run pnpm start with sudo. The script uses sudo only for docker when needed." >&2
+  echo "Do not run pnpm start with sudo." >&2
   exit 1
 fi
 
@@ -41,13 +41,13 @@ start_background() {
 }
 
 DOCKER_COMPOSE=(docker compose)
+if ! command -v docker >/dev/null 2>&1; then
+  echo "docker is required for the local stack" >&2
+  exit 1
+fi
 if ! docker info >/dev/null 2>&1; then
-  if command -v sudo >/dev/null 2>&1; then
-    DOCKER_COMPOSE=(sudo docker compose)
-  else
-    echo "docker is required for the local stack" >&2
-    exit 1
-  fi
+  echo "docker daemon is not available for the local stack" >&2
+  exit 1
 fi
 
 docker_compose() {
