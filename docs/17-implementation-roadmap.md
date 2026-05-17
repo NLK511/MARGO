@@ -6,6 +6,8 @@ The builder/studio is an internal asset. Customers receive tenant-specific publi
 
 ## Phase 0: Terminology and Permission Baseline
 
+See also `docs/22-ui-ux-refactoring-spec.md` for the design-system and builder-constraining refactor.
+
 Deliverables:
 
 - rename product concepts in specs and UI copy where needed:

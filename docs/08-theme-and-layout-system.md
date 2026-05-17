@@ -120,62 +120,18 @@ interface LayoutConfig {
 }
 ```
 
-## Branding-Level Defaults
+## Refactor Note
 
-Tenant branding must be able to define reusable defaults for content blocks, including:
+The UI/UX refactor target is defined in `docs/22-ui-ux-refactoring-spec.md`.
 
-- margin presets and explicit margin size values
-- padding presets
-- interline presets
-- font family defaults
-- font size defaults
-- font color defaults
-- navigation item gap presets
-- title font family, size, and color defaults
+That spec supersedes the old assumption that tenant builders should control raw margins, padding, font sizes, per-heading typography, arbitrary colors, custom CSS, and other low-level visual primitives in standard mode.
 
-Blocks inherit these values unless explicitly overridden at block level.
-Margin controls should offer a smooth scale from very small to the existing standard size, and zero/very small values must persist correctly through save and preview.
-Navigation chrome must not inherit block margins; the menu bar keeps its own spacing model and only uses its own gap/padding controls.
+Current direction:
 
-## Tenant Builder Customization UI
-
-Tenant admins/builders can change:
-
-- logo
-- favicon
-- primary colors
-- theme preset
-- font pair
-- surface style and corner radius
-- button style
-- nav layout
-- sticky menu toggle
-- side margins / full width
-- homepage block order
-- hero variant
-- classic vs refined editorial homepage presentation
-- logo / logotype / favicon
-- font selection per body, display, H1, H2, H3, and paragraph text
-- block text styling through one shared text settings component
-- numeric font size controls for block text
-- text alignment buttons for block text
-- optional background images for page, hero, and cards/surfaces
-- section rhythm and section dividers
-- menu item spacing
-- CTA style
-- dark/light preference where preset supports it
-
-The admin preview must expose desktop / tablet / mobile viewports.
-
-## Acceptance Criteria
-
-- Theme switch does not require rebuild.
-- Tenant overrides are persisted.
-- Theme tokens are validated before save.
-- All presets meet contrast requirements.
-- Blocks render correctly under every preset.
-- Admin preview shows desktop/tablet/mobile.
-- Block registry stays small and intentional; specialized content should prefer presets over new block types.
+- Global Admin owns reusable theme families, versions, recipes, and token systems.
+- Tenant Builder standard mode is content-first and curated.
+- Advanced design controls, if any, are explicit, token-only, and gated.
+- Public runtime continues to consume theme/layout output, but via constrained design tokens.
 
 ---
 

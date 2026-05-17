@@ -167,6 +167,8 @@ Needs:
 
 ## Theme, Branding, and Templates
 
+See `docs/22-ui-ux-refactoring-spec.md` for the refactor target that constrains tenant-facing design controls and introduces Global Admin Theme Studio / Tenant Builder modes.
+
 ### Theme
 
 A reusable white-label visual preset.
