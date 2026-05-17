@@ -86,14 +86,25 @@ describe('frontpage rendering', () => {
     expect(html).toContain('data-nav-sticky="false"');
   });
 
-  it('supports removing side margins with full width', () => {
+  it('supports removing side margins with full width while preserving top nav gutters and block padding', () => {
     const themed = {
       ...demoFrontpage,
-      tenant: { ...demoFrontpage.tenant, layoutConfig: { ...demoFrontpage.tenant.layoutConfig, contentWidth: 'full' } },
+      tenant: {
+        ...demoFrontpage.tenant,
+        layoutConfig: {
+          ...demoFrontpage.tenant.layoutConfig,
+          nav: 'top',
+          contentWidth: 'full',
+          menuDefaults: { margin: '0 clamp(18px, 4vw, 48px)' },
+          blockDefaults: { spacing: { padding: '2rem' } },
+        },
+      },
     };
     const html = renderToStaticMarkup(<FrontpageShell model={themed} />);
 
     expect(html).toContain('data-content-width="full"');
+    expect(html).toContain('margin:0 clamp(18px, 4vw, 48px)');
+    expect(html).toContain('--block-padding:2rem');
   });
 
   it('propagates saved branding assets, typography, and background images to public runtime CSS variables', () => {
@@ -261,7 +272,7 @@ describe('frontpage rendering', () => {
     const html = renderToStaticMarkup(<FrontpageShell model={model} />);
     const headerStyle = html.match(/<header[^>]*style="([^"]+)"/);
 
-    expect(headerStyle?.[1] ?? '').not.toContain(';margin:4rem');
+    expect(headerStyle?.[1] ?? '').toContain('margin:4rem');
     expect(headerStyle?.[1] ?? '').toContain('--menu-item-gap:20px');
     expect(html).toContain('--block-margin:32px');
   });

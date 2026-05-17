@@ -214,6 +214,9 @@ export function ThemePresetSwitcher({
   const runtimeSurface = useMemo(() => createThemeRuntimeSurface(previewTheme), [previewTheme]);
   const style = useMemo(() => runtimeSurface.style as CSSProperties, [runtimeSurface]);
   const previewImage = form.heroBackgroundImageUrl || form.backgroundImageUrl;
+  const previewBlockPadding = cssLengthFromInput(form.blockPadding, '22px') ?? '22px';
+  const previewBlockMargin = cssLengthFromInput(form.blockMargin, '0') ?? '0';
+  const previewNavMargin = form.contentWidth === 'full' && form.nav === 'top' ? cssLengthFromInput(form.menuMargin, 'clamp(18px, 4vw, 48px)') ?? 'clamp(18px, 4vw, 48px)' : cssLengthFromInput(form.menuMargin, '0') ?? '0';
 
   function setField<K extends keyof BrandingFormState>(field: K, value: BrandingFormState[K]) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -718,7 +721,7 @@ export function ThemePresetSwitcher({
           <button type="button">Preview primary action</button>
         </section>
 
-        <section className={`live-preview-grid ${runtimeSurface.className}`} {...runtimeSurface.dataAttributes} data-card-radius={runtimeLayout.cardRadius} data-header-spacing={form.headerSpacing} data-nav-height={form.navHeight} style={style}>
+        <section className={`live-preview-grid ${runtimeSurface.className}`} {...runtimeSurface.dataAttributes} data-card-radius={runtimeLayout.cardRadius} data-header-spacing={form.headerSpacing} data-nav-height={form.navHeight} style={{ ...style, '--preview-block-padding': previewBlockPadding, '--preview-block-margin': previewBlockMargin, '--preview-nav-margin': previewNavMargin } as CSSProperties}>
           <header
             className={`live-preview-nav live-preview-nav--${runtimeLayout.nav}`}
             data-nav-sticky={runtimeLayout.navSticky ? 'true' : 'false'}
@@ -731,7 +734,7 @@ export function ThemePresetSwitcher({
               color: normalizeColor(form.menuFontColor) ?? theme.typography.fontSansColor ?? theme.colors.text,
               fontSize: form.menuFontSize || '0.95rem',
               lineHeight: form.menuInterline || '1.45',
-              margin: form.menuMargin || undefined,
+              margin: previewNavMargin,
               padding: form.menuPadding || undefined,
             }}
           >
