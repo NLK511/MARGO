@@ -57,6 +57,16 @@ export interface ThemeAssets {
   heroBackgroundImageUrl?: string;
 }
 
+export interface ThemeSpacing {
+  pagePadding?: string;
+  sectionGap?: string;
+  cardPadding?: string;
+  heroPadding?: string;
+  navGap?: string;
+  contentGap?: string;
+  blockGap?: string;
+}
+
 export interface ThemeLayout {
   template: ThemeTemplate;
   nav: ThemeNav;
@@ -76,6 +86,7 @@ export interface ThemePreset {
   typography: ThemeTypography;
   layout: ThemeLayout;
   assets?: ThemeAssets;
+  spacing?: ThemeSpacing;
 }
 
 export type ThemeOverrides = {
@@ -83,6 +94,7 @@ export type ThemeOverrides = {
   typography?: Partial<ThemeTypography>;
   layout?: Partial<ThemeLayout>;
   assets?: Partial<ThemeAssets>;
+  spacing?: Partial<ThemeSpacing>;
 };
 
 export interface ThemeValidationIssue {
@@ -348,6 +360,16 @@ export function getThemePreset(presetId: string | null | undefined): ThemePreset
   return themePresets.find((preset) => preset.id === presetId) ?? defaultThemePreset;
 }
 
+const defaultThemeSpacing: Required<ThemeSpacing> = {
+  pagePadding: 'clamp(16px, 4vw, 48px)',
+  sectionGap: '64px',
+  cardPadding: '24px',
+  heroPadding: 'clamp(48px, 7vw, 96px)',
+  navGap: '16px',
+  contentGap: '32px',
+  blockGap: '24px',
+};
+
 export function mergeTheme(preset: ThemePreset, overrides: ThemeOverrides = {}): ThemePreset {
   return {
     ...preset,
@@ -355,6 +377,7 @@ export function mergeTheme(preset: ThemePreset, overrides: ThemeOverrides = {}):
     typography: { ...preset.typography, ...overrides.typography },
     layout: { ...preset.layout, ...overrides.layout },
     assets: { ...(preset.assets ?? {}), ...overrides.assets },
+    spacing: { ...defaultThemeSpacing, ...(preset.spacing ?? {}), ...overrides.spacing },
   };
 }
 
@@ -382,6 +405,12 @@ export function validateThemePreset(theme: ThemePreset): ThemeValidationIssue[] 
   }
   if (contrastRatio(theme.colors.primaryContrast, theme.colors.primary) < 3) {
     issues.push({ path: 'colors.primaryContrast', message: 'Primary contrast must have at least 3:1 contrast.' });
+  }
+
+  for (const [key, value] of Object.entries(theme.spacing ?? {})) {
+    if (value !== undefined && !isCssLength(value)) {
+      issues.push({ path: `spacing.${key}`, message: 'Spacing values must be CSS lengths.' });
+    }
   }
 
   return issues;
@@ -437,7 +466,13 @@ export function compileThemeCssVariables(theme: ThemePreset): Record<string, str
     '--radius-card': theme.layout.cardRadius === 'square' ? '0px' : theme.layout.cardStyle === 'glass' ? '20px' : theme.layout.cardStyle === 'brutalist' ? '4px' : '16px',
     '--shadow-card': cardShadow(theme.layout.cardStyle),
     '--content-max': contentMaxValue(theme.layout.contentWidth),
-    '--section-gap': sectionGapValue(theme.layout.sectionRhythm),
+    '--page-padding': resolveSpacingValue(theme.spacing?.pagePadding, defaultThemeSpacing.pagePadding),
+    '--section-gap': resolveSpacingValue(theme.spacing?.sectionGap, sectionGapValue(theme.layout.sectionRhythm)),
+    '--card-padding': resolveSpacingValue(theme.spacing?.cardPadding, defaultThemeSpacing.cardPadding),
+    '--hero-padding': resolveSpacingValue(theme.spacing?.heroPadding, defaultThemeSpacing.heroPadding),
+    '--nav-gap': resolveSpacingValue(theme.spacing?.navGap, defaultThemeSpacing.navGap),
+    '--content-gap': resolveSpacingValue(theme.spacing?.contentGap, defaultThemeSpacing.contentGap),
+    '--block-gap': resolveSpacingValue(theme.spacing?.blockGap, defaultThemeSpacing.blockGap),
     '--section-border-width': sectionBorderWidthValue(theme.layout.sectionBorder),
     '--section-border-style': theme.layout.sectionBorder === 'none' ? 'none' : 'solid',
     '--nav-position': theme.layout.navSticky ? 'sticky' : 'static',
@@ -525,6 +560,14 @@ function sectionGapValue(rhythm: ThemeSectionRhythm): string {
     default:
       return '64px';
   }
+}
+
+function isCssLength(value: string): boolean {
+  return /^0$|^-?\d+(?:\.\d+)?(?:px|rem|em|vh|vw|%)$/.test(value.trim()) || /^clamp\(.+\)$/.test(value.trim()) || /^calc\(.+\)$/.test(value.trim());
+}
+
+function resolveSpacingValue(value: string | undefined, fallback: string): string {
+  return value?.trim() ? value : fallback;
 }
 
 function sectionBorderWidthValue(border: ThemeSectionBorder): string {

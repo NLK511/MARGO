@@ -10,7 +10,7 @@ The app must be highly customizable in both theme and layout without requiring c
 4. Page/block layout configuration
 5. Component variants
 
-Themes are reusable platform assets and must not contain tenant logos, tenant photos, or tenant-specific copy. Branding is tenant-specific and may override or extend a selected theme.
+Themes are reusable platform assets and must not contain tenant logos, tenant photos, or tenant-specific copy. Branding is tenant-specific and may override or extend a selected theme. Global Admin may edit built-in themes too; those edits are stored as local overrides rather than mutating the shipped preset source.
 
 ## Theme Token Schema
 

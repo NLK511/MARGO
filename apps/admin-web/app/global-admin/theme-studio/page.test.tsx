@@ -13,7 +13,8 @@ describe('theme studio page', () => {
 
     expect(html).toContain('Theme Studio');
     expect(html).toContain('Create draft family');
-    expect(html).toContain('Curated controls');
+    expect(html).toContain('Built-in themes are now editable too');
+    expect(html).toContain('Spacing and sizes');
     expect(html).toContain('Theme preview fixtures');
   });
 });

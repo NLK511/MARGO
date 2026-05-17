@@ -189,6 +189,7 @@ The detailed requirements are captured in sections A–K below. Each requirement
 - REQ-THEME-002: Theme versioning.
 - REQ-THEME-003: Theme lifecycle.
 - REQ-THEME-004: Theme recipe model.
+- REQ-THEME-004b: Built-in themes remain editable in Theme Studio, but edits are stored as overrides and built-ins cannot be deleted.
 - REQ-THEME-005: Built-in theme migration.
 - REQ-THEME-006: Global Theme Studio route group.
 - REQ-THEME-007: Theme Studio preview matrix.

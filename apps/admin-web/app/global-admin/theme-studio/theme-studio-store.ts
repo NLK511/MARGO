@@ -26,6 +26,8 @@ export interface ThemeStudioFamilyView {
   sourcePresetId: string;
   lifecycle: ThemeLifecycle;
   isBuiltIn: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
   canPublish: boolean;
   issues: Array<{ code: string; severity: 'info' | 'warning' | 'error'; message: string; path: string; suggestedFix?: string }>;
   theme: ThemePreset;
@@ -90,10 +92,8 @@ export function resolveThemeStudioStatePath(startDir = process.cwd()): string {
 
 export function listThemeStudioFamilies(options: ThemeStudioStateOptions = {}): ThemeStudioFamilyView[] {
   const state = loadThemeStudioState(options);
-  return [
-    ...themePresets.map((preset) => viewFromPreset(preset)),
-    ...Object.values(state.families).map((family) => viewFromRecord(family)),
-  ];
+  const customFamilies = Object.values(state.families).filter((family) => !isBuiltInThemeId(family.id)).map((family) => viewFromRecord(family));
+  return [...themePresets.map((preset) => viewFromPreset(preset, state.families[preset.id])), ...customFamilies];
 }
 
 export function createThemeStudioFamily(input: CreateThemeStudioFamilyInput, options: ThemeStudioStateOptions = {}): ThemeStudioFamilyView {
@@ -116,20 +116,34 @@ export function createThemeStudioFamily(input: CreateThemeStudioFamilyInput, opt
 
 export function updateThemeStudioDraft(input: UpdateThemeStudioDraftInput, options: ThemeStudioStateOptions = {}): ThemeStudioFamilyView {
   const state = loadThemeStudioState(options);
-  const record = state.families[input.familyId];
-  if (!record) throw new ThemeStudioError(404, 'Theme family not found.');
-  if (record.lifecycle !== 'draft' && record.lifecycle !== 'qa') throw new ThemeStudioError(409, 'Only draft or QA themes can be edited.');
+  const existing = state.families[input.familyId];
+  const now = new Date().toISOString();
+  const builtInPreset = themePresets.find((preset) => preset.id === input.familyId);
+
+  if (!existing && !builtInPreset) throw new ThemeStudioError(404, 'Theme family not found.');
+
+  const record: ThemeStudioFamilyRecord = existing ?? {
+    id: input.familyId,
+    name: builtInPreset?.name ?? input.familyId,
+    description: undefined,
+    sourcePresetId: builtInPreset?.id ?? input.familyId,
+    overrides: {},
+    lifecycle: builtInPreset ? 'published' : 'draft',
+    createdAt: now,
+    updatedAt: now,
+  };
 
   const next: ThemeStudioFamilyRecord = {
     ...record,
     name: input.name?.trim() || record.name,
     description: input.description?.trim() ?? record.description,
+    sourcePresetId: record.sourcePresetId || builtInPreset?.id || input.familyId,
     overrides: mergeThemeOverrides(record.overrides, input.overrides),
-    updatedAt: new Date().toISOString(),
+    updatedAt: now,
   };
   state.families[input.familyId] = next;
   writeThemeStudioState(state, options);
-  return viewFromRecord(next);
+  return isBuiltInThemeId(input.familyId) ? viewFromPreset(getThemePreset(input.familyId), next) : viewFromRecord(next);
 }
 
 export function transitionThemeStudioFamily(input: TransitionThemeStudioFamilyInput, options: ThemeStudioStateOptions = {}): ThemeStudioFamilyView {
@@ -152,6 +166,7 @@ export function transitionThemeStudioFamily(input: TransitionThemeStudioFamilyIn
 
 export function deleteThemeStudioFamily(input: DeleteThemeStudioFamilyInput, options: ThemeStudioStateOptions = {}): void {
   const state = loadThemeStudioState(options);
+  if (isBuiltInThemeId(input.familyId)) throw new ThemeStudioError(409, 'Built-in theme families cannot be deleted.');
   const record = state.families[input.familyId];
   if (!record) throw new ThemeStudioError(404, 'Theme family not found.');
   if (record.lifecycle === 'published' || record.lifecycle === 'deprecated' || record.lifecycle === 'archived') {
@@ -164,24 +179,31 @@ export function deleteThemeStudioFamily(input: DeleteThemeStudioFamilyInput, opt
 export function getThemeStudioFamily(input: { familyId: string }, options: ThemeStudioStateOptions = {}): ThemeStudioFamilyView | null {
   const state = loadThemeStudioState(options);
   const record = state.families[input.familyId];
-  return record ? viewFromRecord(record) : null;
+  if (record) return isBuiltInThemeId(input.familyId) ? viewFromPreset(getThemePreset(input.familyId), record) : viewFromRecord(record);
+  const preset = themePresets.find((item) => item.id === input.familyId);
+  return preset ? viewFromPreset(preset) : null;
 }
 
 export function resolveThemeStudioTheme(record: ThemeStudioFamilyRecord): ThemePreset {
   return mergeTheme(getThemePreset(record.sourcePresetId), record.overrides);
 }
 
-function viewFromPreset(preset: ThemePreset): ThemeStudioFamilyView {
-  const gate = evaluateThemePublishGate({ preset });
+function viewFromPreset(preset: ThemePreset, record?: ThemeStudioFamilyRecord): ThemeStudioFamilyView {
+  const effectiveRecord = record && record.sourcePresetId === preset.id ? record : undefined;
+  const theme = effectiveRecord ? mergeTheme(preset, effectiveRecord.overrides) : preset;
+  const gate = evaluateThemePublishGate({ preset, overrides: effectiveRecord?.overrides });
   return {
     id: preset.id,
-    name: preset.name,
+    name: effectiveRecord?.name ?? preset.name,
+    description: effectiveRecord?.description,
     sourcePresetId: preset.id,
-    lifecycle: 'published',
+    lifecycle: effectiveRecord?.lifecycle ?? 'published',
     isBuiltIn: true,
+    canEdit: true,
+    canDelete: false,
     canPublish: gate.canPublish,
     issues: gate.issues,
-    theme: preset,
+    theme,
   };
 }
 
@@ -195,6 +217,8 @@ function viewFromRecord(record: ThemeStudioFamilyRecord): ThemeStudioFamilyView 
     sourcePresetId: record.sourcePresetId,
     lifecycle: record.lifecycle,
     isBuiltIn: false,
+    canEdit: true,
+    canDelete: record.lifecycle !== 'published' && record.lifecycle !== 'deprecated' && record.lifecycle !== 'archived',
     canPublish: gate.canPublish,
     issues: gate.issues,
     theme,
@@ -207,6 +231,7 @@ function mergeThemeOverrides(existing: ThemeOverrides, next?: ThemeOverrides): T
     typography: { ...existing.typography, ...next?.typography },
     layout: { ...existing.layout, ...next?.layout },
     assets: { ...existing.assets, ...next?.assets },
+    spacing: { ...existing.spacing, ...next?.spacing },
   };
 }
 
@@ -226,6 +251,10 @@ function uniqueFamilyId(baseId: string, state: ThemeStudioState): string {
     index += 1;
   }
   return candidate;
+}
+
+function isBuiltInThemeId(familyId: string): boolean {
+  return themePresets.some((preset) => preset.id === familyId);
 }
 
 function slugify(value: string): string {

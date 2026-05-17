@@ -66,6 +66,8 @@ describe('theme CSS compiler', () => {
     expect(variables['--radius-card']).toBe('16px');
     expect(variables['--shadow-card']).toBe('none');
     expect(variables['--content-max']).toBe('1440px');
+    expect(variables['--page-padding']).toContain('clamp');
+    expect(variables['--card-padding']).toBe('24px');
     expect(variables['--section-border-width']).toBe('1px');
   });
 

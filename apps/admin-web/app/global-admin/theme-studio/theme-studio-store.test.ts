@@ -15,10 +15,16 @@ describe('theme studio store', () => {
     const updated = updateThemeStudioDraft({ familyId: created.id, description: 'Editorial luxury' }, { statePath });
     expect(updated.description).toBe('Editorial luxury');
 
+    const builtIn = updateThemeStudioDraft({ familyId: 'chef', name: 'Chef Signature', overrides: { spacing: { pagePadding: '32px' } } }, { statePath });
+    expect(builtIn.isBuiltIn).toBe(true);
+    expect(builtIn.name).toBe('Chef Signature');
+    expect(builtIn.theme.spacing?.pagePadding).toBe('32px');
+
     const published = transitionThemeStudioFamily({ familyId: created.id, lifecycle: 'published' }, { statePath });
     expect(published.lifecycle).toBe('published');
 
     expect(() => deleteThemeStudioFamily({ familyId: created.id }, { statePath })).toThrow(/cannot be deleted/i);
+    expect(() => deleteThemeStudioFamily({ familyId: 'chef' }, { statePath })).toThrow(/built-in theme families cannot be deleted/i);
 
     const stored = getThemeStudioFamily({ familyId: created.id }, { statePath });
     expect(stored?.lifecycle).toBe('published');
