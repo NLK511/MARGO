@@ -344,6 +344,25 @@ describe('frontpage rendering', () => {
     expect(html).not.toContain('carousel-chip">3 visible');
   });
 
+  it('renders empty states for service and location blocks when content is missing', () => {
+    const model = {
+      ...demoFrontpage,
+      page: {
+        ...demoFrontpage.page,
+        blocks: [
+          { id: 'services', type: 'service-list', variant: 'cards', position: 0, props: { title: 'Services' } },
+          { id: 'location', type: 'location', variant: 'card', position: 1, props: { title: 'Location and hours' } },
+        ],
+        services: [],
+        locations: [],
+      },
+    };
+    const html = renderToStaticMarkup(<FrontpageShell model={model} />);
+
+    expect(html).toContain('No services yet');
+    expect(html).toContain('No locations yet');
+  });
+
   it('renders split-media video when configured by the page editor', () => {
     const model = {
       ...demoFrontpage,

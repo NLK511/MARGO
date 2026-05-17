@@ -467,7 +467,7 @@ Make blocks semantically governed, testable, and safe for beautiful-by-default c
 
 ## Tasks
 
-- [ ] **M6-T001: Expand block definition schema**
+- [x] **M6-T001: Expand block definition schema**
   - File: `packages/core/src/page-block-registry.ts` or new block package if preferred.
   - Add `role`, `allowedPagePositions`, `maxPerPage`, `requiredContent`, `optionalContent`, `variants`, `designRules`, `compositionRules`.
   - Requirements covered: REQ-BLOCK-001.
@@ -475,7 +475,7 @@ Make blocks semantically governed, testable, and safe for beautiful-by-default c
     - Every built-in block has enriched metadata.
     - Missing metadata fails.
 
-- [ ] **M6-T002: Implement hero governance**
+- [x] **M6-T002: Implement hero governance**
   - Requirements covered: REQ-BLOCK-002.
   - Tests:
     - Duplicate hero fails.
@@ -483,35 +483,35 @@ Make blocks semantically governed, testable, and safe for beautiful-by-default c
     - Missing headline/CTA fails.
     - Builder prevents second hero.
 
-- [ ] **M6-T003: Implement CTA governance**
+- [x] **M6-T003: Implement CTA governance**
   - Requirements covered: REQ-BLOCK-003.
   - Tests:
     - Multiple primary actions fail.
     - CTA too early warning/fail.
     - CTA without action fails.
 
-- [ ] **M6-T004: Implement rich-text readability rules**
+- [x] **M6-T004: Implement rich-text readability rules**
   - Requirements covered: REQ-BLOCK-004.
   - Tests:
     - Max line length enforced.
     - Long centered text warns.
     - Visual fixture passes.
 
-- [ ] **M6-T005: Implement image overlay readability**
+- [x] **M6-T005: Implement image overlay readability**
   - Requirements covered: REQ-BLOCK-005.
   - Tests:
     - Unsafe overlay fails.
     - Scrim overlay passes.
     - Visual fixture passes.
 
-- [ ] **M6-T006: Refactor service-list hierarchy**
+- [x] **M6-T006: Refactor service-list hierarchy**
   - Requirements covered: REQ-BLOCK-006.
   - Tests:
     - Semantic roles used.
     - Naive label-value clutter avoided for obvious values.
     - Visual fixture passes.
 
-- [ ] **M6-T007: Implement block empty states**
+- [x] **M6-T007: Implement block empty states**
   - Requirements covered: REQ-BLOCK-007.
   - Tests:
     - Empty service/location states render.
@@ -519,9 +519,9 @@ Make blocks semantically governed, testable, and safe for beautiful-by-default c
 
 ## Exit criteria
 
-- [ ] All block definitions are enriched.
-- [ ] Block validators pass.
-- [ ] Builder uses block schema to drive UI.
+- [x] All block definitions are enriched.
+- [x] Block validators pass.
+- [x] Builder uses block schema to drive UI.
 
 ---
 

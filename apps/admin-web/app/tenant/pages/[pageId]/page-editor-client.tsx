@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShellCard } from '@margo/ui';
 import {
   carouselPresetOptions,
   createCarouselPresetProps,
   createDefaultPageBlockProps,
+  evaluatePageBlockGovernance,
   getCarouselPresetDefaults,
   getCarouselPresetSlides,
   getPageBlockDefinition,
-  getPageBlockOptions,
+  getPageBlockPlacementOptions,
   type PageBlockType,
 } from '@margo/core';
 import { useAdminToast } from '../../../admin-toast';
@@ -22,7 +23,6 @@ type EditorBlock = {
   props: Record<string, unknown>;
 };
 
-const blockTypeOptions = getPageBlockOptions();
 const imageVariantOptions = ['cover', 'framed'] as const;
 const imageOverlayTagOptions = ['h1', 'h2', 'h3', 'p'] as const;
 const imageOverlayPositionOptions = ['top-left', 'top-center', 'top-right', 'middle-left', 'center', 'middle-right', 'bottom-left', 'bottom-center', 'bottom-right'] as const;
@@ -95,7 +95,8 @@ export function PageEditorClient({
   const [uploadingSplitMediaTarget, setUploadingSplitMediaTarget] = useState<number | null>(null);
   const [draggedCarouselSlide, setDraggedCarouselSlide] = useState<string | null>(null);
   const [collapsedBlockIds, setCollapsedBlockIds] = useState<Set<string>>(() => new Set());
-
+  const blockGovernanceIssues = useMemo(() => evaluatePageBlockGovernance(blocks), [blocks]);
+  const newBlockTypeOptions = useMemo(() => getPageBlockPlacementOptions(blocks), [blocks]);
 
   function updateBlock(index: number, patch: Partial<EditorBlock>) {
     setBlocks((current) => current.map((block, currentIndex) => (currentIndex === index ? { ...block, ...patch } : block)));
@@ -278,8 +279,8 @@ export function PageEditorClient({
             <label>
               New block type
               <select value={newBlockType} onChange={(event) => setNewBlockType(event.target.value as PageBlockType)}>
-                {blockTypeOptions.map((option) => (
-                  <option key={option.value} value={option.value} title={option.label}>
+                {newBlockTypeOptions.map((option) => (
+                  <option key={option.value} value={option.value} title={option.reason} disabled={option.disabled}>
                     {option.label}
                   </option>
                 ))}
@@ -321,8 +322,8 @@ export function PageEditorClient({
                         });
                       }}
                     >
-                      {blockTypeOptions.map((option) => (
-                        <option key={option.value} value={option.value} title={option.label}>
+                      {newBlockTypeOptions.map((option) => (
+                        <option key={option.value} value={option.value} title={option.reason} disabled={option.disabled}>
                           {option.label}
                         </option>
                       ))}
@@ -393,16 +394,24 @@ export function PageEditorClient({
         </div>
       </form>
 
-      {showDebugPanel ? (
-        <ShellCard eyebrow="Status" title="Editor state">
-          <p>{message}</p>
-          <p className="form-help">Serialized block state is only shown in debug mode.</p>
-        </ShellCard>
-      ) : (
-        <ShellCard eyebrow="Status" title="Editor state">
-          <p>{message}</p>
-        </ShellCard>
-      )}
+      <ShellCard eyebrow="Status" title="Editor state">
+        <p>{message}</p>
+        {showDebugPanel ? <p className="form-help">Debug mode is on.</p> : null}
+      </ShellCard>
+
+      <ShellCard eyebrow="Quality" title="Block governance">
+        {blockGovernanceIssues.length ? (
+          <ul>
+            {blockGovernanceIssues.map((issue) => (
+              <li key={`${issue.code}-${issue.path ?? 'page'}`} className={`status-pill status-${issue.severity}`}>
+                {issue.message}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>All blocks follow the current governance rules.</p>
+        )}
+      </ShellCard>
     </section>
   );
 }

@@ -15,14 +15,17 @@ import {
   createSafeLogEntry,
   createCarouselPresetProps,
   createTenantWebappExport,
+  evaluatePageBlockGovernance,
   getCarouselPresetDefaults,
   getCarouselPresetSlides,
   getPageBlockOptions,
+  getPageBlockPlacementOptions,
   listBuiltinTemplateSummaries,
   materializeTemplateFromExport,
   TenantAccessDeniedError,
   UnauthenticatedError,
   resolveTenantContext,
+  validatePageBlockRegistry,
   validateTenantWebappImportPackage,
   type TenantLookupRecord,
   type TenantResolverRepository,
@@ -180,6 +183,17 @@ describe('block registry', () => {
       buttonTextStyle: { fontFamily: '', color: '', fontSize: '', lineHeight: '', textAlign: '' },
       buttonSpacing: { margin: '', padding: '' },
     });
+  });
+
+  it('adds governance metadata and placement guidance', () => {
+    expect(validatePageBlockRegistry()).toEqual([]);
+    expect(getPageBlockPlacementOptions([{ type: 'hero' }]).find((option) => option.value === 'hero')?.disabled).toBe(true);
+    expect(
+      evaluatePageBlockGovernance([
+        { type: 'hero', props: { headline: 'Welcome', ctaLabel: 'Book now' } },
+        { type: 'hero', props: { headline: 'Another', ctaLabel: 'Book now' } },
+      ]),
+    ).toEqual(expect.arrayContaining([expect.objectContaining({ code: 'hero.order' }), expect.objectContaining({ code: 'hero.max-per-page' })]));
   });
 });
 

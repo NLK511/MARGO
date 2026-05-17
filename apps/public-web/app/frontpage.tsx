@@ -71,6 +71,9 @@ export function FrontpageShell({ model }: { model: TenantFrontpageModel }) {
       className={`frontpage ${runtimeSurface.className}`}
       data-tenant-theme={model.tenant.slug}
       data-layout-preset={runtimeSurface.dataAttributes['data-layout-template']}
+      data-hero-variant={heroVariant}
+      data-card-style={cardStyle}
+      data-card-radius={cardRadius}
       data-header-spacing={headerSpacing}
       data-nav-height={navHeight}
       {...runtimeSurface.dataAttributes}
@@ -203,15 +206,22 @@ function FrontpageBlock({
       return (
         <section id="services" className="block section-card" style={blockStyle}>
           <BlockHeading title={stringProp(props, 'title', 'What we offer')} titleStyle={titleStyle} />
-          <div className="service-grid">
-            {services.map((service) => (
-              <article key={service.slug} className="service-card">
-                <h3>{service.name}</h3>
-                <p>{service.description}</p>
-                <span>{service.durationMinutes} min</span>
-              </article>
-            ))}
-          </div>
+          {services.length ? (
+            <div className="service-grid">
+              {services.map((service) => (
+                <article key={service.slug} className="service-card">
+                  <h3>{service.name}</h3>
+                  <p>{service.description}</p>
+                  <span>{service.durationMinutes} min</span>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state-card">
+              <h3>No services yet</h3>
+              <p>Add services in the tenant builder to show them here.</p>
+            </div>
+          )}
           {renderBlockActions(props)}
         </section>
       );
@@ -238,17 +248,24 @@ function FrontpageBlock({
       return (
         <section id="location" className="block section-card" style={blockStyle}>
           <BlockHeading title={stringProp(props, 'title', 'Location and hours')} titleStyle={titleStyle} />
-          <div className="location-grid">
-            {locations.map((location) => (
-              <article key={location.name} className="location-card">
-                <h3>{location.name}</h3>
-                <p>{formatAddress(location.address)}</p>
-                <p>{location.phone}</p>
-                <p>{location.email}</p>
-                <p className="muted">Opening hours: Monday to Friday, 09:00–18:00</p>
-              </article>
-            ))}
-          </div>
+          {locations.length ? (
+            <div className="location-grid">
+              {locations.map((location) => (
+                <article key={location.name} className="location-card">
+                  <h3>{location.name}</h3>
+                  <p>{formatAddress(location.address)}</p>
+                  <p>{location.phone}</p>
+                  <p>{location.email}</p>
+                  <p className="muted">Opening hours: Monday to Friday, 09:00–18:00</p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state-card">
+              <h3>No locations yet</h3>
+              <p>Add a location in the tenant builder to show address and hours here.</p>
+            </div>
+          )}
           {renderBlockActions(props)}
         </section>
       );
