@@ -583,7 +583,7 @@ Safely migrate existing presets, tenant assignments, and low-level overrides.
 
 ## Tasks
 
-- [ ] **M8-T001: Add migration command**
+- [x] **M8-T001: Add migration command**
   - Suggested script: `pnpm theme:migrate`.
   - Converts legacy theme data to new assignments.
   - Requirements covered: REQ-MIG-001, REQ-MIG-002.
@@ -591,19 +591,19 @@ Safely migrate existing presets, tenant assignments, and low-level overrides.
     - Migration transforms seeded tenant themes.
     - Migration report generated.
 
-- [ ] **M8-T002: Add migration report**
+- [x] **M8-T002: Add migration report**
   - Output converted, preserved, dropped, and warning counts.
   - Requirements covered: REQ-MIG-002.
   - Tests:
     - Snapshot report format.
 
-- [ ] **M8-T003: Add fallback theme handling**
+- [x] **M8-T003: Add fallback theme handling**
   - Requirements covered: REQ-MIG-003.
   - Tests:
     - Missing theme falls back.
     - Fallback event logged.
 
-- [ ] **M8-T004: Backfill seeded data**
+- [x] **M8-T004: Backfill seeded data**
   - Update seed script to create ThemeFamily, ThemeVersion, TenantThemeAssignment.
   - Requirements covered: REQ-MIG-001.
   - Tests:
@@ -612,9 +612,9 @@ Safely migrate existing presets, tenant assignments, and low-level overrides.
 
 ## Exit criteria
 
-- [ ] Existing seeded tenants work after migration.
-- [ ] Legacy fields are mapped or safely ignored with warnings.
-- [ ] Migration report exists.
+- [x] Existing seeded tenants work after migration.
+- [x] Legacy fields are mapped or safely ignored with warnings.
+- [x] Migration report exists.
 
 ---
 
@@ -748,9 +748,9 @@ Use this checklist to ensure the specification has been fully translated into te
 
 ## Migration
 
-- [ ] REQ-MIG-001 tests implemented.
-- [ ] REQ-MIG-002 tests implemented.
-- [ ] REQ-MIG-003 tests implemented.
+- [x] REQ-MIG-001 tests implemented.
+- [x] REQ-MIG-002 tests implemented.
+- [x] REQ-MIG-003 tests implemented.
 
 ## Security
 

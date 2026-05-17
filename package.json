@@ -20,7 +20,8 @@
     "backup": "bash scripts/backup.sh",
     "restore": "bash scripts/restore.sh",
     "db:migrate": "pnpm --filter @margo/db db:migrate",
-    "db:seed": "pnpm --filter @margo/db db:seed"
+    "db:seed": "pnpm --filter @margo/db db:seed",
+    "theme:migrate": "pnpm --filter @margo/db theme:migrate"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

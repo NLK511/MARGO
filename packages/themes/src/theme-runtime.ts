@@ -1,5 +1,5 @@
 import { compileThemeCssVariables, createThemeRuntimeSurface, getThemePreset, mergeTheme, type ThemeOverrides, type ThemePreset } from './index';
-import { mapLegacyThemePreset } from './theme-migration';
+import { mapLegacyThemePreset, resolveThemePresetOrFallback } from './theme-migration';
 
 export interface RuntimeTheme {
   themeFamilyId: string;
@@ -24,7 +24,7 @@ export interface RuntimeTheme {
 
 export function resolveRuntimeTheme(input: { themePresetId?: string | null; themeOverrides?: ThemeOverrides }): RuntimeTheme {
   const mapping = mapLegacyThemePreset(input.themePresetId);
-  const theme = mergeTheme(getThemePreset(input.themePresetId), input.themeOverrides ?? {});
+  const theme = mergeTheme(resolveThemePresetOrFallback(input.themePresetId, (warning) => console.warn(warning)).preset, input.themeOverrides ?? {});
   const runtimeSurface = createThemeRuntimeSurface(theme);
   return {
     themeFamilyId: mapping.family.id,

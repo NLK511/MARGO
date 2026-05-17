@@ -15,7 +15,8 @@
     "db:migrate": "DATABASE_URL=${DATABASE_URL:-postgresql://margo:margo@localhost:5432/margo?schema=public} prisma migrate dev",
     "db:deploy": "DATABASE_URL=${DATABASE_URL:-postgresql://margo:margo@localhost:5432/margo?schema=public} prisma migrate deploy",
     "db:seed": "DATABASE_URL=${DATABASE_URL:-postgresql://margo:margo@localhost:5432/margo?schema=public} tsx prisma/seed.ts",
-    "db:validate": "DATABASE_URL=${DATABASE_URL:-postgresql://margo:margo@localhost:5432/margo?schema=public} prisma validate"
+    "db:validate": "DATABASE_URL=${DATABASE_URL:-postgresql://margo:margo@localhost:5432/margo?schema=public} prisma validate",
+    "theme:migrate": "DATABASE_URL=${DATABASE_URL:-postgresql://margo:margo@localhost:5432/margo?schema=public} tsx src/theme-migration.ts"
   },
   "devDependencies": {
     "prisma": "^6.19.0",

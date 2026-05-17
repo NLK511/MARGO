@@ -78,6 +78,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 export type { PrismaClient } from '@prisma/client';
 export * from './demo-seed-state';
+export * from './theme-migration';
 
 export interface DatabaseTenantLookupRecord {
   tenantId: string;

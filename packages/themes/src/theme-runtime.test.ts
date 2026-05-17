@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { resolveRuntimeTheme, compileRuntimeThemeVars } from './theme-runtime';
 
 describe('runtime theme model', () => {
@@ -16,5 +16,16 @@ describe('runtime theme model', () => {
 
     expect(first).toEqual(second);
     expect(first['--color-bg']).toBeTruthy();
+  });
+
+  it('logs and falls back for unknown preset ids', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const runtime = resolveRuntimeTheme({ themePresetId: 'missing-theme' });
+
+    expect(runtime.themeFamilyId).toBe('clinical-calm');
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('Unknown theme preset "missing-theme"'));
+
+    warn.mockRestore();
   });
 });

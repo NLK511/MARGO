@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { loadDemoSeedSnapshot, type DemoTenantModuleSettingSnapshot, type DemoTenantSeedSnapshot } from '../src/demo-seed-state';
+import { mapLegacyThemePreset, themeCatalog } from '../src/theme-catalog';
 
 const prisma = new PrismaClient() as PrismaClient & {
   quoteRequest: {
@@ -9,6 +10,46 @@ const prisma = new PrismaClient() as PrismaClient & {
 };
 
 const demoSeedSnapshot = loadDemoSeedSnapshot();
+
+async function seedThemeCatalog() {
+  for (const preset of themeCatalog) {
+    const mapping = mapLegacyThemePreset(preset.id);
+    await prisma.themeFamily.upsert({
+      where: { id: mapping.family.id },
+      update: {
+        name: mapping.family.name,
+        description: mapping.family.description ?? null,
+        verticalFit: ['generic'] as Prisma.InputJsonValue,
+        personality: mapping.family.personality,
+      },
+      create: {
+        id: mapping.family.id,
+        name: mapping.family.name,
+        description: mapping.family.description ?? null,
+        verticalFit: ['generic'] as Prisma.InputJsonValue,
+        personality: mapping.family.personality,
+      },
+    });
+    await prisma.themeVersion.upsert({
+      where: { id: mapping.version.id },
+      update: {
+        themeFamilyId: mapping.family.id,
+        version: mapping.version.version,
+        lifecycle: mapping.version.lifecycle,
+        recipe: mapping.recipe as unknown as Prisma.InputJsonValue,
+        migrationNotes: { sourcePresetId: preset.id, migratedAt: new Date().toISOString() } as unknown as Prisma.InputJsonValue,
+      },
+      create: {
+        id: mapping.version.id,
+        themeFamilyId: mapping.family.id,
+        version: mapping.version.version,
+        lifecycle: mapping.version.lifecycle,
+        recipe: mapping.recipe as unknown as Prisma.InputJsonValue,
+        migrationNotes: { sourcePresetId: preset.id, migratedAt: new Date().toISOString() } as unknown as Prisma.InputJsonValue,
+      },
+    });
+  }
+}
 
 function json<T extends Prisma.InputJsonValue>(value: T): T {
   return value;
@@ -314,22 +355,41 @@ async function seedTenant(seed: SeedTenant) {
   const brandingSnapshot = tenantSnapshot?.branding;
   const moduleSettingsSnapshot = resolveModuleSettingsSnapshot(seed, tenantSnapshot);
 
+  const themePresetId = brandingSnapshot?.themePresetId ?? seed.themePresetId;
+  const themeOverrides = (brandingSnapshot?.themeOverrides ?? seed.branding?.themeOverrides ?? {}) as Prisma.InputJsonValue;
+
   await prisma.tenantBranding.upsert({
     where: { tenantId: tenant.id },
     update: {
-      themePresetId: brandingSnapshot?.themePresetId ?? seed.themePresetId,
+      themePresetId,
       layoutConfig: (brandingSnapshot?.layoutConfig ?? seed.layoutConfig) as Prisma.InputJsonValue,
       logoUrl: brandingSnapshot?.logoUrl ?? seed.branding?.logoUrl,
       faviconUrl: brandingSnapshot?.faviconUrl ?? seed.branding?.faviconUrl,
-      themeOverrides: (brandingSnapshot?.themeOverrides ?? seed.branding?.themeOverrides ?? {}) as Prisma.InputJsonValue,
+      themeOverrides,
     },
     create: {
       tenantId: tenant.id,
-      themePresetId: brandingSnapshot?.themePresetId ?? seed.themePresetId,
+      themePresetId,
       layoutConfig: (brandingSnapshot?.layoutConfig ?? seed.layoutConfig) as Prisma.InputJsonValue,
       logoUrl: brandingSnapshot?.logoUrl ?? seed.branding?.logoUrl,
       faviconUrl: brandingSnapshot?.faviconUrl ?? seed.branding?.faviconUrl,
-      themeOverrides: (brandingSnapshot?.themeOverrides ?? seed.branding?.themeOverrides ?? {}) as Prisma.InputJsonValue,
+      themeOverrides,
+    },
+  });
+
+  const mapping = mapLegacyThemePreset(themePresetId, themeOverrides as Prisma.InputJsonObject);
+  await prisma.tenantThemeAssignment.upsert({
+    where: { tenantId: tenant.id },
+    update: {
+      themeFamilyId: mapping.family.id,
+      themeVersionId: mapping.version.id,
+      recipeVariation: Object.keys(themeOverrides as Record<string, unknown>).length > 0 ? (themeOverrides as unknown as Prisma.InputJsonValue) : Prisma.DbNull,
+    },
+    create: {
+      tenantId: tenant.id,
+      themeFamilyId: mapping.family.id,
+      themeVersionId: mapping.version.id,
+      recipeVariation: Object.keys(themeOverrides as Record<string, unknown>).length > 0 ? (themeOverrides as unknown as Prisma.InputJsonValue) : Prisma.DbNull,
     },
   });
 
@@ -652,6 +712,8 @@ function deterministicUuid(seed: string, label: string): string {
 }
 
 async function main() {
+  await seedThemeCatalog();
+
   for (const tenant of tenants) {
     await seedTenant(tenant);
   }

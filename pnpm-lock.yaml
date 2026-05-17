@@ -168,6 +168,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@margo/themes':
+        specifier: workspace:*
+        version: link:../themes
       '@prisma/client':
         specifier: ^6.19.0
         version: 6.19.0(prisma@6.19.0(typescript@5.9.3))(typescript@5.9.3)

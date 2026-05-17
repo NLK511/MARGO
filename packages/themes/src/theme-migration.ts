@@ -1,5 +1,5 @@
 import type { ThemeOverrides, ThemePreset } from './index';
-import { defaultThemePreset, getThemePreset, mergeTheme, themePresets } from './index';
+import { defaultThemePreset, mergeTheme, themePresets } from './index';
 import type { ThemeFamily, ThemeVersion } from './theme-family';
 import type { ThemeRecipe } from './theme-recipe';
 
@@ -10,13 +10,39 @@ export interface LegacyThemeMapping {
   theme: ThemePreset;
 }
 
+export interface ResolvedThemePreset {
+  preset: ThemePreset;
+  requestedPresetId: string | null;
+  usedFallback: boolean;
+  warning?: string;
+}
+
+export function resolveThemePresetOrFallback(
+  presetId: string | null | undefined,
+  onFallback?: (warning: string) => void,
+): ResolvedThemePreset {
+  const requestedPresetId = typeof presetId === 'string' && presetId.trim() ? presetId : null;
+  if (!requestedPresetId) {
+    return { preset: defaultThemePreset, requestedPresetId: null, usedFallback: true };
+  }
+
+  const preset = themePresets.find((item) => item.id === requestedPresetId);
+  if (preset) {
+    return { preset, requestedPresetId, usedFallback: false };
+  }
+
+  const warning = `Unknown theme preset "${requestedPresetId}". Falling back to ${defaultThemePreset.id}.`;
+  onFallback?.(warning);
+  return { preset: defaultThemePreset, requestedPresetId, usedFallback: true, warning };
+}
+
 export function mapLegacyThemePreset(presetId: string | null | undefined, overrides: ThemeOverrides = {}): LegacyThemeMapping {
-  const preset = getThemePreset(presetId);
+  const resolved = resolveThemePresetOrFallback(presetId);
   return {
-    family: toThemeFamily(preset),
-    version: toThemeVersion(preset),
-    recipe: toThemeRecipe(preset),
-    theme: mergeTheme(preset, overrides),
+    family: toThemeFamily(resolved.preset),
+    version: toThemeVersion(resolved.preset),
+    recipe: toThemeRecipe(resolved.preset),
+    theme: mergeTheme(resolved.preset, overrides),
   };
 }
 

@@ -26,6 +26,7 @@ model Tenant {
   roleBindings    RoleBinding[]
   modules         TenantModule[]
   branding        TenantBranding?
+  themeAssignment TenantThemeAssignment?
   auditLogs       AuditLog[]
   outboxEvents    EventOutbox[]
   publicPages     PublicPage[]
@@ -138,6 +139,55 @@ model TenantBranding {
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("tenant_branding")
+}
+
+model ThemeFamily {
+  id          String   @id
+  name        String
+  description String?
+  verticalFit Json     @default("[]") @map("vertical_fit")
+  personality String
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  versions    ThemeVersion[]
+  assignments TenantThemeAssignment[]
+
+  @@map("theme_families")
+}
+
+model ThemeVersion {
+  id              String   @id
+  themeFamilyId    String   @map("theme_family_id")
+  version         String
+  lifecycle       String
+  recipe          Json     @default("{}")
+  migrationNotes  Json?    @map("migration_notes")
+  createdByUserId String?  @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  publishedAt     DateTime? @map("published_at") @db.Timestamptz(6)
+  deprecatedAt    DateTime? @map("deprecated_at") @db.Timestamptz(6)
+
+  family     ThemeFamily @relation(fields: [themeFamilyId], references: [id], onDelete: Cascade)
+  assignments TenantThemeAssignment[]
+
+  @@map("theme_versions")
+}
+
+model TenantThemeAssignment {
+  id              String   @id @default(uuid()) @db.Uuid
+  tenantId        String   @unique @map("tenant_id") @db.Uuid
+  themeFamilyId   String   @map("theme_family_id")
+  themeVersionId  String   @map("theme_version_id")
+  recipeVariation Json?    @map("recipe_variation")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant  Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  family  ThemeFamily  @relation(fields: [themeFamilyId], references: [id], onDelete: Restrict)
+  version ThemeVersion @relation(fields: [themeVersionId], references: [id], onDelete: Restrict)
+
+  @@map("tenant_theme_assignments")
 }
 
 model AuditLog {
