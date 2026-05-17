@@ -6,7 +6,10 @@ import {
   contrastRatio,
   createThemeRuntimeSurface,
   getThemePreset,
+  listThemeFamiliesFromPresets,
+  mapLegacyThemePreset,
   mergeTheme,
+  resolveRuntimeTheme,
   themePresets,
   ThemeValidationError,
   validateThemePreset,
@@ -94,6 +97,12 @@ describe('theme CSS compiler', () => {
       'data-card-style': 'glass',
       'data-card-radius': 'round',
     });
+  });
+
+  it('maps legacy presets into theme families and runtime themes', () => {
+    expect(listThemeFamiliesFromPresets().length).toBe(themePresets.length);
+    expect(mapLegacyThemePreset('luxury-dark-dining').family.id).toBe('luxury-dark-dining');
+    expect(resolveRuntimeTheme({ themePresetId: 'clinical-calm' }).themeVersionId).toBe('clinical-calm@1.0.0');
   });
 });
 

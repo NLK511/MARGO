@@ -1,3 +1,8 @@
+export * from './theme-family';
+export * from './theme-migration';
+export * from './theme-recipe';
+export * from './theme-runtime';
+
 export type ThemeScale = 'standard' | 'editorial' | 'bold';
 export type ThemeTemplate = 'classic' | 'editorial' | 'split' | 'immersive';
 export type ThemeNav = 'top' | 'centered' | 'minimal' | 'overlay';
