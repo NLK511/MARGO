@@ -22,7 +22,11 @@ export async function getFrontpageForHostAndPath(hostname: string | null, path: 
   const route = parsePublicPageRoute(path);
   const pageLocale = route?.locale ?? tenant.locale;
   const pageSlug = route?.pageSlug ?? 'home';
-  const page = await createPublicPageService().findPublishedPage({ tenantId: tenant.tenantId, slug: pageSlug, locale: pageLocale });
+  const publicPageService = createPublicPageService();
+  const page =
+    tenant.resolutionMethod === 'development-prefix'
+      ? await publicPageService.findPageBySlug({ tenantId: tenant.tenantId, slug: pageSlug, locale: pageLocale })
+      : await publicPageService.findPublishedPage({ tenantId: tenant.tenantId, slug: pageSlug, locale: pageLocale });
   if (!page) return null;
 
   return {

@@ -299,6 +299,29 @@ export function createPublicPageService(client: PublicPageClient = prisma as unk
       return fallbackPage ? mapPublicPageRecord(fallbackPage) : null;
     },
 
+    async findPageBySlug(input: { tenantId: string; slug?: string; locale?: string }): Promise<PublicPageRecord | null> {
+      const sharedInclude = {
+        blocks: { orderBy: { position: 'asc' } },
+        tenant: { include: { services: { where: { active: true } }, locations: { where: { active: true } } } },
+      } as const;
+      const slug = input.slug ?? 'home';
+      const locale = input.locale ?? 'en';
+
+      const page = await client.publicPage.findFirst({
+        where: { tenantId: input.tenantId, slug, locale },
+        include: sharedInclude,
+      });
+
+      if (page) return mapPublicPageRecord(page);
+
+      const fallbackPage = await client.publicPage.findFirst({
+        where: { tenantId: input.tenantId, slug },
+        include: sharedInclude,
+      });
+
+      return fallbackPage ? mapPublicPageRecord(fallbackPage) : null;
+    },
+
     async findPageForAdmin(input: { tenantId: string; pageId: string }): Promise<PublicPageRecord | null> {
       const page = await client.publicPage.findFirst({
         where: { tenantId: input.tenantId, id: input.pageId },

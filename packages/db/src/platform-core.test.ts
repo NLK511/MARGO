@@ -78,6 +78,14 @@ describe('public page service', () => {
     await expect(service.findPublishedPage({ tenantId: uuid, slug: 'home', locale: 'en' })).resolves.toMatchObject({ locale: 'fr' });
   });
 
+  it('can resolve draft pages for local development routes by slug', async () => {
+    const draftPage = pageFixture('draft');
+    const findFirst = vi.fn(async () => draftPage);
+    const service = createPublicPageService({ publicPage: { findFirst, findMany: vi.fn(), update: vi.fn() } });
+
+    await expect(service.findPageBySlug({ tenantId: uuid, slug: 'home', locale: 'en' })).resolves.toMatchObject({ status: 'draft' });
+  });
+
   it('returns null for missing public pages', async () => {
     const service = createPublicPageService({ publicPage: { findFirst: vi.fn(async () => null), findMany: vi.fn(), update: vi.fn() } });
 
