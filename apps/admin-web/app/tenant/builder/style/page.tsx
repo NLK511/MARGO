@@ -5,6 +5,7 @@ import { getAdminTenantRecord } from '../../../admin-db';
 import { SurfaceShell } from '../../../surface-shell';
 import { ThemePresetSwitcher } from '../../../theme-preset-switcher';
 import { BuilderPreviewDeviceSwitcher } from '../builder-preview-device-switcher';
+import { resolveThemePresetWithStudioOverrides } from '@margo/themes/theme-studio-overrides';
 
 export default async function TenantBuilderStylePage() {
   const session = await getCurrentDevSession();
@@ -20,6 +21,8 @@ export default async function TenantBuilderStylePage() {
     faviconUrl: null,
   };
 
+  const resolvedThemePreset = resolveThemePresetWithStudioOverrides(tenant.themePresetId, undefined, process.cwd());
+
   return (
     <SurfaceShell surface="tenant">
       <ShellCard eyebrow="Style mode" title="Branding and layout">
@@ -28,6 +31,7 @@ export default async function TenantBuilderStylePage() {
       <BuilderPreviewDeviceSwitcher>
         <ThemePresetSwitcher
           initialPresetId={tenant.themePresetId}
+          initialResolvedPreset={resolvedThemePreset}
           tenantName={tenant.displayName}
           initialLayoutConfig={tenant.layoutConfig}
           initialThemeOverrides={tenant.themeOverrides}

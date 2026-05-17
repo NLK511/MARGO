@@ -5,6 +5,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { AdminToastProvider } from './admin-toast';
 import { ThemePresetSwitcher } from './theme-preset-switcher';
+import { getThemePreset } from '@margo/themes';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 
@@ -59,6 +60,21 @@ describe('branding editor regression coverage', () => {
     expect(html).toContain('/uploads/hero-bg.webp');
     expect(html).toContain('Drop to replace');
     expect(html).toContain('--preview-block-padding:0px');
+  });
+
+  it('uses the resolved preset theme in the live preview', () => {
+    const chef = getThemePreset('chef');
+    const html = renderToStaticMarkup(
+      <AdminToastProvider>
+        <ThemePresetSwitcher
+          initialPresetId="chef"
+          initialResolvedPreset={{ ...chef, colors: { ...chef.colors, primary: '#112233' } }}
+          tenantName="Maison Test"
+        />
+      </AdminToastProvider>,
+    );
+
+    expect(html).toContain('#112233');
   });
 
   it('uses margin-based full-width top navigation in the live preview', () => {

@@ -3,7 +3,7 @@
 import React, { type CSSProperties, type DragEvent, type FormEvent, type ReactNode } from 'react';
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { createThemeRuntimeSurface, getThemePreset, mergeTheme, themePresets, type ThemeCardRadius, type ThemeLayout, type ThemeOverrides } from '@margo/themes';
+import { createThemeRuntimeSurface, getThemePreset, mergeTheme, themePresets, type ThemeCardRadius, type ThemeLayout, type ThemeOverrides, type ThemePreset } from '@margo/themes';
 import { useAdminToast } from './admin-toast';
 
 type BrandingFormState = {
@@ -118,6 +118,7 @@ export function ThemePresetSwitcher({
   tenantName,
   initialLayoutConfig = {},
   initialThemeOverrides = {},
+  initialResolvedPreset,
   initialLogoUrl = '',
   initialFaviconUrl = '',
   showAdvancedControls = false,
@@ -126,6 +127,7 @@ export function ThemePresetSwitcher({
   tenantName: string;
   initialLayoutConfig?: Record<string, unknown>;
   initialThemeOverrides?: Record<string, unknown>;
+  initialResolvedPreset?: ThemePreset;
   initialLogoUrl?: string | null;
   initialFaviconUrl?: string | null;
   showAdvancedControls?: boolean;
@@ -138,6 +140,7 @@ export function ThemePresetSwitcher({
   const [uploadingAsset, setUploadingAsset] = useState<string | null>(null);
   const layoutBlockDefaults = getLayoutBlockDefaults(initialLayoutConfig);
   const layoutMenuDefaults = getLayoutMenuDefaults(initialLayoutConfig);
+  const initialThemePreset = initialResolvedPreset ?? getThemePreset(initialPresetId);
 
   const [form, setForm] = useState<BrandingFormState>(() => ({
     logoUrl: initialLogoUrl ?? '',
@@ -155,8 +158,8 @@ export function ThemePresetSwitcher({
       { label: 'Location', href: '#location' },
     ]),
     navSocialLinks: socialItemsRecordValue(initialLayoutConfig, 'navSocialLinks', []),
-    menuFontFamily: stringRecordValue(layoutMenuDefaults, 'fontFamily', getThemePreset(initialPresetId).typography.fontSans),
-    menuFontColor: stringRecordValue(layoutMenuDefaults, 'color', getThemePreset(initialPresetId).colors.text),
+    menuFontFamily: stringRecordValue(layoutMenuDefaults, 'fontFamily', initialThemePreset.typography.fontSans),
+    menuFontColor: stringRecordValue(layoutMenuDefaults, 'color', initialThemePreset.colors.text),
     menuFontSize: stringRecordValue(layoutMenuDefaults, 'fontSize', '0.95rem'),
     menuInterline: stringRecordValue(layoutMenuDefaults, 'interline', '1.45'),
     menuItemGap: stringRecordValue(layoutMenuDefaults, 'itemGap', '14'),
@@ -170,21 +173,21 @@ export function ThemePresetSwitcher({
     cardStyle: stringRecordValue(initialLayoutConfig, 'surfaceStyle', stringRecordValue(initialLayoutConfig, 'cardStyle', 'soft-shadow')),
     cardRadius: stringRecordValue(initialLayoutConfig, 'surfaceRadius', stringRecordValue(initialLayoutConfig, 'cardRadius', 'round')) as ThemeCardRadius,
     fontSans: stringThemeOverride(initialThemeOverrides, ['typography', 'fontSans'], 'Inter'),
-    fontSansColor: stringThemeOverride(initialThemeOverrides, ['typography', 'fontSansColor'], getThemePreset(initialPresetId).colors.text),
+    fontSansColor: stringThemeOverride(initialThemeOverrides, ['typography', 'fontSansColor'], initialThemePreset.colors.text),
     fontDisplay: stringThemeOverride(initialThemeOverrides, ['typography', 'fontDisplay'], 'Cormorant Garamond'),
-    fontDisplayColor: stringThemeOverride(initialThemeOverrides, ['typography', 'fontDisplayColor'], getThemePreset(initialPresetId).colors.text),
+    fontDisplayColor: stringThemeOverride(initialThemeOverrides, ['typography', 'fontDisplayColor'], initialThemePreset.colors.text),
     fontH1: stringThemeOverride(initialThemeOverrides, ['typography', 'fontH1'], ''),
-    fontH1Color: stringThemeOverride(initialThemeOverrides, ['typography', 'fontH1Color'], getThemePreset(initialPresetId).colors.text),
+    fontH1Color: stringThemeOverride(initialThemeOverrides, ['typography', 'fontH1Color'], initialThemePreset.colors.text),
     fontH2: stringThemeOverride(initialThemeOverrides, ['typography', 'fontH2'], ''),
-    fontH2Color: stringThemeOverride(initialThemeOverrides, ['typography', 'fontH2Color'], getThemePreset(initialPresetId).colors.text),
+    fontH2Color: stringThemeOverride(initialThemeOverrides, ['typography', 'fontH2Color'], initialThemePreset.colors.text),
     fontH3: stringThemeOverride(initialThemeOverrides, ['typography', 'fontH3'], ''),
-    fontH3Color: stringThemeOverride(initialThemeOverrides, ['typography', 'fontH3Color'], getThemePreset(initialPresetId).colors.text),
+    fontH3Color: stringThemeOverride(initialThemeOverrides, ['typography', 'fontH3Color'], initialThemePreset.colors.text),
     fontBody: stringThemeOverride(initialThemeOverrides, ['typography', 'fontBody'], ''),
-    fontBodyColor: stringThemeOverride(initialThemeOverrides, ['typography', 'fontBodyColor'], getThemePreset(initialPresetId).colors.text),
+    fontBodyColor: stringThemeOverride(initialThemeOverrides, ['typography', 'fontBodyColor'], initialThemePreset.colors.text),
     fontParagraph: stringThemeOverride(initialThemeOverrides, ['typography', 'fontParagraph'], ''),
-    fontParagraphColor: stringThemeOverride(initialThemeOverrides, ['typography', 'fontParagraphColor'], getThemePreset(initialPresetId).colors.text),
-    blockFontFamily: nestedStringRecordValue(layoutBlockDefaults, ['textStyle', 'fontFamily'], getThemePreset(initialPresetId).typography.fontBody ?? getThemePreset(initialPresetId).typography.fontSans),
-    blockFontColor: nestedStringRecordValue(layoutBlockDefaults, ['textStyle', 'color'], getThemePreset(initialPresetId).colors.text),
+    fontParagraphColor: stringThemeOverride(initialThemeOverrides, ['typography', 'fontParagraphColor'], initialThemePreset.colors.text),
+    blockFontFamily: nestedStringRecordValue(layoutBlockDefaults, ['textStyle', 'fontFamily'], initialThemePreset.typography.fontBody ?? initialThemePreset.typography.fontSans),
+    blockFontColor: nestedStringRecordValue(layoutBlockDefaults, ['textStyle', 'color'], initialThemePreset.colors.text),
     blockFontSize: nestedStringRecordValue(layoutBlockDefaults, ['textStyle', 'fontSize'], '18'),
     blockInterline: nestedStringRecordValue(layoutBlockDefaults, ['spacing', 'interline'], '1.6'),
     blockMargin: nestedStringRecordValue(layoutBlockDefaults, ['spacing', 'margin'], '0'),
@@ -195,7 +198,8 @@ export function ThemePresetSwitcher({
   }));
 
   const themeOverrides = useMemo(() => buildThemeOverrides(form), [form]);
-  const theme = useMemo(() => mergeTheme(getThemePreset(presetId), themeOverrides), [themeOverrides, presetId]);
+  const activePreset = useMemo(() => (presetId === initialThemePreset.id ? initialThemePreset : getThemePreset(presetId)), [initialThemePreset, presetId]);
+  const theme = useMemo(() => mergeTheme(activePreset, themeOverrides), [activePreset, themeOverrides]);
   const runtimeLayout = useMemo(
     () => ({
       ...theme.layout,
