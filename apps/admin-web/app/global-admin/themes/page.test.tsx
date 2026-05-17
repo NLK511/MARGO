@@ -5,17 +5,14 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('../../surface-shell', () => ({ SurfaceShell: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
 vi.mock('@margo/ui', () => ({ ShellCard: ({ title, eyebrow, children }: { title?: string; eyebrow?: string; children: React.ReactNode }) => <section><h2>{eyebrow}</h2><h3>{title}</h3>{children}</section> }));
 
-import ThemeStudioPage from './page';
+import GlobalThemesPage from './page';
 
-describe('theme studio page', () => {
-  it('renders the inventory edit action and live preview workspace', async () => {
-    const html = renderToStaticMarkup(await ThemeStudioPage({ searchParams: Promise.resolve({}) }));
+describe('global themes page', () => {
+  it('links each preset to the theme studio editor', () => {
+    const html = renderToStaticMarkup(<GlobalThemesPage />);
 
-    expect(html).toContain('Theme Studio');
-    expect(html).toContain('Create draft family');
+    expect(html).toContain('White-label theme inventory');
     expect(html).toContain('Edit theme');
-    expect(html).toContain('Mock page object');
-    expect(html).toContain('Color palette');
-    expect(html).toContain('Theme preview fixtures');
+    expect(html).toContain('/global-admin/theme-studio?theme=');
   });
 });

@@ -470,6 +470,215 @@ body {
   padding: 28px;
 }
 
+.theme-studio-layout {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.45fr);
+  align-items: start;
+}
+
+.theme-studio-family-list {
+  display: grid;
+  gap: 14px;
+}
+
+.theme-studio-family-card {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.theme-studio-family-card--selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+}
+
+.theme-studio-family-card h3,
+.theme-studio-preview-header h3,
+.theme-studio-editor-header h3 {
+  margin: 0;
+}
+
+.theme-studio-family-meta,
+.theme-studio-preview-summary {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.theme-studio-family-meta span,
+.theme-studio-preview-summary span {
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.theme-studio-family-meta strong,
+.theme-studio-preview-summary strong {
+  display: block;
+  font-size: 0.94rem;
+}
+
+.theme-studio-family-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.theme-studio-editor-layout {
+  display: grid;
+  gap: 18px;
+}
+
+.theme-studio-editor-header,
+.theme-studio-preview-header {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.theme-studio-status-pill-group,
+.theme-studio-preview-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.status-pill {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 850;
+  padding: 6px 10px;
+}
+
+.status-ready {
+  color: #166534;
+}
+
+.theme-studio-section {
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.theme-studio-color-grid,
+.theme-studio-layout-grid,
+.theme-studio-spacing-grid,
+.theme-studio-typography-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.theme-studio-color-field {
+  display: grid;
+  gap: 10px;
+}
+
+.theme-studio-color-input-row {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 44px minmax(0, 1fr);
+}
+
+.theme-studio-color-input-row input[type='color'] {
+  border: 0;
+  height: 44px;
+  padding: 0;
+  width: 44px;
+}
+
+.theme-studio-color-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.theme-studio-color-swatch {
+  border: 2px solid color-mix(in srgb, var(--color-border) 65%, transparent);
+  border-radius: 999px;
+  height: 26px;
+  width: 26px;
+}
+
+.theme-studio-preview-panel {
+  min-width: 0;
+}
+
+.theme-studio-preview-sticky {
+  display: grid;
+  gap: 16px;
+  position: sticky;
+  top: 92px;
+}
+
+.theme-studio-preview-shell {
+  display: grid;
+  gap: 16px;
+}
+
+.theme-studio-preview-object {
+  display: grid;
+}
+
+.theme-studio-preview-card {
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.theme-studio-preview-card p,
+.theme-studio-preview-card strong {
+  margin: 0;
+}
+
+.theme-studio-preview-card strong {
+  font-size: 1.05rem;
+}
+
+.theme-studio-hero-actions,
+.theme-studio-create-form {
+  width: 100%;
+}
+
+.theme-studio-create-form {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.theme-studio-create-form > label {
+  min-width: 0;
+}
+
+.theme-studio-compact-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.theme-studio-preview-shell h2 {
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1;
+  margin: 0;
+}
+
+.theme-studio-preview-shell button {
+  justify-self: start;
+}
 
 .theme-preview[data-nav-variant='overlay'] {
   padding-top: 44px;

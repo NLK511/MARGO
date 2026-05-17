@@ -12,6 +12,8 @@ The app must be highly customizable in both theme and layout without requiring c
 
 Themes are reusable platform assets and must not contain tenant logos, tenant photos, or tenant-specific copy. Branding is tenant-specific and may override or extend a selected theme. Global Admin may edit built-in themes too; those edits are stored as local overrides rather than mutating the shipped preset source.
 
+Theme Studio should present an inventory with an explicit **Edit theme** action per item and keep a live mock preview visible while adjusting colors, typography, sizes, spacing, and assets.
+
 ## Theme Token Schema
 
 ```ts
