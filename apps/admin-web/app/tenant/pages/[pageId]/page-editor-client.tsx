@@ -96,6 +96,8 @@ export function PageEditorClient({
   const [draggedCarouselSlide, setDraggedCarouselSlide] = useState<string | null>(null);
   const [collapsedBlockIds, setCollapsedBlockIds] = useState<Set<string>>(() => new Set());
   const blockGovernanceIssues = useMemo(() => evaluatePageBlockGovernance(blocks), [blocks]);
+  const blockingGovernanceIssues = useMemo(() => blockGovernanceIssues.filter((issue) => issue.severity === 'error'), [blockGovernanceIssues]);
+  const warningGovernanceIssues = useMemo(() => blockGovernanceIssues.filter((issue) => issue.severity === 'warning'), [blockGovernanceIssues]);
   const newBlockTypeOptions = useMemo(() => getPageBlockPlacementOptions(blocks), [blocks]);
 
   function updateBlock(index: number, patch: Partial<EditorBlock>) {
@@ -123,7 +125,13 @@ export function PageEditorClient({
   }
 
   async function savePage(nextStatus: 'draft' | 'published') {
-    setStatus(nextStatus);
+    if (nextStatus === 'published' && blockingGovernanceIssues.length > 0) {
+      const message = 'Fix the blocking quality issues before publishing. Draft saves are still allowed.';
+      setMessage(message);
+      pushToast({ tone: 'error', title: 'Publish blocked', message });
+      return;
+    }
+
     setMessage(nextStatus === 'published' ? 'Publishing page...' : 'Saving draft...');
     const response = await fetch(pageId === 'new' ? '/admin/tenant/pages' : `/admin/tenant/pages/${pageId}`, {
       method: pageId === 'new' ? 'POST' : 'PATCH',
@@ -147,6 +155,7 @@ export function PageEditorClient({
     }
 
     const payload = (await response.json()) as { pageId: string };
+    setStatus(nextStatus);
     setMessage(nextStatus === 'published' ? 'Page published.' : 'Draft saved.');
     pushToast({ tone: 'success', title: nextStatus === 'published' ? 'Page published' : 'Draft saved', message: title || 'Page changes were stored.' });
     startTransition(() => {
@@ -388,7 +397,7 @@ export function PageEditorClient({
           <button type="button" className="primary-admin-button" onClick={() => savePage('draft')} disabled={isPending}>
             Save draft
           </button>
-          <button type="button" className="primary-admin-button" onClick={() => savePage('published')} disabled={isPending}>
+          <button type="button" className="primary-admin-button" onClick={() => savePage('published')} disabled={isPending || blockingGovernanceIssues.length > 0} title={blockingGovernanceIssues.length > 0 ? 'Fix blocking quality issues before publishing.' : undefined}>
             Publish
           </button>
         </div>
@@ -400,17 +409,33 @@ export function PageEditorClient({
       </ShellCard>
 
       <ShellCard eyebrow="Quality" title="Block governance">
-        {blockGovernanceIssues.length ? (
-          <ul>
-            {blockGovernanceIssues.map((issue) => (
-              <li key={`${issue.code}-${issue.path ?? 'page'}`} className={`status-pill status-${issue.severity}`}>
-                {issue.message}
-              </li>
-            ))}
-          </ul>
-        ) : (
+        <p className="form-help">Warnings can be saved as drafts. Blocking issues only stop publishing.</p>
+        {blockingGovernanceIssues.length ? (
+          <>
+            <h3>Blocking issues</h3>
+            <ul>
+              {blockingGovernanceIssues.map((issue) => (
+                <li key={`${issue.code}-${issue.path ?? 'page'}`} className="status-pill status-error">
+                  {issue.message}
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+        {warningGovernanceIssues.length ? (
+          <>
+            <h3>Warnings</h3>
+            <ul>
+              {warningGovernanceIssues.map((issue) => (
+                <li key={`${issue.code}-${issue.path ?? 'page'}`} className="status-pill status-warning">
+                  {issue.message}
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : blockingGovernanceIssues.length === 0 ? (
           <p>All blocks follow the current governance rules.</p>
-        )}
+        ) : null}
       </ShellCard>
     </section>
   );
