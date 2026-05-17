@@ -66,7 +66,7 @@ Then the sections can be expanded or minimized to reduce clutter.
 
 Given the branding block spacing controls are shown,
 When the admin edits them,
-Then the margin size can be selected explicitly and with a smooth progression from very small to the existing standard size.
+Then the margin size can be selected explicitly and with a smooth progression from very small to the existing standard size, and zero or tiny values persist after save.
 
 Given the navigation bar is rendered,
 When block margins are changed,

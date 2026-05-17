@@ -133,7 +133,7 @@ Tenant branding must be able to define reusable defaults for content blocks, inc
 - navigation item gap presets
 
 Blocks inherit these values unless explicitly overridden at block level.
-Margin controls should offer a smooth scale from very small to the existing standard size.
+Margin controls should offer a smooth scale from very small to the existing standard size, and zero/very small values must persist correctly through save and preview.
 Navigation chrome must not inherit block margins; the menu bar keeps its own spacing model and only uses its own gap/padding controls.
 
 ## Tenant Builder Customization UI

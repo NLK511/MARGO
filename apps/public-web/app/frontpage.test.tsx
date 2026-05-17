@@ -177,7 +177,7 @@ describe('frontpage rendering', () => {
               lineHeight: '1.7',
             },
             spacing: {
-              margin: '2rem',
+              margin: '32px',
               padding: '1rem',
               interline: '1.7',
             },
@@ -199,7 +199,7 @@ describe('frontpage rendering', () => {
     expect(html).toContain('--block-text-color:#123456');
     expect(html).toContain('--block-text-size:24px');
     expect(html).toContain('--block-line-height:1.7');
-    expect(html).toContain('--block-margin:2rem');
+    expect(html).toContain('--block-margin:32px');
     expect(html).toContain('--block-padding:1rem');
   });
 
@@ -215,7 +215,7 @@ describe('frontpage rendering', () => {
             itemGap: '20',
           },
           blockDefaults: {
-            spacing: { margin: '2rem' },
+            spacing: { margin: '32px' },
           },
         },
       },
@@ -225,7 +225,7 @@ describe('frontpage rendering', () => {
 
     expect(headerStyle?.[1] ?? '').not.toContain(';margin:4rem');
     expect(headerStyle?.[1] ?? '').toContain('--menu-item-gap:20px');
-    expect(html).toContain('--block-margin:2rem');
+    expect(html).toContain('--block-margin:32px');
   });
 
   it('renders image blocks with overlays and buttons while cover images ignore block margins', () => {
@@ -236,7 +236,7 @@ describe('frontpage rendering', () => {
         layoutConfig: {
           ...demoFrontpage.tenant.layoutConfig,
           blockDefaults: {
-            spacing: { margin: '2rem', padding: '1rem' },
+            spacing: { margin: '32px', padding: '1rem' },
             textStyle: { textAlign: 'right' },
           },
         },
@@ -272,7 +272,7 @@ describe('frontpage rendering', () => {
 
     expect(html).toContain('image-block-cover');
     expect(html).not.toContain('image-block-framed');
-    expect(html).toContain('--image-block-gutter:2rem');
+    expect(html).toContain('--image-block-gutter:32px');
     expect(html).not.toContain('margin:2rem');
     expect(html).toContain('image-block-overlay-top-left');
     expect(html).toContain('image-block-overlay-item--framed');

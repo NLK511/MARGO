@@ -357,7 +357,7 @@ a {
 
 .frontpage-content {
   display: grid;
-  gap: clamp(20px, 4vw, 40px);
+  gap: clamp(10px, 2vw, 20px);
   margin: 0 auto;
   max-width: var(--content-max);
   width: 100%;
@@ -374,7 +374,7 @@ a {
 
 .frontpage[data-section-rhythm='compact'] .frontpage-content,
 .frontpage-content[data-section-rhythm='compact'] {
-  gap: clamp(12px, 2vw, 24px);
+  gap: clamp(6px, 1.2vw, 14px);
 }
 
 .frontpage[data-section-rhythm='none'] .frontpage-content > .block + .block,

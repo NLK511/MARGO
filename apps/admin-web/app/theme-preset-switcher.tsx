@@ -95,14 +95,14 @@ const blockSizeOptions = [
 const blockSpacingOptions = [
   { value: '', label: 'Default' },
   { value: '0', label: 'None' },
-  { value: '0.25rem', label: 'Very small' },
-  { value: '0.5rem', label: 'Tiny' },
-  { value: '0.75rem', label: 'XS' },
-  { value: '1rem', label: 'SM' },
-  { value: '1.25rem', label: 'MD' },
-  { value: '1.5rem', label: 'LG' },
-  { value: '1.75rem', label: 'XL' },
-  { value: '2rem', label: 'Standard' },
+  { value: '4px', label: 'Very small' },
+  { value: '8px', label: 'Tiny' },
+  { value: '12px', label: 'XS' },
+  { value: '16px', label: 'SM' },
+  { value: '20px', label: 'MD' },
+  { value: '24px', label: 'LG' },
+  { value: '28px', label: 'XL' },
+  { value: '32px', label: 'Standard' },
 ] as const;
 const blockInterlineOptions = [
   { value: '', label: 'Default' },
@@ -262,13 +262,13 @@ export function ThemePresetSwitcher({
           navSocialLinks: form.navSocialLinks.map((item) => item.href),
           navHeight: form.navHeight,
           menuDefaults: {
-            fontFamily: form.menuFontFamily || undefined,
+            fontFamily: emptyStringToUndefined(form.menuFontFamily),
             color: normalizeColor(form.menuFontColor) ?? undefined,
-            fontSize: form.menuFontSize || undefined,
-            interline: form.menuInterline || undefined,
-            itemGap: form.menuItemGap || undefined,
-            margin: form.menuMargin || undefined,
-            padding: form.menuPadding || undefined,
+            fontSize: emptyStringToUndefined(form.menuFontSize),
+            interline: emptyStringToUndefined(form.menuInterline),
+            itemGap: emptyStringToUndefined(form.menuItemGap),
+            margin: emptyStringToUndefined(form.menuMargin),
+            padding: emptyStringToUndefined(form.menuPadding),
           },
           hero: form.hero,
           contentWidth: form.contentWidth,
@@ -280,14 +280,14 @@ export function ThemePresetSwitcher({
           logotype: form.logotype,
           blockDefaults: {
             textStyle: {
-              fontFamily: form.blockFontFamily || undefined,
+              fontFamily: emptyStringToUndefined(form.blockFontFamily),
               color: normalizeColor(form.blockFontColor) ?? undefined,
               fontSize: cssLengthFromInput(form.blockFontSize, '18px'),
             },
             spacing: {
-              margin: form.blockMargin || undefined,
-              padding: form.blockPadding || undefined,
-              interline: form.blockInterline || undefined,
+              margin: emptyStringToUndefined(form.blockMargin),
+              padding: emptyStringToUndefined(form.blockPadding),
+              interline: emptyStringToUndefined(form.blockInterline),
             },
           },
         },
@@ -1037,6 +1037,11 @@ async function uploadImage(file: File, kind: string): Promise<Response> {
 function normalizeUrl(value: string): string | null {
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function emptyStringToUndefined(value: string): string | undefined {
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
 }
 
 function normalizeColor(value: string): string | null {
