@@ -72,6 +72,8 @@ describe('branding editor regression coverage', () => {
 
     expect(source).toContain('branding-details');
     expect(source).toContain('fontSizeInputValue(form.blockFontSize, 18)');
+    expect(source).toContain('Very small');
+    expect(source).toContain('Standard');
     expect(source).toContain('Block margin size');
     expect(source).toContain('menuItemGap');
     expect(source).toContain('cssLengthFromInput(form.menuItemGap,');

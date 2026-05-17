@@ -62,6 +62,7 @@ export function FrontpageShell({ model }: { model: TenantFrontpageModel }) {
     margin: '',
     padding: '',
   });
+  delete (menuStyle as Record<string, unknown>).margin;
   setCssVar(menuStyle as Record<string, string>, '--menu-item-gap', resolveCssLength(menuDefaults.itemGap as string | undefined, '14px'));
 
   return (

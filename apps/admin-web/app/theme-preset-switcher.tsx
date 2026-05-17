@@ -95,10 +95,14 @@ const blockSizeOptions = [
 const blockSpacingOptions = [
   { value: '', label: 'Default' },
   { value: '0', label: 'None' },
-  { value: '0.5rem', label: 'XS' },
+  { value: '0.25rem', label: 'Very small' },
+  { value: '0.5rem', label: 'Tiny' },
+  { value: '0.75rem', label: 'XS' },
   { value: '1rem', label: 'SM' },
-  { value: '1.5rem', label: 'MD' },
-  { value: '2rem', label: 'LG' },
+  { value: '1.25rem', label: 'MD' },
+  { value: '1.5rem', label: 'LG' },
+  { value: '1.75rem', label: 'XL' },
+  { value: '2rem', label: 'Standard' },
 ] as const;
 const blockInterlineOptions = [
   { value: '', label: 'Default' },

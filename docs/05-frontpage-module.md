@@ -121,6 +121,8 @@ Overlay text placement rules:
 - text layout must wrap naturally within its container
 - button rendering is optional for image blocks
 - when the image block uses the `cover` variant, the image itself stays full-bleed and does not inherit outer block margins; overlay text and optional buttons still use the block margin as their inset/gutter
+- margin presets must progress smoothly from very small to the existing standard size
+- menu bar spacing is independent from block margins
 
 ## Block Contract
 

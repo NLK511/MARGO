@@ -203,6 +203,31 @@ describe('frontpage rendering', () => {
     expect(html).toContain('--block-padding:1rem');
   });
 
+  it('keeps menu bar margins independent from block margins', () => {
+    const model = {
+      ...demoFrontpage,
+      tenant: {
+        ...demoFrontpage.tenant,
+        layoutConfig: {
+          ...demoFrontpage.tenant.layoutConfig,
+          menuDefaults: {
+            margin: '4rem',
+            itemGap: '20',
+          },
+          blockDefaults: {
+            spacing: { margin: '2rem' },
+          },
+        },
+      },
+    };
+    const html = renderToStaticMarkup(<FrontpageShell model={model} />);
+    const headerStyle = html.match(/<header[^>]*style="([^"]+)"/);
+
+    expect(headerStyle?.[1] ?? '').not.toContain(';margin:4rem');
+    expect(headerStyle?.[1] ?? '').toContain('--menu-item-gap:20px');
+    expect(html).toContain('--block-margin:2rem');
+  });
+
   it('renders image blocks with overlays and buttons while cover images ignore block margins', () => {
     const model = {
       ...demoFrontpage,
