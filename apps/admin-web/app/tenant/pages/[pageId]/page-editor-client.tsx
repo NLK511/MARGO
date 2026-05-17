@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShellCard } from '@margo/ui';
 import {
@@ -58,6 +58,7 @@ export function PageEditorClient({
   tenantName,
   pageId,
   initialPage,
+  showDebugPanel = false,
 }: {
   tenantSlug: string;
   tenantName: string;
@@ -72,6 +73,7 @@ export function PageEditorClient({
     layoutPreset: string;
     blocks: Array<{ id: string; type: string; variant: string; props: unknown }>;
   } | null;
+  showDebugPanel?: boolean;
 }) {
   const router = useRouter();
   const { pushToast } = useAdminToast();
@@ -94,7 +96,6 @@ export function PageEditorClient({
   const [draggedCarouselSlide, setDraggedCarouselSlide] = useState<string | null>(null);
   const [collapsedBlockIds, setCollapsedBlockIds] = useState<Set<string>>(() => new Set());
 
-  const serializedBlocks = useMemo(() => JSON.stringify(blocks), [blocks]);
 
   function updateBlock(index: number, patch: Partial<EditorBlock>) {
     setBlocks((current) => current.map((block, currentIndex) => (currentIndex === index ? { ...block, ...patch } : block)));
@@ -392,10 +393,16 @@ export function PageEditorClient({
         </div>
       </form>
 
-      <ShellCard eyebrow="Status" title="Editor state">
-        <p>{message}</p>
-        <pre style={{ whiteSpace: 'pre-wrap' }}>{serializedBlocks}</pre>
-      </ShellCard>
+      {showDebugPanel ? (
+        <ShellCard eyebrow="Status" title="Editor state">
+          <p>{message}</p>
+          <p className="form-help">Serialized block state is only shown in debug mode.</p>
+        </ShellCard>
+      ) : (
+        <ShellCard eyebrow="Status" title="Editor state">
+          <p>{message}</p>
+        </ShellCard>
+      )}
     </section>
   );
 }

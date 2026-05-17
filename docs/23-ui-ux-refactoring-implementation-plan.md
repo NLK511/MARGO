@@ -385,7 +385,7 @@ Remove low-level knobs from tenant-facing standard mode and replace them with a 
 
 ## Tasks
 
-- [ ] **M5-T001: Create Tenant Builder route structure**
+- [x] **M5-T001: Create Tenant Builder route structure**
   - Suggested directory: `apps/admin-web/app/tenant/builder`.
   - Keep existing routes redirecting or compatibility-wrapped.
   - Requirements covered: REQ-TB-001.
@@ -393,7 +393,7 @@ Remove low-level knobs from tenant-facing standard mode and replace them with a 
     - Builder modes render.
     - Existing page edit URL still works or redirects.
 
-- [ ] **M5-T002: Implement Compose mode**
+- [x] **M5-T002: Implement Compose mode**
   - Section actions: add, remove, reorder, duplicate, hide/show, variant select, recommended next section.
   - Requirements covered: REQ-TB-002.
   - Tests:
@@ -401,7 +401,7 @@ Remove low-level knobs from tenant-facing standard mode and replace them with a 
     - Hidden section not public.
     - Recommended section renders.
 
-- [ ] **M5-T003: Implement Content mode**
+- [x] **M5-T003: Implement Content mode**
   - Render content fields from enriched block schemas.
   - Requirements covered: REQ-TB-003.
   - Tests:
@@ -409,7 +409,7 @@ Remove low-level knobs from tenant-facing standard mode and replace them with a 
     - Missing required fields produce quality issue.
     - Image alt warning.
 
-- [ ] **M5-T004: Implement Style mode**
+- [x] **M5-T004: Implement Style mode**
   - Curated selectors only: theme, mood, density, radius personality, image treatment, CTA emphasis.
   - Requirements covered: REQ-TB-004.
   - Tests:
@@ -425,7 +425,7 @@ Remove low-level knobs from tenant-facing standard mode and replace them with a 
     - Advanced collapsed by default.
     - Advanced controls token-constrained.
 
-- [ ] **M5-T006: Remove serialized JSON debug output**
+- [x] **M5-T006: Remove serialized JSON debug output**
   - Requirements covered: REQ-TB-005.
   - Tests:
     - No raw JSON visible to tenant user.
@@ -437,7 +437,7 @@ Remove low-level knobs from tenant-facing standard mode and replace them with a 
   - Tests:
     - Preview/public snapshot parity.
 
-- [ ] **M5-T008: Device preview switcher**
+- [x] **M5-T008: Device preview switcher**
   - Requirements covered: REQ-TB-007.
   - Tests:
     - Desktop/tablet/mobile preview modes.

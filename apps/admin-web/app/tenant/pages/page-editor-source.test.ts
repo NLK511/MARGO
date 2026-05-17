@@ -13,6 +13,7 @@ describe('page editor source safeguards', () => {
     expect(source).toContain('videoUrl');
     expect(source).toContain('toggleBlockCollapsed');
     expect(source).toContain("{isCollapsed ? 'Expand' : 'Minimize'}");
+    expect(source).not.toContain('{serializedBlocks}');
     expect(css).toContain('.page-block-editor-card');
     expect(css).toContain('.block-editor-header');
   });
