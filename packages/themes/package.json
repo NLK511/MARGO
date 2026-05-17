@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./theme-studio-overrides": "./src/theme-studio-overrides.ts"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

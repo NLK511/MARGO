@@ -1,7 +1,8 @@
 import { headers } from 'next/headers';
 import { DEMO_TENANTS, type DemoTenantSlug, resolveTenantContext } from '@margo/core';
 import { createPrismaTenantResolverRepository } from '@margo/db';
-import { createThemeRuntimeSurface, mergeTheme, resolveThemePresetOrFallback, type ThemeOverrides, type ThemePreset } from '@margo/themes';
+import { createThemeRuntimeSurface, mergeTheme, type ThemeOverrides, type ThemePreset } from '@margo/themes';
+import { resolveThemePresetWithStudioOverrides } from '@margo/themes/theme-studio-overrides';
 
 export interface TenantBrandingSnapshot {
   slug: string;
@@ -89,7 +90,7 @@ export function getDemoTenantBranding(tenantSlug: DemoTenantSlug): TenantBrandin
 }
 
 export function buildTenantTheme(branding: Pick<TenantBrandingSnapshot, 'themePresetId' | 'themeOverrides'>): ThemePreset {
-  return mergeTheme(resolveThemePresetOrFallback(branding.themePresetId, (warning) => console.warn(warning)).preset, (branding.themeOverrides ?? {}) as ThemeOverrides);
+  return mergeTheme(resolveThemePresetWithStudioOverrides(branding.themePresetId, (warning) => console.warn(warning)), (branding.themeOverrides ?? {}) as ThemeOverrides);
 }
 
 export function buildTenantRuntimeSurface(branding: Pick<TenantBrandingSnapshot, 'themePresetId' | 'themeOverrides'>) {

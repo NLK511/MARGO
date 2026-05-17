@@ -3,7 +3,8 @@ import type { CSSProperties, ReactNode } from 'react';
 import { CarouselBlock } from './carousel-block';
 import type { PublicPageBlockRecord, PublicPageLocationRecord, PublicPageRecord, PublicPageServiceRecord } from '@margo/db';
 import { getCarouselPresetDefaults, getCarouselPresetSlides } from '@margo/core';
-import { compileThemeStyleAttribute, createThemeRuntimeSurface, getThemePreset, mergeTheme, resolveThemePresetOrFallback, type ThemeOverrides } from '@margo/themes';
+import { compileThemeStyleAttribute, createThemeRuntimeSurface, getThemePreset, mergeTheme, type ThemeOverrides } from '@margo/themes';
+import { resolveThemePresetWithStudioOverrides } from '@margo/themes/theme-studio-overrides';
 
 export interface TenantFrontpageModel {
   tenant: {
@@ -22,7 +23,7 @@ export interface TenantFrontpageModel {
 }
 
 export function FrontpageShell({ model }: { model: TenantFrontpageModel }) {
-  const baseTheme = resolveThemePresetOrFallback(model.tenant.themePresetId, (warning) => console.warn(warning)).preset;
+  const baseTheme = resolveThemePresetWithStudioOverrides(model.tenant.themePresetId, (warning) => console.warn(warning));
   const themeOverrides = normalizeThemeOverrides(model.tenant.themeOverrides);
   const layoutConfig = toRecord(model.tenant.layoutConfig);
   const blockDefaults = toRecord(layoutConfig.blockDefaults);
