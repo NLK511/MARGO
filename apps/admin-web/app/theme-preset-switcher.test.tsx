@@ -68,13 +68,15 @@ describe('branding editor regression coverage', () => {
       <AdminToastProvider>
         <ThemePresetSwitcher
           initialPresetId="chef"
-          initialResolvedPreset={{ ...chef, colors: { ...chef.colors, primary: '#112233' } }}
+          initialResolvedPreset={{ ...chef, colors: { ...chef.colors, primary: '#112233' }, layout: { ...chef.layout, nav: 'overlay', contentWidth: 'full', hero: 'full-bleed', sectionRhythm: 'compact', sectionBorder: 'none', cardStyle: 'glass', cardRadius: 'square' } }}
           tenantName="Maison Test"
         />
       </AdminToastProvider>,
     );
 
     expect(html).toContain('#112233');
+    expect(html).toContain('data-nav-variant="overlay"');
+    expect(html).toContain('data-content-width="full"');
   });
 
   it('uses margin-based full-width top navigation in the live preview', () => {
