@@ -121,12 +121,12 @@ export default async function ThemeStudioPage({ searchParams }: { searchParams?:
                     <div className="theme-studio-family-meta">
                       <span>{family.sourcePresetId}</span>
                       <span>{family.lifecycle}</span>
-                      <span>{family.canPublish ? 'Ready' : 'Blocked'}</span>
+                      <span>{getThemeGateLabel(family)}</span>
                     </div>
                   </div>
                   <div className="theme-studio-family-actions">
                     <a className="button-link" href={`/global-admin/theme-studio?theme=${family.id}`}>Edit theme</a>
-                    <span className={`status-pill ${family.canPublish ? 'status-ready' : 'status-warning'}`}>{family.canPublish ? 'Publish ready' : 'Needs review'}</span>
+                    <span className={`status-pill ${family.issues.some((issue) => issue.severity === 'error') ? 'status-warning' : 'status-ready'}`}>{getThemeGateLabel(family)}</span>
                   </div>
                 </article>
               ))}
@@ -152,6 +152,19 @@ export default async function ThemeStudioPage({ searchParams }: { searchParams?:
                     <button type="submit" className="button-link">Update lifecycle</button>
                   </div>
                 </form>
+                <form action={transitionThemeFamilyAction} className="theme-studio-publish-form">
+                  <input type="hidden" name="familyId" value={selectedFamily.id} />
+                  <input type="hidden" name="lifecycle" value="published" />
+                  <button type="submit" className="button-link" disabled={!selectedFamily.canPublish}>Publish theme</button>
+                </form>
+                {selectedFamily.issues.length ? (
+                  <div className="theme-studio-issue-panel">
+                    <strong>{selectedFamily.canPublish ? 'Review notes' : 'Blocking issues'}</strong>
+                    <ul>
+                      {selectedFamily.issues.map((issue) => <li key={`${issue.code}:${issue.path}`} className={`theme-studio-issue theme-studio-issue--${issue.severity}`}><span>{issue.severity}</span><p>{issue.message}</p></li>)}
+                    </ul>
+                  </div>
+                ) : null}
                 {!selectedFamily.isBuiltIn && selectedFamily.canDelete ? (
                   <form action={deleteThemeFamilyAction}>
                     <input type="hidden" name="familyId" value={selectedFamily.id} />
@@ -183,4 +196,10 @@ export default async function ThemeStudioPage({ searchParams }: { searchParams?:
 
 function resolveSelectedFamily(families: ThemeStudioFamilyView[], requestedId?: string) {
   return families.find((family) => family.id === requestedId) ?? families[0] ?? null;
+}
+
+function getThemeGateLabel(family: ThemeStudioFamilyView): string {
+  if (family.issues.some((issue) => issue.severity === 'error')) return 'Blocked';
+  if (family.issues.some((issue) => issue.severity === 'warning')) return 'Needs review';
+  return family.lifecycle === 'published' ? 'Published' : 'Publish ready';
 }

@@ -530,6 +530,65 @@ body {
   justify-content: space-between;
 }
 
+.theme-studio-publish-form {
+  display: flex;
+}
+
+.theme-studio-issue-panel {
+  background: color-mix(in srgb, var(--color-surface-alt) 70%, white);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.theme-studio-issue-panel strong {
+  font-size: 0.95rem;
+}
+
+.theme-studio-issue-panel ul {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.theme-studio-issue {
+  align-items: start;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: auto 1fr;
+}
+
+.theme-studio-issue span {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 4px 8px;
+  text-transform: uppercase;
+}
+
+.theme-studio-issue p {
+  margin: 0;
+}
+
+.theme-studio-issue--error span {
+  color: #991b1b;
+}
+
+.theme-studio-issue--warning span {
+  color: #92400e;
+}
+
+.theme-studio-issue--info span {
+  color: #1d4ed8;
+}
+
 .theme-studio-editor-layout {
   display: grid;
   gap: 18px;
