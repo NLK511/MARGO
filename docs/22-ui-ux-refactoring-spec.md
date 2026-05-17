@@ -339,6 +339,8 @@ tests/visual/public-preview-parity.spec.ts
 
 A requirement is not complete until its corresponding tests are implemented and passing.
 
+Implementation checklist: see `docs/23-ui-ux-refactoring-implementation-plan.md`.
+
 ---
 
 ## 11. Definition of done
