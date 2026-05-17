@@ -1,7 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <html lang="en">
@@ -17,9 +15,9 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
                 <button type="button" className="primary-admin-button" onClick={reset}>
                   Try again
                 </button>
-                <Link className="admin-action" href="/">
+                <a className="admin-action" href="/">
                   Return to dashboard
-                </Link>
+                </a>
               </div>
             </div>
           </section>
