@@ -69,6 +69,15 @@ describe('public page service', () => {
     expect(findFirst).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ status: 'published' }) }));
   });
 
+  it('falls back to any published locale when the requested locale is unavailable', async () => {
+    const publishedEn = pageFixture('published');
+    const publishedFr = { ...publishedEn, locale: 'fr' };
+    const findFirst = vi.fn(async (args: unknown) => (typeof args === 'object' && args && 'where' in args && (args as { where: { locale?: string } }).where.locale === 'en' ? null : publishedFr));
+    const service = createPublicPageService({ publicPage: { findFirst, findMany: vi.fn(), update: vi.fn() } });
+
+    await expect(service.findPublishedPage({ tenantId: uuid, slug: 'home', locale: 'en' })).resolves.toMatchObject({ locale: 'fr' });
+  });
+
   it('returns null for missing public pages', async () => {
     const service = createPublicPageService({ publicPage: { findFirst: vi.fn(async () => null), findMany: vi.fn(), update: vi.fn() } });
 

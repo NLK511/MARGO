@@ -277,20 +277,26 @@ export interface TenantThemePersistenceInput {
 export function createPublicPageService(client: PublicPageClient = prisma as unknown as PublicPageClient) {
   return {
     async findPublishedPage(input: { tenantId: string; slug?: string; locale?: string }): Promise<PublicPageRecord | null> {
+      const sharedInclude = {
+        blocks: { orderBy: { position: 'asc' } },
+        tenant: { include: { services: { where: { active: true } }, locations: { where: { active: true } } } },
+      } as const;
+      const slug = input.slug ?? 'home';
+      const locale = input.locale ?? 'en';
+
       const page = await client.publicPage.findFirst({
-        where: {
-          tenantId: input.tenantId,
-          slug: input.slug ?? 'home',
-          locale: input.locale ?? 'en',
-          status: 'published',
-        },
-        include: {
-          blocks: { orderBy: { position: 'asc' } },
-          tenant: { include: { services: { where: { active: true } }, locations: { where: { active: true } } } },
-        },
+        where: { tenantId: input.tenantId, slug, locale, status: 'published' },
+        include: sharedInclude,
       });
 
-      return page ? mapPublicPageRecord(page) : null;
+      if (page) return mapPublicPageRecord(page);
+
+      const fallbackPage = await client.publicPage.findFirst({
+        where: { tenantId: input.tenantId, slug, status: 'published' },
+        include: sharedInclude,
+      });
+
+      return fallbackPage ? mapPublicPageRecord(fallbackPage) : null;
     },
 
     async findPageForAdmin(input: { tenantId: string; pageId: string }): Promise<PublicPageRecord | null> {
