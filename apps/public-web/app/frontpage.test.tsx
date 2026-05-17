@@ -12,7 +12,7 @@ describe('frontpage rendering', () => {
     const html = renderToStaticMarkup(<FrontpageShell model={demoFrontpage} />);
 
     expect(html).toContain('Bistro Lumiere');
-    expect(html).toContain('href="/en"');
+    expect(html).toContain('href="/t/bistro-frontpage"');
     expect(html).toContain('layout-editorial');
     expect(html).toContain('data-section-rhythm="spacious"');
     expect(html).toContain('data-card-radius="round"');

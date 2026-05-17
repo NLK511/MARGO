@@ -17,6 +17,7 @@ export const demoFrontpage: TenantFrontpageModel = {
       sectionBorder: 'thin',
       cardStyle: 'flat',
     },
+    homeHref: '/t/bistro-frontpage',
   },
   page: {
     id: 'demo-home',
@@ -102,6 +103,7 @@ export const maisonNoireDemoFrontpage: TenantFrontpageModel = {
     },
     logoUrl: '/demo-assets/luxury/logo.svg',
     faviconUrl: '/demo-assets/luxury/favicon.svg',
+    homeHref: '/t/maison-noire',
   },
   page: {
     id: 'demo-home-maison-noire',

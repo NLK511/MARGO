@@ -36,6 +36,7 @@ export async function getFrontpageForHostAndPath(hostname: string | null, path: 
       themeOverrides: tenant.themeOverrides,
       logoUrl: tenant.logoUrl,
       faviconUrl: tenant.faviconUrl,
+      homeHref: tenant.resolutionMethod === 'development-prefix' ? `/t/${tenant.slug}` : `/${tenant.locale}`,
     },
     page: injectMaisonNoireCarousel(tenant.slug, page),
   };

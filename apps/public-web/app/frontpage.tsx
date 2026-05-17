@@ -16,6 +16,7 @@ export interface TenantFrontpageModel {
     themeOverrides?: Record<string, unknown>;
     logoUrl?: string | null;
     faviconUrl?: string | null;
+    homeHref?: string;
   };
   page: PublicPageRecord;
 }
@@ -85,7 +86,7 @@ export function FrontpageShell({ model }: { model: TenantFrontpageModel }) {
         data-nav-brand-slot={navBrandSlot}
         style={menuStyle}
       >
-        <a className="brand" href={model.tenant.locale ? `/${model.tenant.locale}` : `/t/${model.tenant.slug}`}>
+        <a className="brand" href={model.tenant.homeHref ?? (model.tenant.locale ? `/${model.tenant.locale}` : `/t/${model.tenant.slug}`)}>
           {(navBrandSlot === 'logo' || navBrandSlot === 'both') && model.tenant.logoUrl ? <img className="brand-mark" src={model.tenant.logoUrl} alt="" aria-hidden="true" /> : <span className="brand-mark brand-mark-placeholder">{model.tenant.displayName.slice(0, 1)}</span>}
           {navBrandSlot !== 'logo' ? (
             <span className="brand-copy">
