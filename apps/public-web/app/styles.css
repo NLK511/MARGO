@@ -543,6 +543,7 @@ a {
 .rich-text h2 {
   color: var(--block-text-color, var(--font-h2-color, var(--font-display-color, var(--color-text))));
   font-family: var(--block-font-family, var(--font-h2, var(--font-display)));
+  margin-bottom: clamp(1rem, 2.4vw, 2rem);
 }
 
 .hero h1 {
@@ -682,7 +683,7 @@ a {
   border: var(--section-border-width) var(--section-border-style) var(--color-border);
   border-radius: var(--radius-card, var(--radius-md));
   box-shadow: var(--shadow-card);
-  padding: clamp(24px, 5vw, 48px);
+  padding: clamp(20px, 4vw, 40px);
 }
 
 .image-block {
@@ -1184,7 +1185,7 @@ p.image-block-overlay-item {
   background-size: cover;
   border: var(--section-border-width) var(--section-border-style) var(--color-border);
   border-radius: var(--radius-card, var(--radius-md));
-  padding: 20px;
+  padding: 16px 18px;
   transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 

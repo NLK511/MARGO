@@ -87,6 +87,7 @@ export const chefDemoFrontpage: TenantFrontpageModel = {
     layoutConfig: {
       nav: 'centered',
       navSticky: true,
+      navTransparency: 'transparent',
       navBrandSlot: 'both',
       navRightText: '06 18 75 47 31',
       navLinks: [
@@ -151,12 +152,12 @@ export const chefDemoFrontpage: TenantFrontpageModel = {
           backgroundImage: 'https://chefmichelhelene.com/wp-content/uploads/2023/12/Chef_a_Domicile_Paris.jpg',
         },
       },
-      { id: 'about', type: 'rich-text', variant: 'default', position: 1, props: { title: 'Le déroulement de votre dîner privé clé en main', body: 'De la préparation au service, tout est orchestré pour vous laisser profiter pleinement de votre soirée.' } },
-      { id: 'chef', type: 'split-media', variant: 'image-right', position: 2, props: { title: 'Le chef', body: 'Cuisine discrète, précision des cuissons et soin du détail pour une expérience intime et haut de gamme.', imageUrl: 'https://chefmichelhelene.com/wp-content/uploads/2024/02/Chef_Michel_Helene.jpg', alt: 'Chef Michel Hélène' } },
+      { id: 'about', type: 'rich-text', variant: 'default', position: 1, props: { title: 'Le déroulement de votre dîner privé clé en main', body: 'De la préparation au service, tout est orchestré pour vous laisser profiter pleinement de votre soirée.', titleTextStyle: { fontFamily: 'Cormorant Garamond', fontSize: 'clamp(2.8rem, 5.5vw, 5.5rem)', lineHeight: '0.92', textAlign: 'left' }, spacing: { margin: '7rem 0 4rem', padding: '0' } } },
+      { id: 'chef', type: 'split-media', variant: 'image-right', position: 2, props: { textTitle: 'Le chef', body: 'Cuisine discrète, précision des cuissons et soin du détail pour une expérience intime et haut de gamme.', imageUrl: 'https://chefmichelhelene.com/wp-content/uploads/2024/02/Chef_Michel_Helene.jpg', alt: 'Chef Michel Hélène', titleTextStyle: { fontFamily: 'Cormorant Garamond', fontSize: 'clamp(2.4rem, 4.5vw, 4.6rem)', lineHeight: '0.95', textAlign: 'left' }, textStyle: { fontSize: '1.08rem', lineHeight: '1.95' }, textSpacing: { margin: '0', padding: '0' } } },
       { id: 'services', type: 'service-list', variant: 'cards', position: 3, props: { title: 'Menus gastronomiques à domicile à Paris' } },
       { id: 'reviews', type: 'carousel', variant: 'testimonials', position: 4, props: createCarouselPresetProps('testimonials', { eyebrow: 'Une expérience saluée par mes clients', title: 'Une expérience saluée par mes clients', body: 'Moments partagés autour de la gastronomie.' }) as never },
       { id: 'gallery', type: 'image', variant: 'cover', position: 5, props: { caption: 'Moments partagés autour de la gastronomie', imageUrl: 'https://chefmichelhelene.com/wp-content/uploads/2024/07/presentationviande_chefMichelHelene-scaled.jpg', buttonLabel: 'Voir la galerie', buttonHref: '#gallery' } },
-      { id: 'press', type: 'rich-text', variant: 'default', position: 6, props: { title: 'Moments partagés autour de la gastronomie', body: 'Une présence presse, des maisons partenaires et des clients qui reviennent pour l’expérience.' } },
+      { id: 'press', type: 'rich-text', variant: 'default', position: 6, props: { title: 'Moments partagés autour de la gastronomie', body: 'Une présence presse, des maisons partenaires et des clients qui reviennent pour l’expérience.', titleTextStyle: { fontFamily: 'Cormorant Garamond', fontSize: 'clamp(2.2rem, 4vw, 4rem)', lineHeight: '0.95', textAlign: 'left' }, spacing: { margin: '6rem 0 3rem', padding: '0' } } },
       { id: 'location', type: 'location', variant: 'card', position: 7, props: { title: 'Dîners privés et prestations à domicile' } },
       { id: 'reservation', type: 'cta', variant: 'banner', position: 8, props: { title: 'Réservez votre prochain dîner avec un chef à domicile à Paris', body: 'Contactez-nous pour imaginer une prestation sur mesure.', label: 'Réservation' } },
     ],
