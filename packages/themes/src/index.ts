@@ -2,6 +2,7 @@ export * from './theme-family';
 export * from './theme-migration';
 export * from './theme-recipe';
 export * from './theme-runtime';
+export * from './theme-publish-gate';
 
 export type ThemeScale = 'standard' | 'editorial' | 'bold';
 export type ThemeTemplate = 'classic' | 'editorial' | 'split' | 'immersive';

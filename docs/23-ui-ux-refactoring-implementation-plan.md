@@ -242,14 +242,14 @@ Implement design linting and integrate it into theme and page publish flows.
 
 ## Tasks
 
-- [ ] **M3-T001: Implement structured issue model**
+- [x] **M3-T001: Implement structured issue model**
   - File: `packages/design/src/validators/issues.ts`.
   - Include `code`, `severity`, `message`, `path`, `suggestedFix`.
   - Requirements covered: REQ-LINT-001.
   - Tests:
     - Issue object schema validation.
 
-- [ ] **M3-T002: Implement token usage validator**
+- [x] **M3-T002: Implement token usage validator**
   - File: `packages/design/src/validators/token-usage.ts`.
   - Requirements covered: REQ-LINT-002.
   - Tests:
@@ -257,7 +257,7 @@ Implement design linting and integrate it into theme and page publish flows.
     - Raw spacing fails.
     - Token refs pass.
 
-- [ ] **M3-T003: Implement page composition validator**
+- [x] **M3-T003: Implement page composition validator**
   - File: `packages/design/src/validators/page-composition.ts`.
   - Requirements covered: REQ-LINT-003.
   - Tests:
@@ -265,7 +265,7 @@ Implement design linting and integrate it into theme and page publish flows.
     - Missing CTA fails for landing page.
     - Invalid section order fails/warns.
 
-- [ ] **M3-T004: Implement visual hierarchy validator**
+- [x] **M3-T004: Implement visual hierarchy validator**
   - File: `packages/design/src/validators/hierarchy.ts`.
   - Requirements covered: REQ-LINT-004.
   - Tests:
@@ -273,7 +273,7 @@ Implement design linting and integrate it into theme and page publish flows.
     - Multiple primary buttons fail.
     - Missing primary element fails.
 
-- [ ] **M3-T005: Implement accessibility validator**
+- [x] **M3-T005: Implement accessibility validator**
   - File: `packages/design/src/validators/accessibility.ts`.
   - Requirements covered: REQ-LINT-005.
   - Tests:
@@ -282,14 +282,14 @@ Implement design linting and integrate it into theme and page publish flows.
     - Form label issue.
     - Contrast issue.
 
-- [ ] **M3-T006: Implement link validator**
+- [x] **M3-T006: Implement link validator**
   - File: `packages/design/src/validators/links.ts`.
   - Requirements covered: REQ-LINT-006.
   - Tests:
     - Valid internal links pass.
     - Broken anchors fail.
 
-- [ ] **M3-T007: Implement page publish gate**
+- [x] **M3-T007: Implement page publish gate**
   - File: `packages/design/src/validators/publish-gate.ts`.
   - Integrate token, composition, hierarchy, accessibility, link, and content checks.
   - Requirements covered: REQ-LINT-007.
@@ -298,7 +298,7 @@ Implement design linting and integrate it into theme and page publish flows.
     - Draft save allows warnings.
     - Valid page passes.
 
-- [ ] **M3-T008: Implement theme publish gate**
+- [x] **M3-T008: Implement theme publish gate**
   - File: `packages/themes/src/theme-publish-gate.ts`.
   - Requirements covered: REQ-THEME-008.
   - Tests:
@@ -308,9 +308,9 @@ Implement design linting and integrate it into theme and page publish flows.
 
 ## Exit criteria
 
-- [ ] Design validators run in unit tests.
-- [ ] Theme and page publish gates exist as reusable functions.
-- [ ] No UI integration required yet, but APIs are ready.
+- [x] Design validators run in unit tests.
+- [x] Theme and page publish gates exist as reusable functions.
+- [x] No UI integration required yet, but APIs are ready.
 
 ---
 

@@ -6,6 +6,7 @@ import {
   contrastRatio,
   createThemeRuntimeSurface,
   getThemePreset,
+  evaluateBuiltInThemePublishGate,
   listThemeFamiliesFromPresets,
   mapLegacyThemePreset,
   mergeTheme,
@@ -103,6 +104,7 @@ describe('theme CSS compiler', () => {
     expect(listThemeFamiliesFromPresets().length).toBe(themePresets.length);
     expect(mapLegacyThemePreset('luxury-dark-dining').family.id).toBe('luxury-dark-dining');
     expect(resolveRuntimeTheme({ themePresetId: 'clinical-calm' }).themeVersionId).toBe('clinical-calm@1.0.0');
+    expect(evaluateBuiltInThemePublishGate('clinical-calm').canPublish).toBe(true);
   });
 });
 
