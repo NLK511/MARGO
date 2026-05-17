@@ -218,9 +218,9 @@ export function ThemePresetSwitcher({
   const runtimeSurface = useMemo(() => createThemeRuntimeSurface(previewTheme), [previewTheme]);
   const style = useMemo(() => runtimeSurface.style as CSSProperties, [runtimeSurface]);
   const previewImage = form.heroBackgroundImageUrl || form.backgroundImageUrl;
-  const previewBlockPadding = cssLengthFromInput(form.blockPadding, '22px') ?? '22px';
-  const previewBlockMargin = cssLengthFromInput(form.blockMargin, '0') ?? '0';
-  const previewNavMargin = form.contentWidth === 'full' && form.nav === 'top' ? cssLengthFromInput(form.menuMargin, 'clamp(18px, 4vw, 48px)') ?? 'clamp(18px, 4vw, 48px)' : cssLengthFromInput(form.menuMargin, '0') ?? '0';
+  const previewBlockPadding = cssLengthFromInput(form.blockPadding, '');
+  const previewBlockMargin = cssLengthFromInput(form.blockMargin, '');
+  const previewNavMargin = cssLengthFromInput(form.menuMargin, '');
 
   function setField<K extends keyof BrandingFormState>(field: K, value: BrandingFormState[K]) {
     setForm((current) => ({ ...current, [field]: value }));

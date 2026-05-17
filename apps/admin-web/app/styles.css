@@ -889,7 +889,7 @@ body {
 }
 
 .live-preview-grid[data-content-width='full'][data-nav-variant='top'] .live-preview-nav {
-  margin: 0 clamp(18px, 4vw, 48px) 0;
+  margin: 0;
   width: auto;
 }
 
@@ -939,6 +939,7 @@ body {
   display: grid;
   gap: 14px;
   grid-template-columns: auto minmax(0, 1fr) auto;
+  margin: 0;
   padding: 14px 18px;
   position: sticky;
   top: 0;
@@ -1129,7 +1130,7 @@ body {
   display: flex;
   justify-content: space-between;
   min-height: 220px;
-  padding: var(--preview-block-padding, 24px);
+  padding: var(--preview-block-padding, var(--card-padding, 24px));
 }
 
 .live-preview-grid[data-header-spacing='overlay'] .live-preview-hero {
@@ -1138,7 +1139,7 @@ body {
 
 .live-preview-grid[data-hero-variant='full-bleed'] .live-preview-hero {
   min-height: 280px;
-  padding: var(--preview-block-padding, 32px);
+  padding: var(--preview-block-padding, var(--card-padding, 32px));
 }
 
 .live-preview-grid[data-hero-variant='card-stack'] .live-preview-hero {
@@ -1197,12 +1198,12 @@ body {
   border-radius: var(--radius-card, 24px);
   box-shadow: var(--shadow-card);
   min-height: 190px;
-  padding: var(--preview-block-padding, 22px);
+  padding: var(--preview-block-padding, var(--card-padding, 22px));
 }
 
 .live-preview-grid[data-section-rhythm='compact'] .live-preview-card {
   min-height: 160px;
-  padding: var(--preview-block-padding, 18px);
+  padding: var(--preview-block-padding, var(--card-padding, 18px));
 }
 
 .live-preview-card p {

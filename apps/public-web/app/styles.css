@@ -153,7 +153,7 @@ a {
 }
 
 .frontpage[data-content-width='full'][data-nav-variant='top'] .site-nav {
-  margin: 0 clamp(18px, 4vw, 48px) clamp(24px, 5vw, 56px);
+  margin: 0;
   width: auto;
 }
 
@@ -584,7 +584,7 @@ a {
   display: grid;
   gap: 18px;
   max-width: 760px;
-  padding: var(--block-padding, 0);
+  padding: var(--block-padding, var(--hero-padding, 0));
 }
 
 .eyebrow,
@@ -716,7 +716,7 @@ a {
   display: grid;
   gap: 18px;
   margin-top: clamp(8px, 2vw, 22px);
-  padding: var(--block-padding, clamp(22px, 4vw, 34px));
+  padding: var(--block-padding, var(--card-padding, clamp(22px, 4vw, 34px)));
 }
 
 .frontpage.layout-immersive .hero-panel,
@@ -786,7 +786,7 @@ a {
   border: var(--section-border-width) var(--section-border-style) var(--color-border);
   border-radius: var(--radius-card, var(--radius-md));
   box-shadow: var(--shadow-card);
-  padding: var(--block-padding, clamp(20px, 4vw, 40px));
+  padding: var(--block-padding, var(--card-padding, clamp(20px, 4vw, 40px)));
 }
 
 .image-block {
@@ -1169,6 +1169,7 @@ p.image-block-overlay-item {
   align-content: start;
   display: grid;
   gap: 16px;
+  padding: var(--block-padding, 0);
 }
 
 .split-media-visual {
@@ -1288,7 +1289,7 @@ p.image-block-overlay-item {
   background-size: cover;
   border: var(--section-border-width) var(--section-border-style) var(--color-border);
   border-radius: var(--radius-card, var(--radius-md));
-  padding: var(--block-padding, 16px 18px);
+  padding: var(--block-padding, var(--card-padding, 16px 18px));
   transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 
@@ -1326,7 +1327,7 @@ p.image-block-overlay-item {
 }
 
 .cta-block {
-  padding: var(--block-padding, 0);
+  padding: var(--block-padding, var(--card-padding, 0));
   text-align: center;
 }
 

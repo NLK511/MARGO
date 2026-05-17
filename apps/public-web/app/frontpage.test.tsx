@@ -86,7 +86,7 @@ describe('frontpage rendering', () => {
     expect(html).toContain('data-nav-sticky="false"');
   });
 
-  it('supports removing side margins with full width while preserving top nav gutters and block padding', () => {
+  it('supports edge-to-edge top navigation while preserving block padding overrides', () => {
     const themed = {
       ...demoFrontpage,
       tenant: {
@@ -95,15 +95,16 @@ describe('frontpage rendering', () => {
           ...demoFrontpage.tenant.layoutConfig,
           nav: 'top',
           contentWidth: 'full',
-          menuDefaults: { margin: '0 clamp(18px, 4vw, 48px)' },
           blockDefaults: { spacing: { padding: '2rem' } },
         },
       },
     };
     const html = renderToStaticMarkup(<FrontpageShell model={themed} />);
+    const headerStyle = html.match(/<header[^>]*style="([^"]+)"/);
 
     expect(html).toContain('data-content-width="full"');
-    expect(html).toContain('margin:0 clamp(18px, 4vw, 48px)');
+    expect(headerStyle?.[1] ?? '').toContain('margin:0');
+    expect(headerStyle?.[1] ?? '').not.toContain('clamp(18px, 4vw, 48px)');
     expect(html).toContain('--block-padding:2rem');
   });
 
@@ -252,7 +253,7 @@ describe('frontpage rendering', () => {
     expect(html).toContain('font-size:28px');
   });
 
-  it('keeps menu bar margins independent from block margins', () => {
+  it('applies explicit menu and block spacing overrides without leaking defaults', () => {
     const model = {
       ...demoFrontpage,
       tenant: {
@@ -333,6 +334,54 @@ describe('frontpage rendering', () => {
     expect(html).toContain('An intimate evening table');
     expect(html).toContain('See more');
     expect(html).toContain('href="/gallery"');
+  });
+
+  it('applies image overlay typography and spacing settings directly on the public page', () => {
+    const model = {
+      ...demoFrontpage,
+      tenant: {
+        ...demoFrontpage.tenant,
+        layoutConfig: {
+          ...demoFrontpage.tenant.layoutConfig,
+          blockDefaults: {
+            spacing: { padding: '1rem', margin: '2rem' },
+          },
+        },
+      },
+      page: {
+        ...demoFrontpage.page,
+        blocks: [
+          {
+            id: 'image',
+            type: 'image',
+            variant: 'cover',
+            position: 0,
+            props: {
+              imageUrl: 'https://example.com/image.jpg',
+              overlays: [
+                {
+                  id: 'overlay-1',
+                  tag: 'h2',
+                  text: 'Overlay heading',
+                  position: 'top-left',
+                  framed: false,
+                  textStyle: { fontFamily: 'Fraunces', color: '#123456', fontSize: '30', lineHeight: '1.1', textAlign: 'center' },
+                  spacing: { margin: '12px', padding: '8px', interline: '1.1' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    };
+    const html = renderToStaticMarkup(<FrontpageShell model={model} />);
+
+    expect(html).toContain('font-family:Fraunces');
+    expect(html).toContain('color:#123456');
+    expect(html).toContain('font-size:30px');
+    expect(html).toContain('margin:12px');
+    expect(html).toContain('padding:8px');
+    expect(html).toContain('line-height:1.1');
   });
 
   it('does not render default eyebrow labels in section blocks or carousel slides', () => {

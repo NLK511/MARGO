@@ -66,7 +66,7 @@ export function FrontpageShell({ model }: { model: TenantFrontpageModel }) {
     padding: '',
   });
   if (navVariant === 'top' && contentWidth === 'full' && !('margin' in menuStyle)) {
-    menuStyle.margin = '0 clamp(18px, 4vw, 48px) clamp(24px, 5vw, 56px)';
+    menuStyle.margin = '0';
   }
   setCssVar(menuStyle as Record<string, string>, '--menu-item-gap', resolveCssLength(menuDefaults.itemGap as string | undefined, '14px'));
 

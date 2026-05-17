@@ -59,7 +59,8 @@ describe('branding editor regression coverage', () => {
     expect(html).toContain('/uploads/card-bg.webp');
     expect(html).toContain('/uploads/hero-bg.webp');
     expect(html).toContain('Drop to replace');
-    expect(html).toContain('--preview-block-padding:0px');
+    expect(html).not.toContain('--preview-block-padding:22px');
+    expect(html).not.toContain('--preview-nav-margin:clamp(18px, 4vw, 48px)');
   });
 
   it('uses the resolved preset theme in the live preview', () => {
@@ -79,14 +80,17 @@ describe('branding editor regression coverage', () => {
     expect(html).toContain('data-content-width="full"');
   });
 
-  it('uses margin-based full-width top navigation in the live preview', () => {
+  it('uses edge-to-edge full-width top navigation in the live preview', () => {
     const html = renderToStaticMarkup(
       <AdminToastProvider>
         <ThemePresetSwitcher initialPresetId="editorial-bistro" tenantName="Maison Test" initialLayoutConfig={{ nav: 'top', contentWidth: 'full' }} />
       </AdminToastProvider>,
     );
 
-    expect(html).toContain('--preview-nav-margin:clamp(18px, 4vw, 48px)');
+    const headerStyle = html.match(/<header[^>]*style="([^"]+)"/);
+
+    expect(headerStyle?.[1] ?? '').not.toContain('margin:');
+    expect(headerStyle?.[1] ?? '').not.toContain('clamp(18px, 4vw, 48px)');
   });
 
   it('keeps drag/drop image upload affordances styled', () => {

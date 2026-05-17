@@ -28,6 +28,8 @@ describe('page editor source safeguards', () => {
     expect(source).toContain('Shortcut: Ctrl/Cmd+S saves the current page state.');
     expect(source).toContain('titleTextStyleProps');
     expect(source).toContain('updateTitleTextStyle');
+    expect(source).toContain('overlay.textStyle');
+    expect(source).toContain('overlay.spacing');
     expect(source).toContain('evaluatePageBlockGovernance');
     expect(source).toContain('getPageBlockPlacementOptions');
     expect(source).toContain('type="number" min={fontSizeInputMin} max={fontSizeInputMax} step={1}');
