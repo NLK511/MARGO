@@ -28,5 +28,9 @@ jobs:
         run: pnpm typecheck
       - name: Test
         run: pnpm test
+      - name: Accessibility
+        run: pnpm a11y
+      - name: Visual regression
+        run: pnpm e2e:visual
       - name: Build
         run: pnpm build

@@ -10,6 +10,9 @@
     "typecheck": "turbo typecheck",
     "test": "turbo test",
     "e2e": "vitest run tests/e2e --passWithNoTests",
+    "e2e:visual": "vitest run tests/visual --passWithNoTests",
+    "e2e:update-snapshots": "vitest run tests/visual --passWithNoTests --update",
+    "a11y": "vitest run tests/accessibility --passWithNoTests",
     "format:check": "prettier --check .",
     "start": "bash scripts/start.sh",
     "stop": "bash scripts/stop.sh",
@@ -22,6 +25,8 @@
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^22.10.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "eslint": "^9.39.1",
     "eslint-config-next": "^15.5.6",
     "prettier": "^3.6.2",

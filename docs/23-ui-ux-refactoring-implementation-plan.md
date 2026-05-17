@@ -533,7 +533,7 @@ Make visual quality and accessibility enforceable in CI.
 
 ## Tasks
 
-- [ ] **M7-T001: Add Playwright visual infrastructure**
+- [x] **M7-T001: Add Playwright visual infrastructure**
   - Add scripts:
     - `e2e:visual`
     - `e2e:update-snapshots`
@@ -541,26 +541,26 @@ Make visual quality and accessibility enforceable in CI.
   - Tests:
     - CI can run Playwright.
 
-- [ ] **M7-T002: Add theme fixture visual tests**
+- [x] **M7-T002: Add theme fixture visual tests**
   - File: `tests/visual/theme-fixtures.spec.ts`.
   - Requirements covered: REQ-VIS-002.
   - Tests:
     - Every published theme fixture has screenshot.
 
-- [ ] **M7-T003: Add preview/public parity visual tests**
+- [x] **M7-T003: Add preview/public parity visual tests**
   - File: `tests/visual/public-preview-parity.spec.ts`.
   - Requirements covered: REQ-VIS-003, REQ-TB-006.
   - Tests:
     - Preview screenshot matches public screenshot within threshold.
 
-- [ ] **M7-T004: Add accessibility tests**
+- [x] **M7-T004: Add accessibility tests**
   - Add axe or equivalent if acceptable.
   - Test public homepage, booking form, builder form, Theme Studio form.
   - Requirements covered: REQ-LINT-005.
   - Tests:
     - No critical a11y violations.
 
-- [ ] **M7-T005: Add CI workflow steps**
+- [x] **M7-T005: Add CI workflow steps**
   - Update `.github/workflows/ci.yml`.
   - Include lint, typecheck, unit, integration, E2E, visual, accessibility checks.
   - Requirements covered: REQ-VIS-001, REQ-VIS-002, REQ-VIS-003.
@@ -569,9 +569,9 @@ Make visual quality and accessibility enforceable in CI.
 
 ## Exit criteria
 
-- [ ] Visual regression tests run.
-- [ ] Accessibility tests run.
-- [ ] CI blocks visual/a11y regressions.
+- [x] Visual regression tests run.
+- [x] Accessibility tests run.
+- [x] CI blocks visual/a11y regressions.
 
 ---
 

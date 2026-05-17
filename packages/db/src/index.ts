@@ -1190,17 +1190,6 @@ async function upsertQuoteRequestCustomer(transaction: QuoteRequestClient, input
   return transaction.customer.create({ data: { tenantId: input.tenantId, ...data } });
 }
 
-function createConsoleQuoteRequestNotificationSender(): QuoteRequestNotificationSender {
-  return async ({ tenantId, recipientEmail, subject, body, context, quoteRequest }) => {
-    const provider = (process.env.EMAIL_PROVIDER ?? 'log').toLowerCase();
-    const header = `[${provider}] quote-request:${context} tenant=${tenantId} to=${recipientEmail}`;
-    if (provider !== 'log') {
-      console.warn(`${header} provider configured, but only the log adapter is implemented. Subject: ${subject}`);
-    }
-    console.info(`${header}\nSubject: ${subject}\n${body}\nToken: ${quoteRequest.publicToken}`);
-  };
-}
-
 function formatMoney(amountMinor: number, currency: string): string {
   return new Intl.NumberFormat('en', { style: 'currency', currency }).format(amountMinor / 100);
 }
