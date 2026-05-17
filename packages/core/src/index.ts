@@ -339,7 +339,7 @@ function pickTenantBrand(tenant: TenantContext): BrandedErrorView['tenant'] {
 export * from './carousel-presets';
 export * from './page-block-registry';
 
-export type DemoTenantSlug = 'bistro-frontpage' | 'table-and-co' | 'maison-noire' | 'oak-clinic';
+export type DemoTenantSlug = 'bistro-frontpage' | 'table-and-co' | 'maison-noire' | 'oak-clinic' | 'chef';
 
 export interface DemoTenantCatalogEntry {
   slug: DemoTenantSlug;
@@ -451,7 +451,7 @@ export function listBuiltinTemplateSummaries(): Array<Pick<TenantTemplatePackage
     name: `${tenant.tenantName} starter`,
     templateVersion: '1.0.0',
     enabledModules: tenant.enabledModules,
-    themePresetId: tenant.slug === 'oak-clinic' ? 'clinical-calm' : tenant.slug === 'maison-noire' ? 'luxury-dark-dining' : 'editorial-bistro',
+    themePresetId: tenant.slug === 'oak-clinic' ? 'clinical-calm' : tenant.slug === 'maison-noire' ? 'luxury-dark-dining' : tenant.slug === 'chef' ? 'chef' : 'editorial-bistro',
   }));
 }
 
@@ -503,6 +503,21 @@ export const DEMO_TENANTS: Record<DemoTenantSlug, DemoTenantCatalogEntry> = {
       duration: 45,
       opensAt: '09:00',
       closesAt: '12:00',
+    },
+  },
+  'chef': {
+    slug: 'chef',
+    tenantName: 'Chef Michel Hélène',
+    enabledModules: ['frontpage', 'booking', 'notifications', 'quote-request'],
+    booking: {
+      title: 'Réservation',
+      serviceId: 'menu-degustation',
+      resourceId: 'chef-michel-helene',
+      resourceLabel: 'Chef Michel Hélène',
+      duration: 120,
+      opensAt: '19:00',
+      closesAt: '22:00',
+      partySize: 2,
     },
   },
 };

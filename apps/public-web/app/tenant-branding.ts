@@ -30,6 +30,12 @@ const DEMO_BRANDING: Record<DemoTenantSlug, Partial<TenantBrandingSnapshot>> = {
     },
   },
   'oak-clinic': { themePresetId: 'clinical-calm' },
+  'chef': {
+    themePresetId: 'chef',
+    layoutConfig: { nav: 'centered', hero: 'full-bleed' },
+    logoUrl: '/demo-assets/chef/logo.svg',
+    faviconUrl: '/demo-assets/chef/favicon.svg',
+  },
 };
 
 export async function resolvePublicTenantBranding(tenantSlug: string): Promise<TenantBrandingSnapshot> {

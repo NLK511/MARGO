@@ -188,6 +188,24 @@ export const TENANT_ADMIN_DEMO_DATA: Record<DevTenantSlug, TenantAdminDemoData> 
       { key: 'preferred_doctor', label: 'Preferred doctor', type: 'Select', required: 'No' },
     ],
   },
+  'chef': {
+    pages: [
+      { id: 'home', title: 'Chef homepage', slug: 'home', status: 'published', seoTitle: 'Chef à domicile à Paris', seoDescription: 'Chef à domicile à Paris for private dinners and editorial presentation.' },
+    ],
+    services: [
+      { slug: 'menu-degustation', name: 'Menu dégustation', duration: 120, status: 'active' },
+      { slug: 'diner-prive', name: 'Dîner privé', duration: 150, status: 'active' },
+      { slug: 'reception-privee', name: 'Réception privée', duration: 180, status: 'active' },
+    ],
+    resources: [
+      { name: 'Chef Michel Hélène', type: 'chef', capacity: 2, status: 'active' },
+    ],
+    bookings: [
+      { id: 'bk_chef', customer: 'Demo Guest', service: 'Menu dégustation', time: '19:30', status: 'confirmed' },
+    ],
+    customers: [],
+    customFields: [],
+  },
 };
 
 export function getTenantAdminDemoData(session: Pick<DevAdminSession, 'tenantSlug'>): TenantAdminDemoData {
