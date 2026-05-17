@@ -17,6 +17,7 @@
     "paths": {
       "@margo/core": ["packages/core/src/index.ts"],
       "@margo/ui": ["packages/ui/src/index.tsx"],
+      "@margo/design": ["packages/design/src/index.ts"],
       "@margo/themes": ["packages/themes/src/index.ts"],
       "@margo/modules": ["packages/modules/src/index.ts"],
       "@margo/db": ["packages/db/src/index.ts"],
