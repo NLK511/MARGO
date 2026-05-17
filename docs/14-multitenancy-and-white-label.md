@@ -16,6 +16,11 @@ Resolution order:
 2. Subdomain match.
 3. Development route prefix: `/t/:tenantSlug`.
 
+Local development standard URL:
+- `http://localhost:3000/t/:tenantSlug`
+
+Use the path-based route as the default local entrypoint; subdomains remain supported for hosted/custom-domain setups and optional local testing.
+
 ## Tenant Config Example
 
 ```json

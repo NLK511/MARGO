@@ -8,7 +8,7 @@ Render a tenant-branded public website from configurable page blocks.
 /
 /:locale
 /:locale/:pageSlug
-/t/:tenantSlug   (development alias)
+/t/:tenantSlug   (local development standard)
 /contact
 /services
 /team
@@ -17,7 +17,7 @@ Render a tenant-branded public website from configurable page blocks.
 /legal/terms
 ```
 
-Canonical public pages are locale-prefixed. The tenant-slug route is kept as a development/compatibility alias.
+Canonical public pages are locale-prefixed. The tenant-slug route is the standard local development entrypoint.
 
 ## Admin Routes
 

@@ -99,7 +99,7 @@ Goal: every request resolves tenant context and module/RBAC constraints.
 
 Checklist:
 
-- [x] Implement tenant resolver: custom hostname, subdomain, `/t/:tenantSlug` development prefix.
+- [x] Implement tenant resolver: custom hostname, subdomain, `/t/:tenantSlug` development prefix (standard local entrypoint).
 - [x] Implement tenant context type and server helper.
 - [x] Implement module manifest type and registry.
 - [x] Implement module dependency validation.

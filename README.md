@@ -22,6 +22,7 @@ Run them as your normal user, not with sudo.
 Apps:
 
 - Public web: http://localhost:3000
+- Demo tenant (local standard): http://localhost:3000/t/bistro-frontpage
 - Admin web: http://localhost:3001
 - API: http://localhost:3002
 

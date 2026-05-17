@@ -3,7 +3,7 @@
 - REST first.
 - JSON request/response.
 - Version all endpoints under `/api/v1`.
-- Public endpoints resolve tenant by hostname or explicit tenant slug.
+- Public endpoints resolve tenant by hostname or explicit tenant slug; local development should use the `/t/:tenantSlug` route prefix.
 - Admin endpoints require auth and RBAC.
 - Use idempotency keys for booking/payment operations.
 
