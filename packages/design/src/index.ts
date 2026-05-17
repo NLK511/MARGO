@@ -9,6 +9,7 @@ export * from './tokens/border';
 export * from './tokens/opacity';
 export * from './tokens/z-index';
 export * from './recipes/design-recipe';
+export * from './fixtures/theme-preview-fixtures';
 export * from './css/compile-design-vars';
 export * from './validators/issues';
 export * from './validators/contrast';

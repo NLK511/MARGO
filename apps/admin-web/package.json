@@ -12,6 +12,7 @@
   "dependencies": {
     "@margo/core": "workspace:*",
     "@margo/db": "workspace:*",
+    "@margo/design": "workspace:*",
     "@margo/modules": "workspace:*",
     "@margo/themes": "workspace:*",
     "@margo/ui": "workspace:*",

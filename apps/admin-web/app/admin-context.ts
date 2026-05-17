@@ -88,6 +88,7 @@ function getStaticSurfaceNavigation(surface: AdminSurface, roles: Role[]) {
       ? [
           { label: 'Tenants', path: '/global-admin' },
           { label: 'Templates', path: '/global-admin/templates', permission: 'platform.templates.manage' },
+          { label: 'Theme studio', path: '/global-admin/theme-studio', permission: 'platform.themes.manage' },
           { label: 'Themes', path: '/global-admin/themes', permission: 'platform.themes.manage' },
         ].filter((item) => !item.permission || canUse(item.permission as Permission))
       : [];

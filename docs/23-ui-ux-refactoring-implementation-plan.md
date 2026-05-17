@@ -322,7 +322,7 @@ Move low-level theme creation into a Global Admin-only interface.
 
 ## Tasks
 
-- [ ] **M4-T001: Add Theme Studio routes**
+- [x] **M4-T001: Add Theme Studio routes**
   - Directory: `apps/admin-web/app/global-admin/theme-studio`.
   - Pages:
     - list theme families
@@ -336,7 +336,7 @@ Move low-level theme creation into a Global Admin-only interface.
     - Global Admin access succeeds.
     - Tenant access denied.
 
-- [ ] **M4-T002: Add Theme Studio APIs/actions**
+- [x] **M4-T002: Add Theme Studio APIs/actions**
   - Add server actions or API routes for theme CRUD and lifecycle transitions.
   - Requirements covered: REQ-THEME-001 through REQ-THEME-009, REQ-SEC-001.
   - Tests:
@@ -346,7 +346,7 @@ Move low-level theme creation into a Global Admin-only interface.
     - Block invalid theme.
     - Server-side permissions.
 
-- [ ] **M4-T003: Build token-based editor controls**
+- [x] **M4-T003: Build token-based editor controls**
   - Global Admin controls may edit token scales, roles, recipes, and variations.
   - No arbitrary raw values unless creating a new token definition.
   - Requirements covered: REQ-PHIL-004, REQ-DS-001 through REQ-DS-011.
@@ -354,7 +354,7 @@ Move low-level theme creation into a Global Admin-only interface.
     - Controls use token selectors.
     - Invalid raw values rejected.
 
-- [ ] **M4-T004: Build preview fixture matrix**
+- [x] **M4-T004: Build preview fixture matrix**
   - Files:
     - `packages/design/src/fixtures/theme-preview-fixtures.ts`
     - Theme Studio preview UI.
@@ -363,17 +363,17 @@ Move low-level theme creation into a Global Admin-only interface.
     - Fixture registry contains homepage, booking page, service-list, CTA, rich-text, image overlay, mobile nav, empty state, form state.
     - Preview renders each fixture.
 
-- [ ] **M4-T005: Implement theme audit logging**
+- [x] **M4-T005: Implement theme audit logging**
   - Requirements covered: REQ-THEME-009, REQ-SEC-003.
   - Tests:
     - Create/update/publish/deprecate/archive logs exist.
 
 ## Exit criteria
 
-- [ ] Global Admin can create and publish a valid theme.
-- [ ] Invalid themes cannot publish.
-- [ ] Tenant users cannot access Theme Studio.
-- [ ] Audit logs are written.
+- [x] Global Admin can create and publish a valid theme.
+- [x] Invalid themes cannot publish.
+- [x] Tenant users cannot access Theme Studio.
+- [x] Audit logs are written.
 
 ---
 

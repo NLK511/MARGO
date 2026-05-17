@@ -44,6 +44,9 @@ importers:
       '@margo/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@margo/design':
+        specifier: workspace:*
+        version: link:../../packages/design
       '@margo/modules':
         specifier: workspace:*
         version: link:../../packages/modules

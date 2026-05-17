@@ -8,6 +8,10 @@ export default function GlobalStudioPage() {
     <SurfaceShell surface="global-admin">
       <ShellCard eyebrow="Global Studio" title="Tenant inventory">
         <p>Internal platform-owner surface for tenants, templates, themes, lifecycle, and support tools.</p>
+        <div className="admin-action-row">
+          <a className="button-link" href="/global-admin/theme-studio">Open Theme Studio</a>
+          <a className="button-link" href="/global-admin/themes">View theme inventory</a>
+        </div>
         <div className="admin-table" role="table" aria-label="Tenants">
           <div className="admin-table-row admin-table-head" role="row">
             <span>Tenant</span><span>Slug</span><span>Modules</span>
