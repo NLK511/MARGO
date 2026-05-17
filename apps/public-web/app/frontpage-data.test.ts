@@ -25,11 +25,7 @@ describe('public page route parsing', () => {
     expect(parsePublicPageRoute('/t/maison-noire')).toBeNull();
   });
 
-  it('falls back to the Maison Noire demo frontpage for local dev tenant routes', async () => {
-    const model = await getFrontpageForHostAndPath('localhost:3000', '/t/maison-noire');
-
-    expect(model?.tenant.slug).toBe('maison-noire');
-    expect(model?.tenant.displayName).toBe('Maison Noire');
-    expect(model?.page.title).toContain('exceptional evenings');
+  it('does not decouple dev tenant routes from live tenant data', async () => {
+    await expect(getFrontpageForHostAndPath('localhost:3000', '/t/maison-noire')).resolves.toBeNull();
   });
 });

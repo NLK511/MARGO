@@ -1,7 +1,6 @@
 import { headers } from 'next/headers';
-import { createCarouselPresetProps, extractDevelopmentTenantSlug, resolveTenantContext } from '@margo/core';
+import { createCarouselPresetProps, resolveTenantContext } from '@margo/core';
 import { createPrismaTenantResolverRepository, createPublicPageService } from '@margo/db';
-import { getDemoFrontpageModel } from './demo-frontpage';
 import type { TenantFrontpageModel } from './frontpage';
 
 export async function getFrontpageForCurrentRequest(path = '/') {
@@ -17,18 +16,14 @@ export async function getFrontpageForHostAndPath(hostname: string | null, path: 
   );
 
   if (!tenant || !tenant.enabledModules.includes('frontpage')) {
-    const demoSlug = extractDevelopmentTenantSlug(path);
-    return demoSlug ? getDemoFrontpageModel(demoSlug) : null;
+    return null;
   }
 
   const route = parsePublicPageRoute(path);
   const pageLocale = route?.locale ?? tenant.locale;
   const pageSlug = route?.pageSlug ?? 'home';
   const page = await createPublicPageService().findPublishedPage({ tenantId: tenant.tenantId, slug: pageSlug, locale: pageLocale });
-  if (!page) {
-    const demoSlug = extractDevelopmentTenantSlug(path);
-    return demoSlug ? getDemoFrontpageModel(demoSlug) : null;
-  }
+  if (!page) return null;
 
   return {
     tenant: {
