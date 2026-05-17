@@ -1,5 +1,7 @@
 ## Global Acceptance Criteria
 
+Before marking a development complete, pass `docs/24-development-verification-checklist.md` on a clean restart.
+
 - All apps build successfully.
 - All tests pass.
 - Seed data creates at least three tenants:

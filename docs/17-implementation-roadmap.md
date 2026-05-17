@@ -208,3 +208,7 @@ Exit criteria:
 - each surface has at least one role/access test
 
 ---
+
+## Development verification
+
+See `docs/24-development-verification-checklist.md`. Any completed development must pass the checklist on a clean restart before merge.
