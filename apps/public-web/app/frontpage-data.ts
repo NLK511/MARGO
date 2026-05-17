@@ -1,6 +1,4 @@
 import { headers } from 'next/headers';
-import { createCarouselPresetProps, resolveTenantContext } from '@margo/core';
-import { createPrismaTenantResolverRepository, createPublicPageService } from '@margo/db';
 import type { TenantFrontpageModel } from './frontpage';
 
 export async function getFrontpageForCurrentRequest(path = '/') {
@@ -10,6 +8,9 @@ export async function getFrontpageForCurrentRequest(path = '/') {
 }
 
 export async function getFrontpageForHostAndPath(hostname: string | null, path: string): Promise<TenantFrontpageModel | null> {
+  const { resolveTenantContext } = await import('@margo/core');
+  const { createPrismaTenantResolverRepository, createPublicPageService } = await import('@margo/db');
+
   const tenant = await resolveTenantContext(
     { hostname, path, baseDomains: (process.env.MARGO_BASE_DOMAINS ?? '').split(',').filter(Boolean) },
     createPrismaTenantResolverRepository(),
@@ -42,7 +43,7 @@ export async function getFrontpageForHostAndPath(hostname: string | null, path: 
       faviconUrl: tenant.faviconUrl,
       homeHref: tenant.resolutionMethod === 'development-prefix' ? `/t/${tenant.slug}` : `/${tenant.locale}`,
     },
-    page: injectMaisonNoireCarousel(tenant.slug, page),
+    page: await injectMaisonNoireCarousel(tenant.slug, page),
   };
 }
 
@@ -57,10 +58,11 @@ export function parsePublicPageRoute(path: string): { locale: string; pageSlug?:
   return { locale: decodeURIComponent(match[1]), pageSlug: match[2] ? decodeURIComponent(match[2]) : 'home' };
 }
 
-function injectMaisonNoireCarousel(tenantSlug: string, page: TenantFrontpageModel['page']): TenantFrontpageModel['page'] {
+async function injectMaisonNoireCarousel(tenantSlug: string, page: TenantFrontpageModel['page']): Promise<TenantFrontpageModel['page']> {
   if (tenantSlug !== 'maison-noire') return page;
   if (page.blocks.some((block) => block.type === 'carousel')) return page;
 
+  const { createCarouselPresetProps } = await import('@margo/core');
   const carouselBlock = {
     id: 'carousel-maison-noire',
     type: 'carousel',

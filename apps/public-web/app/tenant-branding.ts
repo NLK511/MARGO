@@ -1,6 +1,5 @@
 import { headers } from 'next/headers';
-import { DEMO_TENANTS, type DemoTenantSlug, resolveTenantContext } from '@margo/core';
-import { createPrismaTenantResolverRepository } from '@margo/db';
+import { DEMO_TENANTS, type DemoTenantSlug } from '@margo/core';
 import { createThemeRuntimeSurface, mergeTheme, type ThemeOverrides, type ThemePreset } from '@margo/themes';
 import { resolveThemePresetWithStudioOverrides } from '@margo/themes/theme-studio-overrides';
 
@@ -40,6 +39,8 @@ const DEMO_BRANDING: Record<DemoTenantSlug, Partial<TenantBrandingSnapshot>> = {
 };
 
 export async function resolvePublicTenantBranding(tenantSlug: string): Promise<TenantBrandingSnapshot> {
+  const { resolveTenantContext } = await import('@margo/core');
+  const { createPrismaTenantResolverRepository } = await import('@margo/db');
   const requestHeaders = await headers();
   const tenant = await resolveTenantContext(
     {
