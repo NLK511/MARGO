@@ -33,7 +33,7 @@ export function createAdminCustomerNote(input: { tenantId: string; customerId: s
 }
 
 export function getAdminMe(input: { principal: AdminPrincipal | null; tenant: Pick<TenantContext, 'tenantId'> }) {
-  const principal = guardAdminPermission({ principal: input.principal, tenant: input.tenant, permission: 'site.pages.read' });
+  const principal = guardAdminPermission({ principal: input.principal, tenant: input.tenant, permission: 'owner.dashboard.read' });
   return {
     userId: principal.userId,
     tenantId: principal.tenantId,
@@ -43,7 +43,7 @@ export function getAdminMe(input: { principal: AdminPrincipal | null; tenant: Pi
 }
 
 export function getAdminTenant(input: { principal: AdminPrincipal | null; tenant: TenantContext }) {
-  guardAdminPermission({ principal: input.principal, tenant: input.tenant, permission: 'site.pages.read' });
+  guardAdminPermission({ principal: input.principal, tenant: input.tenant, permission: 'owner.dashboard.read' });
   return {
     tenantId: input.tenant.tenantId,
     slug: input.tenant.slug,
@@ -55,7 +55,7 @@ export function getAdminTenant(input: { principal: AdminPrincipal | null; tenant
 }
 
 export function getAdminModules(input: { principal: AdminPrincipal | null; tenant: TenantContext }) {
-  const principal = guardAdminPermission({ principal: input.principal, tenant: input.tenant, permission: 'site.pages.read' });
+  const principal = guardAdminPermission({ principal: input.principal, tenant: input.tenant, permission: 'owner.dashboard.read' });
   return moduleRegistry.enabledManifests(input.tenant.enabledModules).map((manifest) => ({
     id: manifest.id,
     name: manifest.name,
@@ -65,7 +65,7 @@ export function getAdminModules(input: { principal: AdminPrincipal | null; tenan
 }
 
 function getPrincipalPermissions(principal: AdminPrincipal): Permission[] {
-  const permissions: Permission[] = ['site.pages.read', 'site.pages.write', 'booking.read', 'booking.write', 'booking.cancel', 'crm.customer.read', 'crm.customer.write', 'crm.note.write', 'tenant.billing.manage', 'tenant.modules.manage'];
+  const permissions: Permission[] = ['platform.tenants.read', 'platform.tenants.write', 'platform.templates.manage', 'platform.themes.manage', 'tenant.builder.read', 'tenant.builder.write', 'owner.dashboard.read', 'owner.calendar.write', 'site.pages.read', 'site.pages.write', 'booking.read', 'booking.write', 'booking.cancel', 'crm.customer.read', 'crm.customer.write', 'crm.note.write', 'quote.request.read', 'quote.request.write', 'tenant.billing.manage', 'tenant.modules.manage'];
   return permissions.filter((permission) => can(principal, permission));
 }
 

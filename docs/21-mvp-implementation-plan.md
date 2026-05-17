@@ -4,6 +4,17 @@ Status legend: `[ ]` not started, `[~]` in progress, `[x]` done, `[!]` blocked.
 
 This document is the persistent checklist for the first usable MVP of MARGO. Update this file whenever a task starts or finishes so future agents can see what is already done.
 
+## Current Product Direction Update
+
+MARGO is an internal webapp factory plus multi-tenant runtime platform. The builder/studio is an internal asset. Customer businesses receive tenant-specific public webapps and owner/operations portals. Tenant admin/builder access is separate from tenant owner access.
+
+This means future implementation must distinguish:
+
+- Global Studio / Global Admin
+- Tenant Builder / Tenant Admin
+- Tenant Owner Portal
+- Public Webapp
+
 ## MVP Scope
 
 The MVP must prove the product can run as a multi-tenant white-label SaaS with three demo tenants:
@@ -22,7 +33,7 @@ Included modules:
 Excluded from MVP unless required for clean interfaces:
 
 - Real Stripe payment capture; keep payment adapter interface and mark deposits as disabled/demo-only.
-- Real email/SMS sending; use durable notification outbox and local/log adapter.
+- Real email via durable notification outbox and an external email adapter; SMS remains deferred.
 - Advanced drag-and-drop page builder.
 - Reseller mode, analytics, loyalty, inventory, AI modules.
 
@@ -79,6 +90,7 @@ Acceptance checks:
 
 - [x] `pnpm db:migrate` applies cleanly.
 - [x] `pnpm db:seed` creates the three tenants.
+- [x] Demo edits to seeded tenant theme/pages/module config can be snapshotted locally and restored on reseed.
 - [x] Tests verify every business table includes `tenant_id` where required.
 
 ## Milestone 2 — Platform Core
@@ -253,6 +265,18 @@ The MVP is complete only when all of these are checked:
 - [x] Staff can add customer notes.
 - [x] RBAC and tenant isolation are tested.
 - [x] All core commands pass: install, lint, typecheck, test, build, E2E smoke.
+
+## Post-MVP Rework Plan
+
+- [ ] Split current admin-web surfaces into Global Studio, Tenant Builder, and Tenant Owner Portal route groups.
+- [ ] Replace/compat-map legacy roles with `global_admin`, `tenant_admin`, `tenant_owner`, `tenant_staff`, and `provider`.
+- [ ] Move operational module pages toward owner/ops navigation.
+- [ ] Keep public page/theme/module configuration under tenant builder permissions.
+- [ ] Add Global Studio tenant/template/theme management.
+- [ ] Convert demo tenants into explicit reusable templates.
+- [ ] Add cross-tenant denial tests and tenant isolation audit for every module.
+- [ ] Add versioned tenant webapp export/import with module migrators.
+- [ ] Add backup/restore scripts and disaster recovery docs for database and uploaded assets.
 
 ## MVP Correction Log
 

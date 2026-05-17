@@ -31,6 +31,12 @@ export interface DashboardWidgetDefinition {
   permission?: string;
 }
 
+export interface ModuleExportAdapterDefinition {
+  currentVersion: string;
+  exportKey: string;
+  migrators: string[];
+}
+
 export interface ModuleManifest {
   id: ModuleId;
   name: string;
@@ -42,10 +48,12 @@ export interface ModuleManifest {
   permissions: PermissionDefinition[];
   publicRoutes: RouteDefinition[];
   adminRoutes: RouteDefinition[];
+  ownerRoutes?: RouteDefinition[];
   apiRoutes: ApiRouteDefinition[];
   eventSubscriptions: EventSubscription[];
   menuItems: MenuItemDefinition[];
   widgets?: DashboardWidgetDefinition[];
+  exportAdapter?: ModuleExportAdapterDefinition;
 }
 
 export interface ModuleDependencyIssue {
@@ -74,21 +82,22 @@ export const coreModuleManifests: ModuleManifest[] = [
     ],
     publicRoutes: [{ path: '/' }, { path: '/t/:tenantSlug' }, { path: '/:slug' }],
     adminRoutes: [
-      { path: '/pages', permission: 'site.pages.read' },
-      { path: '/pages/new', permission: 'site.pages.write' },
-      { path: '/pages/:pageId', permission: 'site.pages.write' },
-      { path: '/pages/:pageId/preview', permission: 'site.pages.read' },
+      { path: '/tenant/pages', permission: 'site.pages.read' },
+      { path: '/tenant/pages/new', permission: 'site.pages.write' },
+      { path: '/tenant/pages/:pageId', permission: 'site.pages.write' },
+      { path: '/tenant/pages/:pageId/preview', permission: 'site.pages.read' },
     ],
     apiRoutes: [
       { method: 'GET', path: '/api/v1/public/pages/:slug' },
       { method: 'POST', path: '/api/v1/public/contact' },
-      { method: 'GET', path: '/api/v1/admin/pages', permission: 'site.pages.read' },
-      { method: 'POST', path: '/api/v1/admin/pages', permission: 'site.pages.write' },
-      { method: 'PATCH', path: '/api/v1/admin/pages/:pageId', permission: 'site.pages.write' },
-      { method: 'PATCH', path: '/api/v1/admin/pages/:pageId/publish', permission: 'site.pages.write' },
+      { method: 'GET', path: '/api/v1/admin/tenant/pages', permission: 'site.pages.read' },
+      { method: 'POST', path: '/api/v1/admin/tenant/pages', permission: 'site.pages.write' },
+      { method: 'PATCH', path: '/api/v1/admin/tenant/pages/:pageId', permission: 'site.pages.write' },
+      { method: 'PATCH', path: '/api/v1/admin/tenant/pages/:pageId/publish', permission: 'site.pages.write' },
     ],
     eventSubscriptions: [],
-    menuItems: [{ label: 'Pages', path: '/pages', permission: 'site.pages.read' }],
+    menuItems: [{ label: 'Pages', path: '/tenant/pages', permission: 'site.pages.read' }],
+    exportAdapter: { currentVersion: '1.0.0', exportKey: 'frontpage', migrators: [] },
   },
   {
     id: 'notifications',
@@ -120,10 +129,12 @@ export const coreModuleManifests: ModuleManifest[] = [
     ],
     publicRoutes: [{ path: '/booking' }, { path: '/booking/confirmation/:token' }, { path: '/booking/manage/:token' }],
     adminRoutes: [
-      { path: '/bookings', permission: 'booking.read' },
-      { path: '/bookings/new', permission: 'booking.write' },
-      { path: '/booking/services', permission: 'booking.write' },
-      { path: '/booking/resources', permission: 'booking.write' },
+      { path: '/tenant/booking/services', permission: 'booking.write' },
+      { path: '/tenant/booking/resources', permission: 'booking.write' },
+    ],
+    ownerRoutes: [
+      { path: '/owner/bookings', permission: 'booking.read' },
+      { path: '/owner/bookings/new', permission: 'booking.write' },
     ],
     apiRoutes: [
       { method: 'GET', path: '/api/v1/public/availability' },
@@ -139,7 +150,8 @@ export const coreModuleManifests: ModuleManifest[] = [
       { method: 'PATCH', path: '/api/v1/admin/bookings/:bookingId/no-show', permission: 'booking.write' },
     ],
     eventSubscriptions: [],
-    menuItems: [{ label: 'Bookings', path: '/bookings', permission: 'booking.read' }],
+    menuItems: [{ label: 'Bookings', path: '/owner/bookings', permission: 'booking.read' }],
+    exportAdapter: { currentVersion: '1.0.0', exportKey: 'booking', migrators: [] },
   },
   {
     id: 'crm',
@@ -155,10 +167,12 @@ export const coreModuleManifests: ModuleManifest[] = [
     ],
     publicRoutes: [],
     adminRoutes: [
-      { path: '/customers', permission: 'crm.customer.read' },
-      { path: '/customers/:customerId', permission: 'crm.customer.read' },
-      { path: '/customers/:customerId/notes', permission: 'crm.note.write' },
-      { path: '/crm/custom-fields', permission: 'crm.customer.write' },
+      { path: '/tenant/crm/custom-fields', permission: 'crm.customer.write' },
+    ],
+    ownerRoutes: [
+      { path: '/owner/customers', permission: 'crm.customer.read' },
+      { path: '/owner/customers/:customerId', permission: 'crm.customer.read' },
+      { path: '/owner/customers/:customerId/notes', permission: 'crm.note.write' },
     ],
     apiRoutes: [
       { method: 'GET', path: '/api/v1/admin/customers', permission: 'crm.customer.read' },
@@ -171,7 +185,43 @@ export const coreModuleManifests: ModuleManifest[] = [
       { method: 'POST', path: '/api/v1/admin/crm/custom-fields', permission: 'crm.customer.write' },
     ],
     eventSubscriptions: [{ eventType: 'booking.created', handler: 'appendBookingTimelineEvent' }],
-    menuItems: [{ label: 'Customers', path: '/customers', permission: 'crm.customer.read' }],
+    menuItems: [{ label: 'Customers', path: '/owner/customers', permission: 'crm.customer.read' }],
+    exportAdapter: { currentVersion: '1.0.0', exportKey: 'crm', migrators: [] },
+  },
+  {
+    id: 'quote-request',
+    name: 'Quote Request',
+    version: '0.0.0',
+    description: 'Configurable quote wizard and lead capture.',
+    dependencies: ['notifications'],
+    optionalDependencies: ['crm'],
+    permissions: [
+      { permission: 'quote.request.read', description: 'Read quote requests and leads.' },
+      { permission: 'quote.request.write', description: 'Edit quote wizard settings.' },
+    ],
+    publicRoutes: [
+      { path: '/quote-request' },
+      { path: '/quote-request/confirmation/:token' },
+      { path: '/t/:tenantSlug/quote-request' },
+      { path: '/t/:tenantSlug/quote-request/confirmation/:token' },
+    ],
+    adminRoutes: [
+      { path: '/tenant/quote-requests/settings', permission: 'quote.request.write' },
+    ],
+    ownerRoutes: [
+      { path: '/owner/quote-requests', permission: 'quote.request.read' },
+      { path: '/owner/quote-requests/:quoteRequestId', permission: 'quote.request.read' },
+    ],
+    apiRoutes: [
+      { method: 'POST', path: '/api/v1/public/quote-requests' },
+      { method: 'GET', path: '/api/v1/admin/quote-requests', permission: 'quote.request.read' },
+      { method: 'GET', path: '/api/v1/admin/quote-requests/:quoteRequestId', permission: 'quote.request.read' },
+      { method: 'GET', path: '/api/v1/admin/quote-request-config', permission: 'quote.request.write' },
+      { method: 'PATCH', path: '/api/v1/admin/quote-request-config', permission: 'quote.request.write' },
+    ],
+    eventSubscriptions: [],
+    menuItems: [{ label: 'Quote requests', path: '/owner/quote-requests', permission: 'quote.request.read' }],
+    exportAdapter: { currentVersion: '1.0.0', exportKey: 'quote-request', migrators: [] },
   },
 ];
 

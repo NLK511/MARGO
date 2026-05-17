@@ -5,7 +5,10 @@ coverage
 .env
 .env.local
 .turbo
+.margo/
 .DS_Store
 playwright-report
 test-results
+apps/admin-web/public/uploads/
+apps/public-web/public/uploads/
 *.tsbuildinfo

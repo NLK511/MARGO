@@ -1,14 +1,16 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ShellCard } from '@margo/ui';
+import type { Role } from '@margo/core';
 import { DEV_TENANTS, serializeDevSessionCookie, type DevTenantSlug } from '../admin-context';
 
 async function loginAction(formData: FormData) {
   'use server';
-  const tenantSlug = String(formData.get('tenantSlug') ?? 'oak-clinic') as DevTenantSlug;
+  const tenantSlug = String(formData.get('tenantSlug') ?? 'maison-noire') as DevTenantSlug;
   const next = String(formData.get('next') ?? '/');
+  const role = String(formData.get('role') ?? 'tenant_owner') as Role;
   const cookieStore = await cookies();
-  cookieStore.set('margo_dev_session', serializeDevSessionCookie({ tenantSlug }), {
+  cookieStore.set('margo_dev_session', serializeDevSessionCookie({ tenantSlug, roles: [role] }), {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
@@ -27,13 +29,23 @@ export default async function LoginPage({ searchParams }: { searchParams?: Promi
           <input type="hidden" name="next" value={params?.next ?? '/'} />
           <label>
             Demo tenant
-            <select name="tenantSlug" defaultValue="oak-clinic" aria-describedby="tenant-help">
+            <select name="tenantSlug" defaultValue="maison-noire" aria-describedby="tenant-help">
               {Object.values(DEV_TENANTS).map((tenant) => (
                 <option key={tenant.tenantSlug} value={tenant.tenantSlug}>{tenant.tenantName}</option>
               ))}
             </select>
           </label>
-          <p id="tenant-help" className="form-help">Choose frontpage-only, restaurant booking, or clinic CRM tenant.</p>
+          <label>
+            Surface role
+            <select name="role" defaultValue="tenant_owner">
+              <option value="tenant_owner">Tenant owner</option>
+              <option value="tenant_admin">Tenant admin / builder</option>
+              <option value="tenant_staff">Tenant staff</option>
+              <option value="provider">Provider</option>
+              <option value="global_admin">Global admin</option>
+            </select>
+          </label>
+          <p id="tenant-help" className="form-help">Choose frontpage-only, restaurant booking, or clinic CRM tenant. Global admin is reserved for the platform operator.</p>
           <button className="primary-admin-button" type="submit">Continue</button>
         </form>
       </ShellCard>

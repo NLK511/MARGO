@@ -2,8 +2,11 @@ export type ThemeScale = 'standard' | 'editorial' | 'bold';
 export type ThemeTemplate = 'classic' | 'editorial' | 'split' | 'immersive';
 export type ThemeNav = 'top' | 'centered' | 'minimal' | 'overlay';
 export type ThemeHero = 'split-image' | 'full-bleed' | 'card-stack' | 'brutalist';
-export type ThemeSectionRhythm = 'compact' | 'spacious';
+export type ThemeSectionRhythm = 'none' | 'compact' | 'spacious';
+export type ThemeContentWidth = 'centered' | 'wide' | 'full';
+export type ThemeSectionBorder = 'thin' | 'thick' | 'none';
 export type ThemeCardStyle = 'soft-shadow' | 'flat' | 'brutalist' | 'glass';
+export type ThemeCardRadius = 'round' | 'square';
 
 export interface ThemeColors {
   bg: string;
@@ -25,17 +28,39 @@ export interface ThemeTypography {
   fontSans: string;
   fontSerif?: string;
   fontDisplay: string;
+  fontH1?: string;
+  fontH2?: string;
+  fontH3?: string;
+  fontBody?: string;
+  fontParagraph?: string;
+  fontSansColor?: string;
+  fontDisplayColor?: string;
+  fontH1Color?: string;
+  fontH2Color?: string;
+  fontH3Color?: string;
+  fontBodyColor?: string;
+  fontParagraphColor?: string;
   headingWeight: number;
   bodyWeight: number;
   scale: ThemeScale;
 }
 
+export interface ThemeAssets {
+  backgroundImageUrl?: string;
+  cardBackgroundImageUrl?: string;
+  heroBackgroundImageUrl?: string;
+}
+
 export interface ThemeLayout {
   template: ThemeTemplate;
   nav: ThemeNav;
+  navSticky: boolean;
   hero: ThemeHero;
+  contentWidth: ThemeContentWidth;
   sectionRhythm: ThemeSectionRhythm;
+  sectionBorder: ThemeSectionBorder;
   cardStyle: ThemeCardStyle;
+  cardRadius: ThemeCardRadius;
 }
 
 export interface ThemePreset {
@@ -44,12 +69,14 @@ export interface ThemePreset {
   colors: ThemeColors;
   typography: ThemeTypography;
   layout: ThemeLayout;
+  assets?: ThemeAssets;
 }
 
 export type ThemeOverrides = {
   colors?: Partial<ThemeColors>;
   typography?: Partial<ThemeTypography>;
   layout?: Partial<ThemeLayout>;
+  assets?: Partial<ThemeAssets>;
 };
 
 export interface ThemeValidationIssue {
@@ -104,9 +131,13 @@ export const themePresets = [
     layout: {
       template: 'classic',
       nav: 'top',
+      navSticky: true,
       hero: 'split-image',
+      contentWidth: 'centered',
       sectionRhythm: 'spacious',
+      sectionBorder: 'thin',
       cardStyle: 'soft-shadow',
+      cardRadius: 'round',
     },
   },
   {
@@ -138,9 +169,13 @@ export const themePresets = [
     layout: {
       template: 'editorial',
       nav: 'centered',
+      navSticky: true,
       hero: 'full-bleed',
+      contentWidth: 'wide',
       sectionRhythm: 'spacious',
+      sectionBorder: 'thin',
       cardStyle: 'flat',
+      cardRadius: 'round',
     },
   },
   {
@@ -171,9 +206,13 @@ export const themePresets = [
     layout: {
       template: 'split',
       nav: 'minimal',
+      navSticky: true,
       hero: 'card-stack',
+      contentWidth: 'wide',
       sectionRhythm: 'spacious',
+      sectionBorder: 'thin',
       cardStyle: 'soft-shadow',
+      cardRadius: 'round',
     },
   },
   {
@@ -204,9 +243,13 @@ export const themePresets = [
     layout: {
       template: 'classic',
       nav: 'top',
+      navSticky: true,
       hero: 'brutalist',
+      contentWidth: 'full',
       sectionRhythm: 'compact',
+      sectionBorder: 'thick',
       cardStyle: 'brutalist',
+      cardRadius: 'square',
     },
   },
   {
@@ -229,8 +272,8 @@ export const themePresets = [
     },
     typography: {
       fontSans: 'Inter',
-      fontSerif: 'Cormorant Garamond',
-      fontDisplay: 'Cormorant Garamond',
+      fontSerif: 'Bodoni Moda',
+      fontDisplay: 'Bodoni Moda',
       headingWeight: 500,
       bodyWeight: 400,
       scale: 'editorial',
@@ -238,9 +281,13 @@ export const themePresets = [
     layout: {
       template: 'immersive',
       nav: 'overlay',
+      navSticky: false,
       hero: 'full-bleed',
+      contentWidth: 'full',
       sectionRhythm: 'spacious',
+      sectionBorder: 'none',
       cardStyle: 'glass',
+      cardRadius: 'round',
     },
   },
 ] as const satisfies readonly ThemePreset[];
@@ -258,6 +305,7 @@ export function mergeTheme(preset: ThemePreset, overrides: ThemeOverrides = {}):
     colors: { ...preset.colors, ...overrides.colors },
     typography: { ...preset.typography, ...overrides.typography },
     layout: { ...preset.layout, ...overrides.layout },
+    assets: { ...(preset.assets ?? {}), ...overrides.assets },
   };
 }
 
@@ -322,11 +370,31 @@ export function compileThemeCssVariables(theme: ThemePreset): Record<string, str
     '--font-sans': fontStack(theme.typography.fontSans),
     '--font-serif': fontStack(theme.typography.fontSerif ?? theme.typography.fontDisplay),
     '--font-display': fontStack(theme.typography.fontDisplay),
+    '--font-h1': fontStack(theme.typography.fontH1 ?? theme.typography.fontDisplay),
+    '--font-h2': fontStack(theme.typography.fontH2 ?? theme.typography.fontDisplay),
+    '--font-h3': fontStack(theme.typography.fontH3 ?? theme.typography.fontDisplay),
+    '--font-body': fontStack(theme.typography.fontBody ?? theme.typography.fontSans),
+    '--font-paragraph': fontStack(theme.typography.fontParagraph ?? theme.typography.fontBody ?? theme.typography.fontSans),
+    '--font-sans-color': theme.typography.fontSansColor ?? theme.colors.text,
+    '--font-display-color': theme.typography.fontDisplayColor ?? theme.colors.text,
+    '--font-h1-color': theme.typography.fontH1Color ?? theme.typography.fontDisplayColor ?? theme.colors.text,
+    '--font-h2-color': theme.typography.fontH2Color ?? theme.typography.fontDisplayColor ?? theme.colors.text,
+    '--font-h3-color': theme.typography.fontH3Color ?? theme.typography.fontDisplayColor ?? theme.colors.text,
+    '--font-body-color': theme.typography.fontBodyColor ?? theme.colors.text,
+    '--font-paragraph-color': theme.typography.fontParagraphColor ?? theme.typography.fontBodyColor ?? theme.colors.text,
     '--font-heading-weight': String(theme.typography.headingWeight),
     '--font-body-weight': String(theme.typography.bodyWeight),
     '--radius-md': theme.layout.cardStyle === 'brutalist' ? '4px' : theme.layout.cardStyle === 'glass' ? '20px' : '16px',
+    '--radius-card': theme.layout.cardRadius === 'square' ? '0px' : theme.layout.cardStyle === 'glass' ? '20px' : theme.layout.cardStyle === 'brutalist' ? '4px' : '16px',
     '--shadow-card': cardShadow(theme.layout.cardStyle),
-    '--section-gap': theme.layout.sectionRhythm === 'compact' ? '32px' : '64px',
+    '--content-max': contentMaxValue(theme.layout.contentWidth),
+    '--section-gap': sectionGapValue(theme.layout.sectionRhythm),
+    '--section-border-width': sectionBorderWidthValue(theme.layout.sectionBorder),
+    '--section-border-style': theme.layout.sectionBorder === 'none' ? 'none' : 'solid',
+    '--nav-position': theme.layout.navSticky ? 'sticky' : 'static',
+    '--background-image': backgroundImageValue(theme.assets?.backgroundImageUrl),
+    '--card-background-image': backgroundImageValue(theme.assets?.cardBackgroundImageUrl),
+    '--hero-background-image': backgroundImageValue(theme.assets?.heroBackgroundImageUrl),
   };
 }
 
@@ -342,6 +410,30 @@ export function compileThemeStyleAttribute(theme: ThemePreset): Record<string, s
   return compileThemeCssVariables(theme);
 }
 
+export interface ThemeRuntimeSurface {
+  className: string;
+  style: Record<string, string>;
+  dataAttributes: Record<string, string>;
+}
+
+export function createThemeRuntimeSurface(theme: ThemePreset): ThemeRuntimeSurface {
+  return {
+    className: `layout-${theme.layout.template}`,
+    style: compileThemeStyleAttribute(theme),
+    dataAttributes: {
+      'data-layout-template': theme.layout.template,
+      'data-nav-variant': theme.layout.nav,
+      'data-nav-sticky': theme.layout.navSticky ? 'true' : 'false',
+      'data-content-width': theme.layout.contentWidth,
+      'data-hero-variant': theme.layout.hero,
+      'data-section-rhythm': theme.layout.sectionRhythm,
+      'data-section-border': theme.layout.sectionBorder,
+      'data-card-style': theme.layout.cardStyle,
+      'data-card-radius': theme.layout.cardRadius,
+    },
+  };
+}
+
 export function contrastRatio(foreground: string, background: string): number {
   const fg = relativeLuminance(foreground);
   const bg = relativeLuminance(background);
@@ -355,7 +447,47 @@ function isWeight(weight: number): boolean {
 }
 
 function fontStack(fontName: string): string {
-  return `'${fontName}', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+  return `'${fontName.replace(/'/g, "\\'")}', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+}
+
+function backgroundImageValue(url: string | undefined): string {
+  return url?.trim() ? `url('${url.replace(/'/g, "\\'")}')` : 'none';
+}
+
+function contentMaxValue(width: ThemeContentWidth): string {
+  switch (width) {
+    case 'full':
+      return 'none';
+    case 'wide':
+      return '1440px';
+    case 'centered':
+    default:
+      return '1120px';
+  }
+}
+
+function sectionGapValue(rhythm: ThemeSectionRhythm): string {
+  switch (rhythm) {
+    case 'none':
+      return '0px';
+    case 'compact':
+      return '24px';
+    case 'spacious':
+    default:
+      return '64px';
+  }
+}
+
+function sectionBorderWidthValue(border: ThemeSectionBorder): string {
+  switch (border) {
+    case 'thick':
+      return '3px';
+    case 'none':
+      return '0px';
+    case 'thin':
+    default:
+      return '1px';
+  }
 }
 
 function cardShadow(style: ThemeCardStyle): string {

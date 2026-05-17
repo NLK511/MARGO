@@ -1,6 +1,56 @@
 import { Prisma, PrismaClient } from '@prisma/client';
+import { loadDemoSeedSnapshot, type DemoTenantModuleSettingSnapshot, type DemoTenantSeedSnapshot } from '../src/demo-seed-state';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient() as PrismaClient & {
+  quoteRequest: {
+    deleteMany(args: unknown): Promise<unknown>;
+    create(args: unknown): Promise<unknown>;
+  };
+};
+
+const demoSeedSnapshot = loadDemoSeedSnapshot();
+
+function json<T extends Prisma.InputJsonValue>(value: T): T {
+  return value;
+}
+
+function createCarouselPresetProps(preset: string, base: Prisma.InputJsonObject = {}): Prisma.InputJsonObject {
+  const title = typeof base.title === 'string' && base.title.trim() ? base.title : 'Featured content';
+  const eyebrow = typeof base.eyebrow === 'string' && base.eyebrow.trim() ? base.eyebrow : 'Featured';
+  const body = typeof base.body === 'string' && base.body.trim() ? base.body : 'A scrollable content carousel.';
+
+  switch (preset) {
+    case 'testimonials':
+      return {
+        eyebrow,
+        title,
+        body,
+        visibleCount: 1,
+        scrollMode: 'auto',
+        scrollStyle: 'smooth',
+        autoAdvanceMs: 3800,
+        slides: [
+          { eyebrow: 'Dining', title: '“Quiet luxury, perfectly paced”', body: 'A composed dinner with exquisite attention to detail.' },
+          { eyebrow: 'Service', title: '“The room feels like an occasion”', body: 'Warm, discreet service without feeling formal.' },
+          { eyebrow: 'Private events', title: '“Ideal for a special night”', body: 'An intimate setting for celebrations and business dinners.' },
+        ],
+      };
+    default:
+      return {
+        eyebrow,
+        title,
+        body,
+        visibleCount: 3,
+        scrollMode: 'manual',
+        scrollStyle: 'snap',
+        autoAdvanceMs: 3200,
+        slides: [
+          { eyebrow: 'Service', title: 'Featured service', body: 'Highlight one offering with a short description.', ctaLabel: 'Learn more', ctaHref: '#services' },
+          { eyebrow: 'Experience', title: 'A second highlight', body: 'Use this slot for another feature or announcement.', ctaLabel: 'Contact us', ctaHref: '#contact' },
+        ],
+      };
+  }
+}
 
 type SeedTenant = {
   slug: string;
@@ -10,7 +60,13 @@ type SeedTenant = {
   hostname: string;
   modules: string[];
   themePresetId: string;
+  layoutPreset: string;
   layoutConfig: Prisma.InputJsonObject;
+  branding?: {
+    logoUrl?: string;
+    faviconUrl?: string;
+    themeOverrides?: Prisma.InputJsonObject;
+  };
   location: {
     name: string;
     timezone: string;
@@ -49,7 +105,19 @@ const tenants: SeedTenant[] = [
     hostname: 'bistro-frontpage.localhost',
     modules: ['frontpage'],
     themePresetId: 'editorial-bistro',
+    layoutPreset: 'editorial',
     layoutConfig: { nav: 'centered', hero: 'full-bleed' },
+    branding: {
+      logoUrl: '/demo-assets/bistro/logo.svg',
+      faviconUrl: '/demo-assets/bistro/favicon.svg',
+      themeOverrides: {
+        assets: {
+          backgroundImageUrl: '/demo-assets/bistro/page-bg.svg',
+          cardBackgroundImageUrl: '/demo-assets/bistro/card-bg.svg',
+          heroBackgroundImageUrl: '/demo-assets/bistro/hero-bg.svg',
+        },
+      },
+    },
     location: {
       name: 'Bistro Lumiere',
       timezone: 'Europe/Paris',
@@ -72,6 +140,7 @@ const tenants: SeedTenant[] = [
     hostname: 'table-and-co.localhost',
     modules: ['frontpage', 'notifications', 'booking'],
     themePresetId: 'editorial-bistro',
+    layoutPreset: 'split',
     layoutConfig: { nav: 'centered', hero: 'split-image' },
     location: {
       name: 'Table & Co Main Dining Room',
@@ -109,6 +178,62 @@ const tenants: SeedTenant[] = [
     ],
   },
   {
+    slug: 'maison-noire',
+    legalName: 'Maison Noire SAS',
+    displayName: 'Maison Noire',
+    clinicMode: false,
+    hostname: 'maison-noire.localhost',
+    modules: ['frontpage', 'booking', 'notifications', 'quote-request'],
+    themePresetId: 'luxury-dark-dining',
+    layoutPreset: 'immersive',
+    layoutConfig: { nav: 'overlay', hero: 'full-bleed' },
+    branding: {
+      logoUrl: '/demo-assets/luxury/logo.svg',
+      faviconUrl: '/demo-assets/luxury/favicon.svg',
+      themeOverrides: {
+        assets: {
+          backgroundImageUrl: '/demo-assets/luxury/page-bg.svg',
+          cardBackgroundImageUrl: '/demo-assets/luxury/card-bg.svg',
+          heroBackgroundImageUrl: '/demo-assets/luxury/hero-bg.svg',
+        },
+      },
+    },
+    location: {
+      name: 'Maison Noire',
+      timezone: 'Europe/Paris',
+      address: { street: '18 Rue du Faubourg', city: 'Paris', country: 'FR' },
+      phone: '+33100000009',
+      email: 'reservations@maisonnoire.example',
+    },
+    page: {
+      title: 'An intimate dining room for exceptional evenings',
+      heroHeadline: 'Refined tasting menus, low light, and impeccable service.',
+      heroBody: 'Luxury restaurant demo tenant with elegant reservations, high-touch branding, and immersive visual styling.',
+      ctaLabel: 'Reserve now',
+    },
+    services: [
+      {
+        slug: 'tasting-menu',
+        name: 'Chef tasting menu',
+        description: 'Seasonal tasting menu for two to eight guests.',
+        verticalType: 'restaurant',
+        durationMinutes: 120,
+      },
+      {
+        slug: 'private-salon',
+        name: 'Private salon dinner',
+        description: 'Private room dining experience with curated wine pairing.',
+        verticalType: 'restaurant',
+        durationMinutes: 150,
+      },
+    ],
+    resources: [
+      { resourceType: 'table', name: 'Salon A', capacity: 4 },
+      { resourceType: 'table', name: 'Salon B', capacity: 6 },
+      { resourceType: 'table', name: 'Chef’s Table', capacity: 8 },
+    ],
+  },
+  {
     slug: 'oak-clinic',
     legalName: 'Oak Clinic SELARL',
     displayName: 'Oak Clinic',
@@ -116,6 +241,7 @@ const tenants: SeedTenant[] = [
     hostname: 'oak-clinic.localhost',
     modules: ['frontpage', 'notifications', 'booking', 'crm'],
     themePresetId: 'clinical-calm',
+    layoutPreset: 'classic',
     layoutConfig: { nav: 'top', hero: 'split-image' },
     location: {
       name: 'Oak Clinic',
@@ -184,15 +310,37 @@ async function seedTenant(seed: SeedTenant) {
     create: { tenantId: tenant.id, hostname: seed.hostname, status: 'verified', isPrimary: true },
   });
 
+  const tenantSnapshot = demoSeedSnapshot.tenants[seed.slug];
+  const brandingSnapshot = tenantSnapshot?.branding;
+  const moduleSettingsSnapshot = resolveModuleSettingsSnapshot(seed, tenantSnapshot);
+
   await prisma.tenantBranding.upsert({
     where: { tenantId: tenant.id },
-    update: { themePresetId: seed.themePresetId, layoutConfig: seed.layoutConfig },
-    create: { tenantId: tenant.id, themePresetId: seed.themePresetId, layoutConfig: seed.layoutConfig },
+    update: {
+      themePresetId: brandingSnapshot?.themePresetId ?? seed.themePresetId,
+      layoutConfig: (brandingSnapshot?.layoutConfig ?? seed.layoutConfig) as Prisma.InputJsonValue,
+      logoUrl: brandingSnapshot?.logoUrl ?? seed.branding?.logoUrl,
+      faviconUrl: brandingSnapshot?.faviconUrl ?? seed.branding?.faviconUrl,
+      themeOverrides: (brandingSnapshot?.themeOverrides ?? seed.branding?.themeOverrides ?? {}) as Prisma.InputJsonValue,
+    },
+    create: {
+      tenantId: tenant.id,
+      themePresetId: brandingSnapshot?.themePresetId ?? seed.themePresetId,
+      layoutConfig: (brandingSnapshot?.layoutConfig ?? seed.layoutConfig) as Prisma.InputJsonValue,
+      logoUrl: brandingSnapshot?.logoUrl ?? seed.branding?.logoUrl,
+      faviconUrl: brandingSnapshot?.faviconUrl ?? seed.branding?.faviconUrl,
+      themeOverrides: (brandingSnapshot?.themeOverrides ?? seed.branding?.themeOverrides ?? {}) as Prisma.InputJsonValue,
+    },
   });
 
   await prisma.tenantModule.deleteMany({ where: { tenantId: tenant.id } });
   await prisma.tenantModule.createMany({
-    data: seed.modules.map((moduleId) => ({ tenantId: tenant.id, moduleId, enabled: true })),
+    data: moduleSettingsSnapshot.map((module) => ({
+      tenantId: tenant.id,
+      moduleId: module.moduleId,
+      enabled: module.enabled ?? true,
+      config: (module.config ?? {}) as Prisma.InputJsonValue,
+    })),
   });
 
   const location = await prisma.location.upsert({
@@ -214,77 +362,55 @@ async function seedTenant(seed: SeedTenant) {
 
   await prisma.roleBinding.deleteMany({ where: { tenantId: tenant.id, userId: user.id } });
   await prisma.roleBinding.create({ data: { tenantId: tenant.id, userId: user.id, role: 'tenant_owner' } });
+  await prisma.roleBinding.create({ data: { tenantId: tenant.id, userId: user.id, role: 'tenant_admin' } });
 
-  const page = await prisma.publicPage.upsert({
-    where: { tenantId_locale_slug: { tenantId: tenant.id, locale: 'en', slug: 'home' } },
-    update: {
-      title: seed.page.title,
-      status: 'published',
-      seo: { title: seed.page.title, description: seed.page.heroBody },
-      layoutPreset: seed.themePresetId,
-    },
-    create: {
-      tenantId: tenant.id,
-      locale: 'en',
-      slug: 'home',
-      title: seed.page.title,
-      status: 'published',
-      seo: { title: seed.page.title, description: seed.page.heroBody },
-      layoutPreset: seed.themePresetId,
-    },
-  });
+  await prisma.pageBlock.deleteMany({ where: { tenantId: tenant.id } });
+  await prisma.publicPage.deleteMany({ where: { tenantId: tenant.id } });
 
-  await prisma.pageBlock.deleteMany({ where: { tenantId: tenant.id, pageId: page.id } });
-  await prisma.pageBlock.createMany({
-    data: [
-      {
-        tenantId: tenant.id,
-        pageId: page.id,
-        type: 'hero',
-        variant: 'split-image',
-        position: 0,
-        props: {
-          headline: seed.page.heroHeadline,
-          body: seed.page.heroBody,
-          ctaLabel: seed.page.ctaLabel,
+  if (tenantSnapshot?.pages?.length) {
+    for (const pageSeed of tenantSnapshot.pages) {
+      const page = await prisma.publicPage.create({
+        data: {
+          tenantId: tenant.id,
+          locale: pageSeed.locale,
+          slug: pageSeed.slug,
+          title: pageSeed.title,
+          status: normalizePageStatus(pageSeed.status),
+          seo: normalizeJsonObject(pageSeed.seo, { title: pageSeed.title }) as Prisma.InputJsonValue,
+          layoutPreset: pageSeed.layoutPreset,
         },
-      },
-      {
+      });
+
+      if (pageSeed.blocks.length) {
+        await prisma.pageBlock.createMany({
+          data: pageSeed.blocks.map((block) => ({
+            tenantId: tenant.id,
+            pageId: page.id,
+            type: block.type,
+            variant: block.variant,
+            props: block.props as Prisma.InputJsonValue,
+            position: block.position,
+          })),
+        });
+      }
+    }
+  } else {
+    const page = await prisma.publicPage.create({
+      data: {
         tenantId: tenant.id,
-        pageId: page.id,
-        type: 'rich-text',
-        variant: 'default',
-        position: 1,
-        props: { title: 'About us', body: seed.page.heroBody },
+        locale: 'en',
+        slug: 'home',
+        title: seed.page.title,
+        status: 'published',
+        seo: { title: seed.page.title, description: seed.page.heroBody } as Prisma.InputJsonValue,
+        layoutPreset: seed.layoutPreset,
       },
-      {
-        tenantId: tenant.id,
-        pageId: page.id,
-        type: 'service-list',
-        variant: 'cards',
-        position: 2,
-        props: { title: seed.services?.length ? 'Services' : 'Highlights' },
-      },
-      {
-        tenantId: tenant.id,
-        pageId: page.id,
-        type: 'location',
-        variant: 'card',
-        position: 3,
-        props: { locationName: location.name, address: seed.location.address, phone: seed.location.phone },
-      },
-      {
-        tenantId: tenant.id,
-        pageId: page.id,
-        type: seed.modules.includes('booking') ? 'cta' : 'contact-form',
-        variant: seed.modules.includes('booking') ? 'banner' : 'placeholder',
-        position: 4,
-        props: seed.modules.includes('booking')
-          ? { title: seed.page.ctaLabel, body: 'Choose a convenient time online.', label: seed.page.ctaLabel }
-          : { title: 'Contact us' },
-      },
-    ],
-  });
+    });
+
+    await prisma.pageBlock.createMany({
+      data: buildDefaultPageBlocks(seed, tenant.id, page.id, location.name),
+    });
+  }
 
   if (seed.services) {
     for (const serviceSeed of seed.services) {
@@ -328,6 +454,195 @@ async function seedTenant(seed: SeedTenant) {
       },
     });
   }
+
+  if (seed.modules.includes('quote-request')) {
+    await prisma.quoteRequest.deleteMany({ where: { tenantId: tenant.id } });
+    await prisma.quoteRequest.create({
+      data: {
+        tenantId: tenant.id,
+        publicToken: `${seed.slug}-quote-demo`,
+        status: 'submitted',
+        outputMode: 'quote',
+        recipientEmail: seed.location.email,
+        requesterName: 'Demo Event Planner',
+        requesterEmail: 'planner@example.test',
+        requesterPhone: '+33111222333',
+        requesterCompany: 'Maison Noire Events',
+        answers: json({ event_type: 'corporate-reception', guest_count: 24, service_level: 'full-experience' }),
+        quoteBreakdown: json([
+          { label: 'Base quote', kind: 'base', amountMinor: 12000 },
+          { label: 'What are you planning?: Corporate reception', kind: 'option', amountMinor: 25000 },
+          { label: 'How many guests?: Additional guest setup', kind: 'rule', amountMinor: 1500 },
+          { label: 'Preferred service level: Full private experience', kind: 'option', amountMinor: 22000 },
+        ]),
+        quoteMinor: 60500,
+        currency: 'EUR',
+        configSnapshot: json({ title: 'Request a private quote', outputMode: 'quote', successTitle: 'Request received', successBody: 'Thank you. Our team will review the details and email you shortly.' }),
+      },
+    });
+  }
+}
+
+function buildDefaultPageBlocks(seed: SeedTenant, tenantId: string, pageId: string, locationName: string) {
+  return [
+    {
+      tenantId,
+      pageId,
+      type: 'hero',
+      variant: 'split-image',
+      position: 0,
+      props: json({
+        headline: seed.page.heroHeadline,
+        body: seed.page.heroBody,
+        ctaLabel: seed.page.ctaLabel,
+      }) as Prisma.InputJsonValue,
+    },
+    ...(seed.slug === 'maison-noire'
+      ? [
+          {
+            tenantId,
+            pageId,
+            type: 'carousel',
+            variant: 'testimonials',
+            position: 1,
+            props: json(createCarouselPresetProps('testimonials', {
+              eyebrow: 'Guest notes',
+              title: 'A few reasons guests return',
+              body: 'A premium carousel preset for polished social proof and memorable touches.',
+            })) as Prisma.InputJsonValue,
+          },
+        ]
+      : []),
+    {
+      tenantId,
+      pageId,
+      type: 'rich-text',
+      variant: 'default',
+      position: seed.slug === 'maison-noire' ? 2 : 1,
+      props: json({ title: 'About us', body: seed.page.heroBody }) as Prisma.InputJsonValue,
+    },
+    {
+      tenantId,
+      pageId,
+      type: 'service-list',
+      variant: 'cards',
+      position: seed.slug === 'maison-noire' ? 3 : 2,
+      props: json({ title: seed.services?.length ? 'Services' : 'Highlights' }) as Prisma.InputJsonValue,
+    },
+    {
+      tenantId,
+      pageId,
+      type: 'location',
+      variant: 'card',
+      position: seed.slug === 'maison-noire' ? 4 : 3,
+      props: json({ locationName: locationName, address: seed.location.address, phone: seed.location.phone }) as Prisma.InputJsonValue,
+    },
+    {
+      tenantId,
+      pageId,
+      type: seed.modules.includes('booking') ? 'cta' : 'contact-form',
+      variant: seed.modules.includes('booking') ? 'banner' : 'placeholder',
+      position: seed.slug === 'maison-noire' ? 5 : 4,
+      props: seed.modules.includes('booking')
+        ? (json({ title: seed.page.ctaLabel, body: 'Choose a convenient time online.', label: seed.page.ctaLabel }) as Prisma.InputJsonValue)
+        : (json({ title: 'Contact us' }) as Prisma.InputJsonValue),
+    },
+  ];
+}
+
+function resolveModuleSettingsSnapshot(
+  seed: SeedTenant,
+  tenantSnapshot?: DemoTenantSeedSnapshot,
+): DemoTenantModuleSettingSnapshot[] {
+  const defaults = seed.modules.map((moduleId) => ({
+    moduleId,
+    enabled: true,
+    config: moduleId === 'quote-request' ? createDefaultQuoteRequestConfig() : {},
+  }));
+
+  const snapshotModuleSettings = tenantSnapshot?.moduleSettings ?? [];
+  const snapshotByModuleId = new Map(snapshotModuleSettings.map((module) => [module.moduleId, module] as const));
+  const merged = defaults.map((module) => {
+    const snapshotModule = snapshotByModuleId.get(module.moduleId);
+    return snapshotModule
+      ? {
+          moduleId: module.moduleId,
+          enabled: snapshotModule.enabled ?? module.enabled,
+          config: snapshotModule.config ?? module.config ?? {},
+        }
+      : module;
+  });
+
+  const extraSnapshotModules = snapshotModuleSettings.filter((module) => !defaults.some((defaultModule) => defaultModule.moduleId === module.moduleId));
+  const quoteRequestSnapshot = tenantSnapshot?.quoteRequest;
+  if (quoteRequestSnapshot && !snapshotByModuleId.has('quote-request')) {
+    extraSnapshotModules.push({
+      moduleId: 'quote-request',
+      enabled: quoteRequestSnapshot.enabled ?? true,
+      config: quoteRequestSnapshot.config ?? {},
+    });
+  }
+
+  return [...merged, ...extraSnapshotModules];
+}
+
+function createDefaultQuoteRequestConfig(): Record<string, unknown> {
+  return {
+    title: 'Request a private quote',
+    intro: 'Answer a few questions and the Maison Noire team will reply with a tailored proposal.',
+    recipientEmail: 'reservations@maisonnoire.example',
+    outputMode: 'quote',
+    currency: 'EUR',
+    basePriceMinor: 12000,
+    estimatedLabel: 'Estimated quote',
+    successTitle: 'Request received',
+    successBody: 'Thank you. Our team will review the details and email you shortly.',
+    leadFields: [
+      { key: 'displayName', label: 'Full name', type: 'text', required: true },
+      { key: 'email', label: 'Email', type: 'email', required: true },
+      { key: 'phone', label: 'Phone', type: 'tel' },
+      { key: 'company', label: 'Company', type: 'text' },
+      { key: 'message', label: 'Notes', type: 'textarea' },
+    ],
+    questions: [
+      {
+        id: 'event_type',
+        label: 'What are you planning?',
+        type: 'select',
+        required: true,
+        options: [
+          { label: 'Private dinner', value: 'private-dinner', priceMinor: 0 },
+          { label: 'Corporate reception', value: 'corporate-reception', priceMinor: 25000 },
+          { label: 'Celebration', value: 'celebration', priceMinor: 18000 },
+        ],
+      },
+      {
+        id: 'guest_count',
+        label: 'How many guests?',
+        type: 'number',
+        required: true,
+        pricingRules: [{ id: 'guest-count', kind: 'add', amountMinor: 1500, note: 'Additional guest setup per person' }],
+      },
+      {
+        id: 'service_level',
+        label: 'Preferred service level',
+        type: 'radio',
+        options: [
+          { label: 'Dinner only', value: 'dinner-only', priceMinor: 0 },
+          { label: 'Dinner + wine pairing', value: 'wine-pairing', priceMinor: 9000 },
+          { label: 'Full private experience', value: 'full-experience', priceMinor: 22000 },
+        ],
+      },
+    ],
+  };
+}
+
+function normalizePageStatus(value: string): 'draft' | 'published' {
+  return value === 'published' ? 'published' : 'draft';
+}
+
+function normalizeJsonObject(value: Record<string, unknown> | undefined, fallback: Record<string, unknown>): Record<string, unknown> {
+  return value && Object.keys(value).length > 0 ? value : fallback;
 }
 
 function deterministicUuid(seed: string, label: string): string {

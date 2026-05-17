@@ -9,11 +9,21 @@ pnpm install
 pnpm dev
 ```
 
+One-click stack commands:
+
+```bash
+pnpm start
+pnpm stop
+pnpm deploy
+```
+
+Run them as your normal user, not with sudo.
+
 Apps:
 
 - Public web: http://localhost:3000
 - Admin web: http://localhost:3001
-- API placeholder: `apps/api`
+- API: http://localhost:3002
 
 Local infrastructure:
 
@@ -21,14 +31,19 @@ Local infrastructure:
 docker compose -f infra/docker-compose.yml up -d
 ```
 
+Postgres persistence uses the named Docker volume `postgres-data`.
+
+The worker runs from `infra/Dockerfile.worker`.
+
 Database setup:
 
 ```bash
-cp .env.example .env
-docker compose -f infra/docker-compose.yml up -d postgres
 pnpm db:migrate
 pnpm db:seed
 ```
+
+`pnpm deploy` boots Postgres, Redis, and the worker container, creates `.env` from `.env.example` if missing, runs migrations/seeds, and starts the web/API processes.
+Demo edits to theme/pages/quote-request config are snapshotted in `.margo/demo-seed-state.json` and restored by `pnpm db:seed`.
 
 Seed tenants:
 

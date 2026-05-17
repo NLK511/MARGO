@@ -10,6 +10,9 @@ white-label-smb-platform/
       tests/
     admin-web/
       app/
+        global-admin/     internal studio routes
+        tenant/           tenant builder/admin routes
+        owner/            tenant owner/ops portal routes
       components/
       routes/
       tests/
@@ -20,6 +23,9 @@ white-label-smb-platform/
         modules/
         workers/
         common/
+      tests/
+    worker/
+      src/
       tests/
   packages/
     core/
@@ -71,6 +77,7 @@ white-label-smb-platform/
     Dockerfile.api
     Dockerfile.public-web
     Dockerfile.admin-web
+    Dockerfile.worker
     k8s/
     terraform/
   scripts/
@@ -87,7 +94,14 @@ white-label-smb-platform/
   README.md
 ```
 
-## Naming Rules
+## Surface Naming Rules
+
+- Use `Global Studio` or `Global Admin` for internal platform management.
+- Use `Tenant Builder` or `Tenant Admin` for per-tenant webapp configuration.
+- Use `Tenant Owner Portal` for business owner operations.
+- Use `Public Webapp` for customer-facing tenant runtime.
+
+## Data Naming Rules
 
 - Use `tenant` not `organization` in platform core.
 - Use `customer` as the base entity.

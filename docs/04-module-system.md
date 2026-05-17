@@ -25,14 +25,24 @@ export interface ModuleManifest {
   permissions: PermissionDefinition[];
   publicRoutes: RouteDefinition[];
   adminRoutes: RouteDefinition[];
+  ownerRoutes?: RouteDefinition[];
   apiRoutes: ApiRouteDefinition[];
   eventSubscriptions: EventSubscription[];
   menuItems: MenuItemDefinition[];
   widgets?: DashboardWidgetDefinition[];
+  exportAdapter?: ModuleExportAdapterDefinition;
+}
+
+export interface ModuleExportAdapterDefinition {
+  currentVersion: string;
+  exportKey: string;
+  migrators: string[];
 }
 ```
 
 ## Module Enablement
+
+When a module is enabled, its public routes are surfaced in the admin page inventory as read-only, module-owned pages.
 
 Database table:
 
@@ -55,6 +65,12 @@ create table tenant_modules (
 - `crm` requires `booking` only if timeline includes bookings; otherwise it may run standalone.
 - `frontpage` has no module dependency.
 - `theme` is platform core, not optional.
+- Module public routes should be discoverable from the admin page inventory and clearly marked as injected/managed by a module.
+- Module admin routes are builder/configuration routes for tenant admins.
+- Module owner routes are operational routes for tenant owners/staff and should not expose builder controls.
+- Module-specific editors may expose extra UX controls such as quote-request wizard form style and next-step animation.
+- Demo tenants use a seed-snapshot overlay: any editable module config stored in `tenant_modules` is captured and restored on reseed, and future module-owned tables should opt into the same snapshot contract via a dedicated adapter.
+- Modules that own configurable data outside `tenant_modules` must define export/import adapters with versioned migrators.
 
 ## Future Module Examples
 

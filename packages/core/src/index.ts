@@ -11,6 +11,9 @@ export interface TenantContext {
   timezone: string;
   themePresetId?: string;
   layoutConfig?: Record<string, unknown>;
+  themeOverrides?: Record<string, unknown>;
+  logoUrl?: string | null;
+  faviconUrl?: string | null;
   resolutionMethod?: TenantResolutionMethod;
 }
 
@@ -23,6 +26,9 @@ export interface TenantLookupRecord {
   timezone: string;
   themePresetId?: string;
   layoutConfig?: Record<string, unknown>;
+  themeOverrides?: Record<string, unknown>;
+  logoUrl?: string | null;
+  faviconUrl?: string | null;
 }
 
 export interface TenantResolverRepository {
@@ -123,6 +129,12 @@ export async function requireTenantContext(
   return context;
 }
 
+export function assertSameTenant(input: { expectedTenantId: TenantId; actualTenantId?: TenantId | null; operation?: string }): void {
+  if (!input.actualTenantId || input.actualTenantId !== input.expectedTenantId) {
+    throw new TenantAccessDeniedError(input.expectedTenantId, input.actualTenantId ?? 'unknown', input.operation);
+  }
+}
+
 export class TenantNotFoundError extends Error {
   constructor(public readonly input: TenantResolutionInput) {
     super('Tenant could not be resolved for this request.');
@@ -174,15 +186,23 @@ function isLocalHost(hostname: string): boolean {
 }
 
 export type Role =
-  | 'platform_super_admin'
+  | 'global_admin'
+  | 'tenant_admin'
   | 'tenant_owner'
-  | 'location_manager'
-  | 'front_desk'
+  | 'tenant_staff'
   | 'provider'
   | 'marketing_editor'
   | 'analyst';
 
 export type Permission =
+  | 'platform.tenants.read'
+  | 'platform.tenants.write'
+  | 'platform.templates.manage'
+  | 'platform.themes.manage'
+  | 'tenant.builder.read'
+  | 'tenant.builder.write'
+  | 'owner.dashboard.read'
+  | 'owner.calendar.write'
   | 'site.pages.read'
   | 'site.pages.write'
   | 'booking.read'
@@ -191,20 +211,32 @@ export type Permission =
   | 'crm.customer.read'
   | 'crm.customer.write'
   | 'crm.note.write'
+  | 'quote.request.read'
+  | 'quote.request.write'
   | 'tenant.billing.manage'
   | 'tenant.modules.manage';
 
 export const permissionRoles: Record<Permission, readonly Role[]> = {
-  'site.pages.read': ['tenant_owner', 'marketing_editor'],
-  'site.pages.write': ['tenant_owner', 'marketing_editor'],
-  'booking.read': ['tenant_owner', 'location_manager', 'front_desk', 'provider'],
-  'booking.write': ['tenant_owner', 'location_manager', 'front_desk'],
-  'booking.cancel': ['tenant_owner', 'location_manager', 'front_desk'],
-  'crm.customer.read': ['tenant_owner', 'location_manager', 'front_desk', 'provider'],
-  'crm.customer.write': ['tenant_owner', 'location_manager', 'front_desk'],
-  'crm.note.write': ['tenant_owner', 'location_manager', 'front_desk', 'provider'],
+  'platform.tenants.read': ['global_admin'],
+  'platform.tenants.write': ['global_admin'],
+  'platform.templates.manage': ['global_admin'],
+  'platform.themes.manage': ['global_admin'],
+  'tenant.builder.read': ['tenant_admin', 'marketing_editor'],
+  'tenant.builder.write': ['tenant_admin'],
+  'owner.dashboard.read': ['tenant_owner', 'tenant_staff', 'provider'],
+  'owner.calendar.write': ['tenant_owner'],
+  'site.pages.read': ['tenant_admin', 'marketing_editor'],
+  'site.pages.write': ['tenant_admin', 'marketing_editor'],
+  'booking.read': ['tenant_owner', 'tenant_staff', 'provider'],
+  'booking.write': ['tenant_owner', 'tenant_staff'],
+  'booking.cancel': ['tenant_owner', 'tenant_staff'],
+  'crm.customer.read': ['tenant_owner', 'tenant_staff', 'provider'],
+  'crm.customer.write': ['tenant_owner', 'tenant_staff'],
+  'crm.note.write': ['tenant_owner', 'tenant_staff', 'provider'],
+  'quote.request.read': ['tenant_owner', 'tenant_staff'],
+  'quote.request.write': ['tenant_admin'],
   'tenant.billing.manage': ['tenant_owner'],
-  'tenant.modules.manage': ['tenant_owner'],
+  'tenant.modules.manage': ['tenant_admin'],
 };
 
 export interface AdminPrincipal {
@@ -214,7 +246,6 @@ export interface AdminPrincipal {
 }
 
 export function can(principal: Pick<AdminPrincipal, 'roles'>, permission: Permission): boolean {
-  if (principal.roles.includes('platform_super_admin')) return true;
   return principal.roles.some((role) => permissionRoles[permission].includes(role));
 }
 
@@ -234,7 +265,7 @@ export function guardAdminPermission(input: AdminPermissionGuardInput): AdminPri
   if (!input.principal) {
     throw new UnauthenticatedError();
   }
-  if (input.principal.roles.includes('platform_super_admin')) {
+  if (input.principal.roles.includes('global_admin')) {
     return input.principal;
   }
   if (input.principal.tenantId !== input.tenant.tenantId) {
@@ -255,8 +286,9 @@ export class TenantAccessDeniedError extends Error {
   constructor(
     public readonly requestedTenantId: TenantId,
     public readonly principalTenantId: TenantId,
+    public readonly operation?: string,
   ) {
-    super('Principal cannot access this tenant.');
+    super(operation ? `Principal cannot access this tenant for ${operation}.` : 'Principal cannot access this tenant.');
     this.name = 'TenantAccessDeniedError';
   }
 }
@@ -303,3 +335,174 @@ function pickTenantBrand(tenant: TenantContext): BrandedErrorView['tenant'] {
     themePresetId: tenant.themePresetId,
   };
 }
+
+export * from './carousel-presets';
+export * from './page-block-registry';
+
+export type DemoTenantSlug = 'bistro-frontpage' | 'table-and-co' | 'maison-noire' | 'oak-clinic';
+
+export interface DemoTenantCatalogEntry {
+  slug: DemoTenantSlug;
+  tenantName: string;
+  enabledModules: string[];
+  booking?: {
+    title: string;
+    serviceId: string;
+    resourceId: string;
+    resourceLabel: string;
+    duration: number;
+    opensAt: string;
+    closesAt: string;
+    partySize?: number;
+  };
+}
+
+export interface TenantWebappExportPackage {
+  kind: 'margo.tenant-webapp-export';
+  exportVersion: string;
+  sourceAppVersion: string;
+  createdAt: string;
+  tenant: { slug: string; displayName: string; locale?: string; timezone?: string };
+  enabledModules: string[];
+  theme: { presetId: string; tokens?: Record<string, unknown> };
+  branding: Record<string, unknown>;
+  pages: Array<Record<string, unknown>>;
+  modules: Record<string, { version: string; config: Record<string, unknown>; data?: unknown }>;
+  assets: Array<{ key: string; url?: string; checksum?: string }>;
+  migrations: string[];
+  unknown?: Record<string, unknown>;
+}
+
+export interface TenantTemplatePackage {
+  kind: 'margo.tenant-template';
+  id: string;
+  name: string;
+  templateVersion: string;
+  sourceExportVersion: string;
+  enabledModules: string[];
+  themePresetId: string;
+  defaults: Record<string, unknown>;
+}
+
+export interface TenantImportReport {
+  canImport: boolean;
+  fromVersion: string;
+  toVersion: string;
+  migrationsApplied: string[];
+  warnings: string[];
+}
+
+export const CURRENT_TENANT_EXPORT_VERSION = '1.0.0';
+
+export function createTenantWebappExport(input: Omit<TenantWebappExportPackage, 'kind' | 'exportVersion' | 'createdAt' | 'migrations'> & { createdAt?: string; exportVersion?: string; migrations?: string[] }): TenantWebappExportPackage {
+  return {
+    kind: 'margo.tenant-webapp-export',
+    exportVersion: input.exportVersion ?? CURRENT_TENANT_EXPORT_VERSION,
+    sourceAppVersion: input.sourceAppVersion,
+    createdAt: input.createdAt ?? new Date().toISOString(),
+    tenant: input.tenant,
+    enabledModules: input.enabledModules,
+    theme: input.theme,
+    branding: input.branding,
+    pages: input.pages,
+    modules: input.modules,
+    assets: input.assets,
+    migrations: input.migrations ?? [],
+    unknown: input.unknown,
+  };
+}
+
+export function validateTenantWebappImportPackage(value: unknown): TenantImportReport {
+  const warnings: string[] = [];
+  if (!value || typeof value !== 'object') {
+    return { canImport: false, fromVersion: 'unknown', toVersion: CURRENT_TENANT_EXPORT_VERSION, migrationsApplied: [], warnings: ['Export package must be an object.'] };
+  }
+  const pkg = value as Partial<TenantWebappExportPackage> & Record<string, unknown>;
+  if (pkg.kind !== 'margo.tenant-webapp-export') warnings.push('Unknown package kind.');
+  const fromVersion = typeof pkg.exportVersion === 'string' ? pkg.exportVersion : '0.0.0';
+  if (!pkg.tenant || typeof pkg.tenant !== 'object') warnings.push('Missing tenant metadata; safe defaults will be required.');
+  if (!Array.isArray(pkg.enabledModules)) warnings.push('Missing enabled module list; importing as frontpage-only.');
+  if (!pkg.modules || typeof pkg.modules !== 'object') warnings.push('Missing module payloads; module defaults will be used.');
+  const migrationsApplied = fromVersion === CURRENT_TENANT_EXPORT_VERSION ? [] : [`tenant-export:${fromVersion}->${CURRENT_TENANT_EXPORT_VERSION}`];
+  return { canImport: pkg.kind === 'margo.tenant-webapp-export', fromVersion, toVersion: CURRENT_TENANT_EXPORT_VERSION, migrationsApplied, warnings };
+}
+
+export function materializeTemplateFromExport(input: { templateId: string; name: string; exportPackage: TenantWebappExportPackage }): TenantTemplatePackage {
+  return {
+    kind: 'margo.tenant-template',
+    id: input.templateId,
+    name: input.name,
+    templateVersion: '1.0.0',
+    sourceExportVersion: input.exportPackage.exportVersion,
+    enabledModules: input.exportPackage.enabledModules,
+    themePresetId: input.exportPackage.theme.presetId,
+    defaults: {
+      branding: input.exportPackage.branding,
+      pages: input.exportPackage.pages,
+      modules: input.exportPackage.modules,
+      assets: input.exportPackage.assets,
+    },
+  };
+}
+
+export function listBuiltinTemplateSummaries(): Array<Pick<TenantTemplatePackage, 'id' | 'name' | 'templateVersion' | 'enabledModules' | 'themePresetId'>> {
+  return Object.values(DEMO_TENANTS).map((tenant) => ({
+    id: `demo-${tenant.slug}`,
+    name: `${tenant.tenantName} starter`,
+    templateVersion: '1.0.0',
+    enabledModules: tenant.enabledModules,
+    themePresetId: tenant.slug === 'oak-clinic' ? 'clinical-calm' : tenant.slug === 'maison-noire' ? 'luxury-dark-dining' : 'editorial-bistro',
+  }));
+}
+
+export const DEMO_TENANTS: Record<DemoTenantSlug, DemoTenantCatalogEntry> = {
+  'bistro-frontpage': {
+    slug: 'bistro-frontpage',
+    tenantName: 'Bistro Lumiere',
+    enabledModules: ['frontpage'],
+  },
+  'table-and-co': {
+    slug: 'table-and-co',
+    tenantName: 'Table & Co',
+    enabledModules: ['frontpage', 'notifications', 'booking'],
+    booking: {
+      title: 'Reserve a table',
+      serviceId: 'dinner-reservation',
+      resourceId: 'table-2',
+      resourceLabel: 'Table 2',
+      duration: 90,
+      opensAt: '18:00',
+      closesAt: '21:00',
+      partySize: 2,
+    },
+  },
+  'maison-noire': {
+    slug: 'maison-noire',
+    tenantName: 'Maison Noire',
+    enabledModules: ['frontpage', 'booking', 'notifications', 'quote-request'],
+    booking: {
+      title: 'Reserve your table',
+      serviceId: 'tasting-menu',
+      resourceId: 'salon-a',
+      resourceLabel: 'Salon A',
+      duration: 120,
+      opensAt: '19:00',
+      closesAt: '22:30',
+      partySize: 2,
+    },
+  },
+  'oak-clinic': {
+    slug: 'oak-clinic',
+    tenantName: 'Oak Clinic',
+    enabledModules: ['frontpage', 'notifications', 'booking', 'crm'],
+    booking: {
+      title: 'Book an appointment',
+      serviceId: 'initial-consultation',
+      resourceId: 'clinician-1',
+      resourceLabel: 'Dr. Ada Martin',
+      duration: 45,
+      opensAt: '09:00',
+      closesAt: '12:00',
+    },
+  },
+};

@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import { resolveTenantContext } from '@margo/core';
+import { createCarouselPresetProps } from '@margo/core';
 import { createPrismaTenantResolverRepository, createPublicPageService } from '@margo/db';
 import type { TenantFrontpageModel } from './frontpage';
 
@@ -19,16 +20,58 @@ export async function getFrontpageForHostAndPath(hostname: string | null, path: 
     return null;
   }
 
-  const page = await createPublicPageService().findPublishedPage({ tenantId: tenant.tenantId, slug: 'home', locale: tenant.locale });
+  const route = parsePublicPageRoute(path);
+  const pageLocale = route?.locale ?? tenant.locale;
+  const pageSlug = route?.pageSlug ?? 'home';
+  const page = await createPublicPageService().findPublishedPage({ tenantId: tenant.tenantId, slug: pageSlug, locale: pageLocale });
   if (!page) return null;
 
   return {
     tenant: {
       slug: tenant.slug,
+      locale: tenant.locale,
       displayName: tenant.displayName ?? tenant.slug,
       enabledModules: tenant.enabledModules,
       themePresetId: tenant.themePresetId ?? 'clinical-calm',
+      layoutConfig: tenant.layoutConfig,
+      themeOverrides: tenant.themeOverrides,
+      logoUrl: tenant.logoUrl,
+      faviconUrl: tenant.faviconUrl,
     },
-    page,
+    page: injectMaisonNoireCarousel(tenant.slug, page),
   };
+}
+
+export function parsePublicPageRoute(path: string): { locale: string; pageSlug?: string } | null {
+  const normalized = path.replace(/\/+$/, '') || '/';
+  if (normalized === '/') return null;
+
+  const match = normalized.match(/^\/([^/?#]+)(?:\/([^/?#]+))?$/);
+  if (!match?.[1]) return null;
+  if (match[1] === 't') return null;
+
+  return { locale: decodeURIComponent(match[1]), pageSlug: match[2] ? decodeURIComponent(match[2]) : 'home' };
+}
+
+function injectMaisonNoireCarousel(tenantSlug: string, page: TenantFrontpageModel['page']): TenantFrontpageModel['page'] {
+  if (tenantSlug !== 'maison-noire') return page;
+  if (page.blocks.some((block) => block.type === 'carousel')) return page;
+
+  const carouselBlock = {
+    id: 'carousel-maison-noire',
+    type: 'carousel',
+    variant: 'testimonials',
+    position: 1,
+    props: createCarouselPresetProps('testimonials', {
+      eyebrow: 'Guest notes',
+      title: 'A few reasons guests return',
+      body: 'A premium carousel preset for polished social proof and memorable touches.',
+    }),
+  } as const;
+
+  const blocks = [...page.blocks];
+  const heroIndex = blocks.findIndex((block) => block.type === 'hero');
+  const insertAt = heroIndex >= 0 ? heroIndex + 1 : 0;
+  blocks.splice(insertAt, 0, carouselBlock as never);
+  return { ...page, blocks };
 }

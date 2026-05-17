@@ -39,6 +39,7 @@ model Tenant {
   customFields    CustomFieldDefinition[]
   customValues    CustomFieldValue[]
   timelineEvents  CustomerTimelineEvent[]
+  quoteRequests   QuoteRequest[]
   tagAssignments  CustomerTagAssignment[]
 
   @@map("tenants")
@@ -313,6 +314,7 @@ model Customer {
   notes          CustomerNote[]
   tagAssignments CustomerTagAssignment[]
   timelineEvents CustomerTimelineEvent[]
+  quoteRequests   QuoteRequest[]
 
   @@index([tenantId, email])
   @@index([tenantId, phone])
@@ -412,4 +414,33 @@ model CustomerTimelineEvent {
 
   @@index([tenantId, customerId, occurredAt])
   @@map("customer_timeline_events")
+}
+
+model QuoteRequest {
+  id               String   @id @default(uuid()) @db.Uuid
+  tenantId         String   @map("tenant_id") @db.Uuid
+  customerId       String?  @map("customer_id") @db.Uuid
+  status           String   @default("submitted")
+  publicToken      String   @unique @map("public_token")
+  outputMode       String   @map("output_mode")
+  recipientEmail   String?  @map("recipient_email")
+  requesterName    String   @map("requester_name")
+  requesterEmail   String?  @map("requester_email")
+  requesterPhone   String?  @map("requester_phone")
+  requesterCompany String?  @map("requester_company")
+  answers          Json     @default("{}")
+  quoteBreakdown   Json     @default("{}") @map("quote_breakdown")
+  quoteMinor       Int?     @map("quote_minor")
+  currency         String?
+  configSnapshot   Json     @default("{}") @map("config_snapshot")
+  submittedAt      DateTime @default(now()) @map("submitted_at") @db.Timestamptz(6)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, submittedAt])
+  @@index([tenantId, customerId])
+  @@map("quote_requests")
 }

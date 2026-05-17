@@ -10,14 +10,24 @@ import {
   PermissionDeniedError,
   requirePermission,
   assertCsrfOrNonCookieAuth,
+  assertSameTenant,
   CsrfProtectionError,
   createSafeLogEntry,
+  createCarouselPresetProps,
+  createTenantWebappExport,
+  getCarouselPresetDefaults,
+  getCarouselPresetSlides,
+  getPageBlockOptions,
+  listBuiltinTemplateSummaries,
+  materializeTemplateFromExport,
   TenantAccessDeniedError,
   UnauthenticatedError,
   resolveTenantContext,
+  validateTenantWebappImportPackage,
   type TenantLookupRecord,
   type TenantResolverRepository,
 } from './index';
+import { createDefaultPageBlockProps } from './page-block-registry';
 
 const tenants: Record<string, TenantLookupRecord> = {
   bistro: {
@@ -95,12 +105,16 @@ describe('tenant resolution', () => {
 
 describe('RBAC', () => {
   it('allows roles listed for a permission', () => {
-    expect(can({ roles: ['front_desk'] }, 'booking.write')).toBe(true);
+    expect(can({ roles: ['tenant_staff'] }, 'booking.write')).toBe(true);
     expect(can({ roles: ['marketing_editor'] }, 'booking.write')).toBe(false);
   });
 
-  it('always allows platform super admins', () => {
-    expect(can({ roles: ['platform_super_admin'] }, 'tenant.modules.manage')).toBe(true);
+  it('keeps global admin, tenant admin, and owner permissions separate', () => {
+    expect(can({ roles: ['global_admin'] }, 'platform.tenants.write')).toBe(true);
+    expect(can({ roles: ['global_admin'] }, 'tenant.modules.manage')).toBe(false);
+    expect(can({ roles: ['tenant_admin'] }, 'tenant.modules.manage')).toBe(true);
+    expect(can({ roles: ['tenant_owner'] }, 'tenant.modules.manage')).toBe(false);
+    expect(can({ roles: ['tenant_owner'] }, 'booking.read')).toBe(true);
   });
 
   it('throws for denied admin permissions', () => {
@@ -122,7 +136,7 @@ describe('RBAC', () => {
     ).toThrow(TenantAccessDeniedError);
     expect(
       guardAdminPermission({
-        principal: { userId: 'user-1', tenantId: 'tenant-1', roles: ['front_desk'] },
+        principal: { userId: 'user-1', tenantId: 'tenant-1', roles: ['tenant_staff'] },
         tenant,
         permission: 'booking.read',
       }).userId,
@@ -136,6 +150,91 @@ describe('branded errors', () => {
       'editorial-bistro',
     );
     expect(brandedForbidden({ ...tenants.clinic!, resolutionMethod: 'custom-domain' }).status).toBe(403);
+  });
+});
+
+describe('block registry', () => {
+  it('keeps the core block registry intentionally small', () => {
+    expect(getPageBlockOptions().map((option) => option.value)).toEqual([
+      'hero',
+      'service-list',
+      'image',
+      'carousel',
+      'split-media',
+      'rich-text',
+      'location',
+      'contact-form',
+      'cta',
+    ]);
+  });
+
+  it('provides image block defaults with an optional button model', () => {
+    expect(createDefaultPageBlockProps('image', 'Hero image')).toMatchObject({
+      caption: 'A seasonal visual block.',
+      imageUrl: '',
+      buttonEnabled: false,
+      buttonLabel: 'View gallery',
+      buttonHref: '#gallery',
+      buttonPosition: 'bottom-right',
+      buttonStyle: 'primary',
+      buttonTextStyle: { fontFamily: '', color: '', fontSize: '', lineHeight: '', textAlign: '' },
+      buttonSpacing: { margin: '', padding: '' },
+    });
+  });
+});
+
+describe('carousel presets', () => {
+  it('shares preset defaults and fallback slides', () => {
+    expect(getCarouselPresetDefaults('testimonials')).toMatchObject({ visibleCount: 1, scrollMode: 'auto' });
+    expect(getCarouselPresetSlides('offers')).toHaveLength(2);
+    expect(getCarouselPresetSlides('cards')[0]?.eyebrow).toBeUndefined();
+    expect(createCarouselPresetProps('gallery', { title: 'Gallery' })).toMatchObject({ title: 'Gallery', slides: expect.any(Array) });
+  });
+});
+
+describe('tenant export/import and templates', () => {
+  it('creates versioned export packages and validates current imports', () => {
+    const pkg = createTenantWebappExport({
+      sourceAppVersion: 'test',
+      tenant: { slug: 'demo', displayName: 'Demo' },
+      enabledModules: ['frontpage'],
+      theme: { presetId: 'editorial-bistro' },
+      branding: {},
+      pages: [{ slug: 'home' }],
+      modules: { frontpage: { version: '1.0.0', config: {} } },
+      assets: [],
+    });
+
+    expect(pkg.kind).toBe('margo.tenant-webapp-export');
+    expect(validateTenantWebappImportPackage(pkg)).toMatchObject({ canImport: true, migrationsApplied: [] });
+  });
+
+  it('reports old export migrations and can materialize file-based templates', () => {
+    const oldPkg = createTenantWebappExport({
+      exportVersion: '0.1.0',
+      sourceAppVersion: 'old',
+      tenant: { slug: 'old-demo', displayName: 'Old Demo' },
+      enabledModules: ['frontpage', 'booking'],
+      theme: { presetId: 'clinical-calm' },
+      branding: { logoUrl: '/logo.svg' },
+      pages: [],
+      modules: {},
+      assets: [],
+    });
+
+    expect(validateTenantWebappImportPackage(oldPkg).migrationsApplied).toEqual(['tenant-export:0.1.0->1.0.0']);
+    expect(materializeTemplateFromExport({ templateId: 'starter', name: 'Starter', exportPackage: oldPkg })).toMatchObject({
+      kind: 'margo.tenant-template',
+      enabledModules: ['frontpage', 'booking'],
+    });
+    expect(listBuiltinTemplateSummaries().length).toBeGreaterThanOrEqual(4);
+  });
+});
+
+describe('tenant isolation helpers', () => {
+  it('rejects cross-tenant record access with operation context', () => {
+    expect(() => assertSameTenant({ expectedTenantId: 'tenant-a', actualTenantId: 'tenant-b', operation: 'booking.read' })).toThrow(TenantAccessDeniedError);
+    expect(() => assertSameTenant({ expectedTenantId: 'tenant-a', actualTenantId: 'tenant-a', operation: 'booking.read' })).not.toThrow();
   });
 });
 

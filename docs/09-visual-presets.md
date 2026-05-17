@@ -1,3 +1,12 @@
+## Preset strategy
+
+Presets are the baseline theme layer. Blocks are intentionally fewer than preset variations; when content needs alternate presentation, prefer block variants or carousel presets over new block types.
+
+Core page blocks are: hero, service-list, image, carousel, split-media, rich-text, location, contact-form, and cta.
+Carousel presets are: cards, testimonials, offers, and gallery.
+
+Presets may define default spacing and typography scales, but block-level typography/spacing overrides and branding-level defaults remain available.
+
 ## Preset 1: Clinical Calm
 
 Best for:

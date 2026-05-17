@@ -15,9 +15,10 @@ Reason:
 
 ```txt
 apps/
-  web-public      public frontpage + booking surfaces
-  web-admin       tenant admin + CRM + ops dashboard
+  public-web      public tenant webapps
+  admin-web       tenant builder/admin and tenant owner/ops surfaces
   api             backend API
+  worker          background/outbox workers
 
 packages/
   core            tenant, auth, RBAC, config, logger
@@ -31,12 +32,25 @@ packages/
 ## Runtime Architecture
 
 ```txt
-Browser
+Public customer browser
   -> Tenant Resolver
-  -> Public Web App / Admin App
-  -> API Gateway
+  -> Public Webapp
   -> Module Services
   -> PostgreSQL
+
+Tenant admin / owner browser
+  -> Auth + RBAC
+  -> Tenant Builder or Owner Portal
+  -> Module Services
+  -> PostgreSQL
+
+Global admin browser
+  -> Platform Auth + RBAC
+  -> Global Studio
+  -> Tenant/template/theme services
+  -> PostgreSQL
+
+Workers
   -> Outbox/Queue Workers
   -> External Integrations
 ```
@@ -77,13 +91,16 @@ Loads available modules and checks:
 
 Stores tenant-specific configuration:
 
-- brand
-- theme
-- pages
+- branding
+- selected theme and tenant overrides
+- pages and public app content
+- module settings
 - booking rules
 - notification templates
 - integrations
 - CRM custom fields
+
+Reusable white-label themes and templates are platform/global records managed through the Global Studio, not tenant branding records.
 
 ### Event Outbox
 

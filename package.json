@@ -11,6 +11,11 @@
     "test": "turbo test",
     "e2e": "vitest run tests/e2e --passWithNoTests",
     "format:check": "prettier --check .",
+    "start": "bash scripts/start.sh",
+    "stop": "bash scripts/stop.sh",
+    "deploy": "bash scripts/deploy.sh",
+    "backup": "bash scripts/backup.sh",
+    "restore": "bash scripts/restore.sh",
     "db:migrate": "pnpm --filter @margo/db db:migrate",
     "db:seed": "pnpm --filter @margo/db db:seed"
   },

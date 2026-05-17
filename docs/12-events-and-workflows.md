@@ -69,7 +69,7 @@ events:
 1. Create booking transactionally.
 2. Insert timeline event if CRM enabled.
 3. Insert `booking.created` outbox event.
-4. Worker sends confirmation notification.
+4. Worker consumes `notification.requested` outbox events and sends mail through the configured provider adapter.
 5. Worker schedules reminder notification.
 6. Worker syncs calendar if enabled.
 

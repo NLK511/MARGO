@@ -12,10 +12,14 @@ describe('module registry', () => {
     const registry = createModuleRegistry(coreModuleManifests);
 
     expect(registry.isInstalled('frontpage')).toBe(true);
-    expect(registry.get('frontpage')?.apiRoutes.map((route) => route.path)).toContain('/api/v1/admin/pages/:pageId/publish');
+    expect(registry.get('frontpage')?.apiRoutes.map((route) => route.path)).toContain('/api/v1/admin/tenant/pages/:pageId/publish');
     expect(registry.get('booking')?.dependencies).toEqual(['notifications']);
     expect(registry.get('crm')?.permissions.map((permission) => permission.permission)).toContain('crm.customer.read');
     expect(registry.get('crm')?.apiRoutes.map((route) => route.path)).toContain('/api/v1/admin/customers/:customerId/timeline');
+    expect(registry.get('quote-request')?.publicRoutes.map((route) => route.path)).toContain('/t/:tenantSlug/quote-request');
+    expect(registry.get('quote-request')?.dependencies).toEqual(['notifications']);
+    expect(registry.get('booking')?.ownerRoutes?.map((route) => route.path)).toContain('/owner/bookings');
+    expect(registry.get('frontpage')?.exportAdapter).toMatchObject({ currentVersion: '1.0.0', exportKey: 'frontpage' });
   });
 
   it('validates required module dependencies', () => {

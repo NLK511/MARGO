@@ -4,6 +4,7 @@ import {
   compileThemeCssText,
   compileThemeCssVariables,
   contrastRatio,
+  createThemeRuntimeSurface,
   getThemePreset,
   mergeTheme,
   themePresets,
@@ -53,7 +54,14 @@ describe('theme CSS compiler', () => {
 
     expect(variables['--color-bg']).toBe('#F8F1E8');
     expect(variables['--font-display']).toContain('Cormorant Garamond');
+    expect(variables['--font-h1']).toContain('Cormorant Garamond');
+    expect(compileThemeCssVariables(themePresets[4])['--font-display']).toContain('Bodoni Moda');
+    expect(variables['--font-display-color']).toBe('#2F231B');
+    expect(variables['--background-image']).toBe('none');
+    expect(variables['--radius-card']).toBe('16px');
     expect(variables['--shadow-card']).toBe('none');
+    expect(variables['--content-max']).toBe('1440px');
+    expect(variables['--section-border-width']).toBe('1px');
   });
 
   it('compiles CSS text for server-rendered style tags', () => {
@@ -68,6 +76,24 @@ describe('theme CSS compiler', () => {
 
     expect(bistroVariables['--color-bg']).not.toBe(darkVariables['--color-bg']);
     expect(pageContent).toEqual({ title: 'Reserve a table', body: 'Seasonal neighborhood dining.' });
+  });
+
+  it('builds a complete runtime surface contract for layout-dependent rendering', () => {
+    const runtime = createThemeRuntimeSurface(themePresets[4]);
+
+    expect(runtime.className).toBe('layout-immersive');
+    expect(runtime.style['--nav-position']).toBe('static');
+    expect(runtime.dataAttributes).toMatchObject({
+      'data-layout-template': 'immersive',
+      'data-nav-variant': 'overlay',
+      'data-nav-sticky': 'false',
+      'data-content-width': 'full',
+      'data-hero-variant': 'full-bleed',
+      'data-section-rhythm': 'spacious',
+      'data-section-border': 'none',
+      'data-card-style': 'glass',
+      'data-card-radius': 'round',
+    });
   });
 });
 

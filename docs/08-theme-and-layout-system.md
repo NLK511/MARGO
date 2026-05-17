@@ -5,10 +5,12 @@ The app must be highly customizable in both theme and layout without requiring c
 ## Layers
 
 1. Global design tokens
-2. Preset tokens
-3. Tenant overrides
+2. White-label preset/theme tokens
+3. Tenant branding and overrides
 4. Page/block layout configuration
 5. Component variants
+
+Themes are reusable platform assets and must not contain tenant logos, tenant photos, or tenant-specific copy. Branding is tenant-specific and may override or extend a selected theme.
 
 ## Theme Token Schema
 
@@ -47,15 +49,27 @@ interface ThemeTokens {
     xl: string;
     full: string;
   };
+  spacing: {
+    marginXs: string;
+    marginSm: string;
+    marginMd: string;
+    marginLg: string;
+    paddingXs: string;
+    paddingSm: string;
+    paddingMd: string;
+    paddingLg: string;
+    interlineXs: string;
+    interlineSm: string;
+    interlineMd: string;
+    interlineLg: string;
+    density: 'compact' | 'comfortable' | 'spacious';
+    sectionY: string;
+    containerMax: string;
+  };
   shadows: {
     sm: string;
     md: string;
     lg: string;
-  };
-  spacing: {
-    density: 'compact' | 'comfortable' | 'spacious';
-    sectionY: string;
-    containerMax: string;
   };
   motion: {
     intensity: 'none' | 'subtle' | 'expressive';
@@ -89,43 +103,76 @@ Each theme must compile to CSS variables:
 
 ## Layout System
 
-Page layouts are block-based.
+Page layouts are block-based and can be presented in multiple styles.
+The theme preset selects the baseline template. Tenant layout settings can fine-tune width, nav, hero, rhythm, section dividers, surface treatment, and navigation item spacing.
 
 ```ts
 interface LayoutConfig {
   template: 'classic' | 'split' | 'editorial' | 'dashboard' | 'immersive';
   nav: 'top' | 'centered' | 'sidebar' | 'minimal' | 'overlay';
+  navSticky: boolean;
   hero: 'centered' | 'split-image' | 'full-bleed' | 'card-stack' | 'brutalist';
-  sectionRhythm: 'compact' | 'standard' | 'spacious';
-  cardStyle: 'flat' | 'bordered' | 'soft-shadow' | 'glass' | 'brutalist';
+  contentWidth: 'centered' | 'wide' | 'full';
+  sectionRhythm: 'none' | 'compact' | 'standard' | 'spacious';
+  sectionDivider: 'thin' | 'thick' | 'none';
+  surfaceStyle: 'flat' | 'bordered' | 'soft-shadow' | 'glass' | 'brutalist';
+  surfaceRadius: 'round' | 'square';
 }
 ```
 
-## Admin Customization UI
+## Branding-Level Defaults
 
-Tenant owner can change:
+Tenant branding must be able to define reusable defaults for content blocks, including:
+
+- margin presets and explicit margin size values
+- padding presets
+- interline presets
+- font family defaults
+- font size defaults
+- font color defaults
+- navigation item gap presets
+
+Blocks inherit these values unless explicitly overridden at block level.
+
+## Tenant Builder Customization UI
+
+Tenant admins/builders can change:
 
 - logo
 - favicon
 - primary colors
 - theme preset
 - font pair
-- border radius intensity
+- surface style and corner radius
 - button style
 - nav layout
+- sticky menu toggle
+- side margins / full width
 - homepage block order
 - hero variant
+- classic vs refined editorial homepage presentation
+- logo / logotype / favicon
+- font selection per body, display, H1, H2, H3, and paragraph text
+- block text styling through one shared text settings component
+- numeric font size controls for block text
+- text alignment buttons for block text
+- optional background images for page, hero, and cards/surfaces
+- section rhythm and section dividers
+- menu item spacing
 - CTA style
 - dark/light preference where preset supports it
+
+The admin preview must expose desktop / tablet / mobile viewports.
 
 ## Acceptance Criteria
 
 - Theme switch does not require rebuild.
 - Tenant overrides are persisted.
-- Theme tokens are validated.
+- Theme tokens are validated before save.
 - All presets meet contrast requirements.
 - Blocks render correctly under every preset.
 - Admin preview shows desktop/tablet/mobile.
+- Block registry stays small and intentional; specialized content should prefer presets over new block types.
 
 ---
 

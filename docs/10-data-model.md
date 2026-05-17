@@ -1,3 +1,12 @@
+## Data Model Principles
+
+- Tenant-owned tables must include `tenant_id` and tenant-scoped indexes where queried by tenant.
+- Global platform tables must be explicitly documented as global and must not contain tenant business data.
+- Foreign keys should cascade only where deleting a tenant intentionally deletes tenant-owned configuration/data.
+- Business events and background jobs must store tenant context explicitly.
+- Serializable tenant webapp configuration must have stable logical identifiers where possible, not only generated database IDs.
+- Module-owned configurable data must define export/import shape and version migration rules.
+
 ## Core Tables
 
 ```sql
@@ -66,6 +75,8 @@ create table tenant_branding (
   theme_preset_id text not null default 'clinical-calm',
   theme_overrides jsonb not null default '{}',
   layout_config jsonb not null default '{}',
+  typography_defaults jsonb not null default '{}',
+  spacing_defaults jsonb not null default '{}',
   updated_at timestamptz not null default now()
 );
 ```
@@ -86,6 +97,30 @@ create table audit_logs (
   created_at timestamptz not null default now()
 );
 ```
+
+## Export/Import Metadata
+
+Tenant webapp exports should be represented as versioned packages outside the live relational model. The live model should still support export/import by keeping stable fields and tenant-scoped ownership.
+
+Recommended export package shape:
+
+```json
+{
+  "kind": "margo.tenant-webapp-export",
+  "exportVersion": "1.0.0",
+  "sourceAppVersion": "0.0.0",
+  "createdAt": "2026-05-11T00:00:00.000Z",
+  "tenant": {},
+  "theme": {},
+  "branding": {},
+  "modules": {},
+  "pages": [],
+  "assets": [],
+  "migrations": []
+}
+```
+
+Each module owns the shape under `modules[moduleId]` and must provide migrators for old export versions.
 
 ## Event Outbox
 

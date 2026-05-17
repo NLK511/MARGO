@@ -20,7 +20,8 @@ describe('api bootstrap', () => {
   });
 
   it('exposes admin me, tenant, and module settings helpers', () => {
-    expect(getAdminMe({ principal: owner, tenant }).permissions).toContain('tenant.modules.manage');
+    expect(getAdminMe({ principal: owner, tenant }).permissions).toContain('owner.dashboard.read');
+    expect(getAdminMe({ principal: owner, tenant }).permissions).not.toContain('tenant.modules.manage');
     expect(getAdminTenant({ principal: owner, tenant })).toMatchObject({ slug: 'oak-clinic', displayName: 'Oak Clinic' });
     expect(getAdminModules({ principal: owner, tenant }).map((module) => module.id)).toEqual(['frontpage', 'notifications', 'booking', 'crm']);
     expect(getAdminModules({ principal: owner, tenant }).find((module) => module.id === 'booking')?.menuItems).toHaveLength(1);

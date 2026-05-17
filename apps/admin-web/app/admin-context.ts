@@ -1,8 +1,7 @@
+import { can, DEMO_TENANTS, type DemoTenantSlug, type Permission, type Role } from '@margo/core';
 import { moduleRegistry } from '@margo/modules';
-import type { Permission, Role } from '@margo/core';
-import { can } from '@margo/core';
 
-export type DevTenantSlug = 'bistro-frontpage' | 'table-and-co' | 'oak-clinic';
+export type DevTenantSlug = DemoTenantSlug;
 
 export interface DevAdminSession {
   userId: string;
@@ -15,33 +14,24 @@ export interface DevAdminSession {
   roles: Role[];
 }
 
-export const DEV_TENANTS: Record<DevTenantSlug, Omit<DevAdminSession, 'userId' | 'email' | 'displayName' | 'roles'>> = {
-  'bistro-frontpage': {
-    tenantId: 'demo-bistro-frontpage',
-    tenantSlug: 'bistro-frontpage',
-    tenantName: 'Bistro Lumiere',
-    enabledModules: ['frontpage'],
-  },
-  'table-and-co': {
-    tenantId: 'demo-table-and-co',
-    tenantSlug: 'table-and-co',
-    tenantName: 'Table & Co',
-    enabledModules: ['frontpage', 'notifications', 'booking'],
-  },
-  'oak-clinic': {
-    tenantId: 'demo-oak-clinic',
-    tenantSlug: 'oak-clinic',
-    tenantName: 'Oak Clinic',
-    enabledModules: ['frontpage', 'notifications', 'booking', 'crm'],
-  },
-};
+export const DEV_TENANTS: Record<DevTenantSlug, Omit<DevAdminSession, 'userId' | 'email' | 'displayName' | 'roles'>> = Object.fromEntries(
+  Object.values(DEMO_TENANTS).map((tenant) => [tenant.slug, {
+    tenantId: `demo-${tenant.slug}`,
+    tenantSlug: tenant.slug,
+    tenantName: tenant.tenantName,
+    enabledModules: tenant.enabledModules,
+  }]),
+) as Record<DevTenantSlug, Omit<DevAdminSession, 'userId' | 'email' | 'displayName' | 'roles'>>;
+
+export type AdminSurface = 'global-admin' | 'tenant' | 'owner';
 
 export const DEFAULT_DEV_SESSION: DevAdminSession = createDevSession('oak-clinic', ['tenant_owner']);
 
-export function createDevSession(tenantSlug: DevTenantSlug, roles: Role[] = ['tenant_owner']): DevAdminSession {
+export function createDevSession(tenantSlug: DevTenantSlug, roles: Role[] = ['tenant_owner'], enabledModules?: string[]): DevAdminSession {
   const tenant = DEV_TENANTS[tenantSlug];
   return {
     ...tenant,
+    enabledModules: enabledModules ?? tenant.enabledModules,
     roles,
     userId: `dev-${tenantSlug}-owner`,
     email: `owner@${tenantSlug}.example`,
@@ -52,23 +42,66 @@ export function createDevSession(tenantSlug: DevTenantSlug, roles: Role[] = ['te
 export function parseDevSessionCookie(value?: string | null): DevAdminSession | null {
   if (!value) return null;
   try {
-    const parsed = JSON.parse(decodeBase64Url(value)) as { tenantSlug?: DevTenantSlug; roles?: Role[] };
+    const parsed = JSON.parse(decodeBase64Url(value)) as { tenantSlug?: DevTenantSlug; roles?: Role[]; enabledModules?: string[] };
     if (!parsed.tenantSlug || !DEV_TENANTS[parsed.tenantSlug]) return null;
-    return createDevSession(parsed.tenantSlug, parsed.roles?.length ? parsed.roles : ['tenant_owner']);
+    return createDevSession(
+      parsed.tenantSlug,
+      parsed.roles?.length ? parsed.roles : ['tenant_owner'],
+      Array.isArray(parsed.enabledModules) ? parsed.enabledModules : undefined,
+    );
   } catch {
     return null;
   }
 }
 
-export function serializeDevSessionCookie(input: { tenantSlug: DevTenantSlug; roles?: Role[] }): string {
-  return encodeBase64Url(JSON.stringify({ tenantSlug: input.tenantSlug, roles: input.roles ?? ['tenant_owner'] }));
+export function serializeDevSessionCookie(input: { tenantSlug: DevTenantSlug; roles?: Role[]; enabledModules?: string[] }): string {
+  return encodeBase64Url(
+    JSON.stringify({ tenantSlug: input.tenantSlug, roles: input.roles ?? ['tenant_owner'], enabledModules: input.enabledModules }),
+  );
 }
 
 export function getAdminNavigation(session: Pick<DevAdminSession, 'enabledModules' | 'roles'>) {
-  return moduleRegistry
+  return getSurfaceNavigation('owner', session);
+}
+
+export function getSurfaceNavigation(surface: AdminSurface, session: Pick<DevAdminSession, 'enabledModules' | 'roles'>) {
+  const staticItems = getStaticSurfaceNavigation(surface, session.roles);
+  const moduleItems = moduleRegistry
     .enabledManifests(session.enabledModules)
-    .flatMap((manifest) => manifest.menuItems)
+    .flatMap((manifest) => {
+      if (surface === 'tenant') {
+        return manifest.adminRoutes.length || manifest.id === 'frontpage' ? manifest.menuItems.filter((item) => item.path.startsWith('/tenant')) : [];
+      }
+      if (surface === 'owner') {
+        return manifest.menuItems.filter((item) => item.path.startsWith('/owner'));
+      }
+      return [];
+    })
     .filter((item) => !item.permission || can({ roles: session.roles }, item.permission as Permission));
+  return [...staticItems, ...moduleItems];
+}
+
+function getStaticSurfaceNavigation(surface: AdminSurface, roles: Role[]) {
+  const canUse = (permission: Permission) => can({ roles }, permission);
+  if (surface === 'global-admin') {
+    return canUse('platform.tenants.read')
+      ? [
+          { label: 'Tenants', path: '/global-admin' },
+          { label: 'Templates', path: '/global-admin/templates', permission: 'platform.templates.manage' },
+          { label: 'Themes', path: '/global-admin/themes', permission: 'platform.themes.manage' },
+        ].filter((item) => !item.permission || canUse(item.permission as Permission))
+      : [];
+  }
+  if (surface === 'tenant') {
+    return canUse('tenant.builder.read')
+      ? [
+          { label: 'Builder home', path: '/tenant' },
+          { label: 'Theme', path: '/tenant/theme', permission: 'tenant.builder.write' },
+          { label: 'Modules', path: '/tenant/modules', permission: 'tenant.modules.manage' },
+        ].filter((item) => !item.permission || canUse(item.permission as Permission))
+      : [];
+  }
+  return canUse('owner.dashboard.read') ? [{ label: 'Owner home', path: '/owner' }] : [];
 }
 
 export interface TenantAdminDemoData {
@@ -106,6 +139,25 @@ export const TENANT_ADMIN_DEMO_DATA: Record<DevTenantSlug, TenantAdminDemoData> 
     ],
     bookings: [
       { id: 'bk_table_and_co', customer: 'Demo Guest', service: 'Dinner reservation', time: '18:00', status: 'confirmed' },
+    ],
+    customers: [],
+    customFields: [],
+  },
+  'maison-noire': {
+    pages: [
+      { id: 'home', title: 'Maison Noire homepage', slug: 'home', status: 'published', seoTitle: 'An intimate dining room for exceptional evenings', seoDescription: 'Luxury restaurant demo tenant with elegant reservations and immersive visual styling.' },
+    ],
+    services: [
+      { slug: 'tasting-menu', name: 'Chef tasting menu', duration: 120, status: 'active' },
+      { slug: 'private-salon', name: 'Private salon dinner', duration: 150, status: 'active' },
+    ],
+    resources: [
+      { name: 'Salon A', type: 'table', capacity: 4, status: 'active' },
+      { name: 'Salon B', type: 'table', capacity: 6, status: 'active' },
+      { name: 'Chef’s Table', type: 'table', capacity: 8, status: 'active' },
+    ],
+    bookings: [
+      { id: 'bk_maison_noire', customer: 'Private Guest', service: 'Chef tasting menu', time: '20:00', status: 'confirmed' },
     ],
     customers: [],
     customFields: [],
@@ -152,13 +204,30 @@ export function getModuleSettings(session: Pick<DevAdminSession, 'enabledModules
 }
 
 export function routeModuleForPath(pathname: string): string | null {
-  if (pathname === '/pages' || pathname.startsWith('/pages/')) return 'frontpage';
-  if (pathname === '/bookings' || pathname.startsWith('/bookings/') || pathname.startsWith('/booking/')) return 'booking';
-  if (pathname === '/customers' || pathname.startsWith('/customers/') || pathname.startsWith('/crm/')) return 'crm';
+  if (pathname === '/tenant/pages' || pathname.startsWith('/tenant/pages/') || pathname === '/admin/tenant/pages' || pathname.startsWith('/admin/tenant/pages/'))
+    return 'frontpage';
+  if (pathname === '/owner/bookings' || pathname.startsWith('/owner/bookings/') || pathname.startsWith('/tenant/booking/') || pathname.startsWith('/booking/')) return 'booking';
+  if (pathname === '/owner/customers' || pathname.startsWith('/owner/customers/') || pathname.startsWith('/tenant/crm/') || pathname.startsWith('/crm/')) return 'crm';
+  if (pathname === '/owner/quote-requests' || pathname.startsWith('/owner/quote-requests/') || pathname.startsWith('/tenant/quote-requests/')) return 'quote-request';
   return null;
 }
 
-export function isAdminRouteAllowed(pathname: string, session: Pick<DevAdminSession, 'enabledModules'>): boolean {
+export function surfaceForPath(pathname: string): AdminSurface | null {
+  if (pathname === '/global-admin' || pathname.startsWith('/global-admin/')) return 'global-admin';
+  if (pathname === '/tenant' || pathname.startsWith('/tenant/')) return 'tenant';
+  if (pathname === '/owner' || pathname.startsWith('/owner/')) return 'owner';
+  return null;
+}
+
+export function isSurfaceAllowed(surface: AdminSurface, session: Pick<DevAdminSession, 'roles'>): boolean {
+  if (surface === 'global-admin') return can({ roles: session.roles }, 'platform.tenants.read');
+  if (surface === 'tenant') return can({ roles: session.roles }, 'tenant.builder.read');
+  return can({ roles: session.roles }, 'owner.dashboard.read');
+}
+
+export function isAdminRouteAllowed(pathname: string, session: Pick<DevAdminSession, 'enabledModules' | 'roles'>): boolean {
+  const surface = surfaceForPath(pathname);
+  if (surface && !isSurfaceAllowed(surface, session)) return false;
   const moduleId = routeModuleForPath(pathname);
   return !moduleId || session.enabledModules.includes(moduleId);
 }

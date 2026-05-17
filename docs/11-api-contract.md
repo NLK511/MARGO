@@ -70,10 +70,10 @@ GET    /api/v1/admin/tenant
 PATCH  /api/v1/admin/tenant
 GET    /api/v1/admin/modules
 PATCH  /api/v1/admin/modules/:moduleId
-GET    /api/v1/admin/site/pages
-POST   /api/v1/admin/site/pages
-PATCH  /api/v1/admin/site/pages/:id
-POST   /api/v1/admin/site/pages/:id/publish
+GET    /api/v1/admin/tenant/pages
+POST   /api/v1/admin/tenant/pages
+PATCH  /api/v1/admin/tenant/pages/:pageId
+POST   /api/v1/admin/tenant/pages/:pageId/publish
 GET    /api/v1/admin/bookings
 POST   /api/v1/admin/bookings
 PATCH  /api/v1/admin/bookings/:id
