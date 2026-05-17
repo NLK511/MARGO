@@ -889,8 +889,10 @@ body {
 }
 
 .live-preview-grid[data-content-width='full'][data-nav-variant='top'] .live-preview-nav {
+  border-radius: 0;
   margin: 0;
-  width: auto;
+  max-width: none;
+  width: 100%;
 }
 
 .live-preview-grid.layout-classic .live-preview-hero {

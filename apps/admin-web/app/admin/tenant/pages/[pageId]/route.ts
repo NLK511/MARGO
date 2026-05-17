@@ -23,7 +23,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ pa
   const payload = normalizePayload(body);
   if (!payload.ok) return NextResponse.json({ message: payload.message }, { status: 400 });
 
-  const existing = await prisma.publicPage.findFirst({ where: { id: pageId, tenantId: tenant.tenantId } });
+  const existing = await prisma.publicPage.findFirst({ where: { tenantId: tenant.tenantId, OR: [{ id: pageId }, { slug: pageId }] } });
   if (!existing) return NextResponse.json({ message: 'Page not found.' }, { status: 404 });
 
   try {

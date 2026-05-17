@@ -325,7 +325,7 @@ export function createPublicPageService(client: PublicPageClient = prisma as unk
 
     async findPageForAdmin(input: { tenantId: string; pageId: string }): Promise<PublicPageRecord | null> {
       const page = await client.publicPage.findFirst({
-        where: { tenantId: input.tenantId, id: input.pageId },
+        where: { tenantId: input.tenantId, OR: [{ id: input.pageId }, { slug: input.pageId }] },
         include: {
           blocks: { orderBy: { position: 'asc' } },
           tenant: { include: { services: { where: { active: true } }, locations: { where: { active: true } } } },

@@ -81,6 +81,7 @@ export function PageEditorClient({
   const initialSeo = normalizeSeo(initialPage?.seo);
   const [title, setTitle] = useState(initialPage?.title ?? '');
   const [slug, setSlug] = useState(initialPage?.slug ?? '');
+  const [layoutPreset] = useState(initialPage?.layoutPreset ?? 'classic');
   const [seoTitle, setSeoTitle] = useState(initialSeo.title ?? '');
   const [seoDescription, setSeoDescription] = useState(initialSeo.description ?? '');
   const [status, setStatus] = useState<'draft' | 'published'>((initialPage?.status as 'draft' | 'published' | undefined) ?? 'draft');
@@ -142,6 +143,7 @@ export function PageEditorClient({
         seoTitle,
         seoDescription,
         status: nextStatus,
+        layoutPreset,
         blocks,
       }),
     });

@@ -26,6 +26,7 @@ describe('page editor source safeguards', () => {
     expect(source).toContain("const textAlignOptions = ['left', 'center', 'right', 'justify'] as const;");
     expect(source).toContain('renderTextSettingsPanel');
     expect(source).toContain('Shortcut: Ctrl/Cmd+S saves the current page state.');
+    expect(source).toContain('layoutPreset');
     expect(source).toContain('titleTextStyleProps');
     expect(source).toContain('updateTitleTextStyle');
     expect(source).toContain('overlay.textStyle');
