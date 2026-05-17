@@ -1,11 +1,66 @@
 import React from 'react';
+import { redirect } from 'next/navigation';
+import { createAuditLogService } from '@margo/db';
 import { ShellCard } from '@margo/ui';
 import { themePresets } from '@margo/themes';
 import { themePreviewFixtures } from '@margo/design';
 import { SurfaceShell } from '../../surface-shell';
-import { listThemeStudioFamilies } from './theme-studio-store';
+import { isSurfaceAllowed } from '../../admin-context';
+import { createThemeStudioFamily, deleteThemeStudioFamily, listThemeStudioFamilies, transitionThemeStudioFamily, updateThemeStudioDraft } from './theme-studio-store';
+import { getCurrentDevSession } from '../../session';
 
 const lifecycleOptions = ['draft', 'qa', 'published', 'deprecated', 'archived'] as const;
+
+async function recordThemeStudioAuditLog(action: string, actorUserId: string, metadata: Record<string, unknown>) {
+  const auditLog = createAuditLogService();
+  await auditLog.record({ tenantId: null, actorUserId: null, action, entityType: 'theme_family', entityId: null, metadata: { ...metadata, actorUserId } });
+}
+
+async function createThemeFamilyAction(formData: FormData) {
+  'use server';
+  const session = await getCurrentDevSession();
+  if (!isSurfaceAllowed('global-admin', session)) redirect('/login');
+  const family = createThemeStudioFamily({
+    name: String(formData.get('name') ?? 'New theme family'),
+    sourcePresetId: String(formData.get('sourcePresetId') ?? 'clinical-calm'),
+    description: String(formData.get('description') ?? '') || undefined,
+  });
+  await recordThemeStudioAuditLog('theme.family.create', session.userId, { familyId: family.id, sourcePresetId: family.sourcePresetId, lifecycle: family.lifecycle });
+  redirect('/global-admin/theme-studio');
+}
+
+async function updateThemeFamilyAction(formData: FormData) {
+  'use server';
+  const session = await getCurrentDevSession();
+  if (!isSurfaceAllowed('global-admin', session)) redirect('/login');
+  const family = updateThemeStudioDraft({
+    familyId: String(formData.get('familyId') ?? ''),
+    name: String(formData.get('name') ?? '') || undefined,
+    description: String(formData.get('description') ?? '') || undefined,
+  });
+  await recordThemeStudioAuditLog('theme.family.update', session.userId, { familyId: family.id, lifecycle: family.lifecycle });
+  redirect('/global-admin/theme-studio');
+}
+
+async function transitionThemeFamilyAction(formData: FormData) {
+  'use server';
+  const session = await getCurrentDevSession();
+  if (!isSurfaceAllowed('global-admin', session)) redirect('/login');
+  const lifecycle = String(formData.get('lifecycle') ?? 'draft') as 'draft' | 'qa' | 'published' | 'deprecated' | 'archived';
+  const family = transitionThemeStudioFamily({ familyId: String(formData.get('familyId') ?? ''), lifecycle });
+  await recordThemeStudioAuditLog(`theme.family.${lifecycle}`, session.userId, { familyId: family.id, lifecycle: family.lifecycle });
+  redirect('/global-admin/theme-studio');
+}
+
+async function deleteThemeFamilyAction(formData: FormData) {
+  'use server';
+  const session = await getCurrentDevSession();
+  if (!isSurfaceAllowed('global-admin', session)) redirect('/login');
+  const familyId = String(formData.get('familyId') ?? '');
+  deleteThemeStudioFamily({ familyId });
+  await recordThemeStudioAuditLog('theme.family.delete', session.userId, { familyId });
+  redirect('/global-admin/theme-studio');
+}
 
 export default async function ThemeStudioPage() {
   const families = listThemeStudioFamilies();
@@ -15,7 +70,7 @@ export default async function ThemeStudioPage() {
       <ShellCard eyebrow="Global Admin" title="Theme Studio">
         <p>Create theme families from approved presets, edit draft versions, and publish only after design gates pass.</p>
         <div className="admin-action-row">
-          <form action="/global-admin/theme-studio/api" method="post">
+          <form action={createThemeFamilyAction}>
             <input type="hidden" name="action" value="create-family" />
             <label>
               Start from preset
@@ -70,7 +125,7 @@ export default async function ThemeStudioPage() {
 
         <div className="admin-stack">
           {families.filter((family) => !family.isBuiltIn).map((family) => (
-            <form key={family.id} action="/global-admin/theme-studio/api" method="post">
+            <form key={family.id} action={updateThemeFamilyAction}>
               <input type="hidden" name="action" value="update-draft" />
               <input type="hidden" name="familyId" value={family.id} />
               <label>
@@ -87,19 +142,27 @@ export default async function ThemeStudioPage() {
             </form>
           ))}
           {families.filter((family) => !family.isBuiltIn).map((family) => (
-            <form key={`${family.id}-publish`} action="/global-admin/theme-studio/api" method="post">
-              <input type="hidden" name="action" value="transition" />
-              <input type="hidden" name="familyId" value={family.id} />
-              <label>
-                Lifecycle
-                <select name="lifecycle" defaultValue={family.lifecycle}>
-                  {lifecycleOptions.map((option) => <option key={option} value={option}>{option}</option>)}
-                </select>
-              </label>
-              <div className="admin-action-row">
-                <button type="submit" className="button-link">Update lifecycle</button>
-              </div>
-            </form>
+            <React.Fragment key={`${family.id}-lifecycle`}>
+              <form action={transitionThemeFamilyAction}>
+                <input type="hidden" name="action" value="transition" />
+                <input type="hidden" name="familyId" value={family.id} />
+                <label>
+                  Lifecycle
+                  <select name="lifecycle" defaultValue={family.lifecycle}>
+                    {lifecycleOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+                  </select>
+                </label>
+                <div className="admin-action-row">
+                  <button type="submit" className="button-link">Update lifecycle</button>
+                </div>
+              </form>
+              <form action={deleteThemeFamilyAction}>
+                <input type="hidden" name="familyId" value={family.id} />
+                <div className="admin-action-row">
+                  <button type="submit" className="button-link button-link-danger">Delete theme</button>
+                </div>
+              </form>
+            </React.Fragment>
           ))}
         </div>
       </ShellCard>

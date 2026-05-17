@@ -1305,6 +1305,11 @@ body {
   text-decoration: none;
 }
 
+.button-link-danger {
+  background: #9b2c2c;
+  border-color: #9b2c2c;
+}
+
 .metric-grid {
   display: grid;
   gap: 12px;

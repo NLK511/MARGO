@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createAuditLogService } from '@margo/db';
 import { isSurfaceAllowed } from '../../../admin-context';
 import { getCurrentDevSession } from '../../../session';
-import { createThemeStudioFamily, listThemeStudioFamilies, ThemeStudioError, transitionThemeStudioFamily, updateThemeStudioDraft } from '../theme-studio-store';
+import { createThemeStudioFamily, deleteThemeStudioFamily, listThemeStudioFamilies, ThemeStudioError, transitionThemeStudioFamily, updateThemeStudioDraft } from '../theme-studio-store';
 import type { ThemeLifecycle } from '@margo/themes';
 
 export async function GET() {
@@ -38,6 +38,12 @@ export async function PATCH(request: Request) {
       const family = transitionThemeStudioFamily({ familyId: payload.familyId ?? '', lifecycle: payload.lifecycle ?? 'draft' }, payload.stateOptions);
       await recordThemeStudioAuditLog(`theme.family.${payload.lifecycle ?? 'draft'}`, session.userId, { familyId: family.id, lifecycle: family.lifecycle });
       return NextResponse.json({ family });
+    }
+
+    if (payload.action === 'delete-family') {
+      deleteThemeStudioFamily({ familyId: payload.familyId ?? '' }, payload.stateOptions);
+      await recordThemeStudioAuditLog('theme.family.delete', session.userId, { familyId: payload.familyId });
+      return NextResponse.json({ ok: true });
     }
 
     return NextResponse.json({ message: 'Unsupported action.' }, { status: 400 });

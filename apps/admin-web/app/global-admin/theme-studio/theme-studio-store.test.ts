@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { createThemeStudioFamily, getThemeStudioFamily, listThemeStudioFamilies, transitionThemeStudioFamily, updateThemeStudioDraft, writeThemeStudioState } from './theme-studio-store';
+import { createThemeStudioFamily, deleteThemeStudioFamily, getThemeStudioFamily, listThemeStudioFamilies, transitionThemeStudioFamily, updateThemeStudioDraft, writeThemeStudioState } from './theme-studio-store';
 
 describe('theme studio store', () => {
   it('creates, updates, and publishes theme families in local state', () => {
@@ -18,8 +18,22 @@ describe('theme studio store', () => {
     const published = transitionThemeStudioFamily({ familyId: created.id, lifecycle: 'published' }, { statePath });
     expect(published.lifecycle).toBe('published');
 
+    expect(() => deleteThemeStudioFamily({ familyId: created.id }, { statePath })).toThrow(/cannot be deleted/i);
+
     const stored = getThemeStudioFamily({ familyId: created.id }, { statePath });
     expect(stored?.lifecycle).toBe('published');
+
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it('deletes draft theme families from local state', () => {
+    const root = mkdtempSync(join(tmpdir(), 'margo-theme-studio-'));
+    const statePath = join(root, 'theme-studio-state.json');
+
+    const created = createThemeStudioFamily({ name: 'Studio Noir', sourcePresetId: 'luxury-dark-dining' }, { statePath });
+    deleteThemeStudioFamily({ familyId: created.id }, { statePath });
+
+    expect(getThemeStudioFamily({ familyId: created.id }, { statePath })).toBeNull();
 
     rmSync(root, { recursive: true, force: true });
   });

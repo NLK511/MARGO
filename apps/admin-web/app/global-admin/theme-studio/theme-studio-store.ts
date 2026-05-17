@@ -62,6 +62,10 @@ export interface TransitionThemeStudioFamilyInput {
   lifecycle: ThemeLifecycle;
 }
 
+export interface DeleteThemeStudioFamilyInput {
+  familyId: string;
+}
+
 export function loadThemeStudioState(options: ThemeStudioStateOptions = {}): ThemeStudioState {
   const statePath = options.statePath ?? resolveThemeStudioStatePath(options.startDir ?? process.cwd());
   if (!existsSync(statePath)) return { families: {} };
@@ -144,6 +148,17 @@ export function transitionThemeStudioFamily(input: TransitionThemeStudioFamilyIn
   state.families[input.familyId] = next;
   writeThemeStudioState(state, options);
   return viewFromRecord(next);
+}
+
+export function deleteThemeStudioFamily(input: DeleteThemeStudioFamilyInput, options: ThemeStudioStateOptions = {}): void {
+  const state = loadThemeStudioState(options);
+  const record = state.families[input.familyId];
+  if (!record) throw new ThemeStudioError(404, 'Theme family not found.');
+  if (record.lifecycle === 'published' || record.lifecycle === 'deprecated' || record.lifecycle === 'archived') {
+    throw new ThemeStudioError(409, 'Published theme families cannot be deleted.');
+  }
+  delete state.families[input.familyId];
+  writeThemeStudioState(state, options);
 }
 
 export function getThemeStudioFamily(input: { familyId: string }, options: ThemeStudioStateOptions = {}): ThemeStudioFamilyView | null {

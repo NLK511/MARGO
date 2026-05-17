@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
   createThemeStudioFamily: vi.fn(async () => ({ id: 'studio-noir', name: 'Studio Noir', sourcePresetId: 'luxury-dark-dining', lifecycle: 'draft' })),
   updateThemeStudioDraft: vi.fn(async () => ({ id: 'studio-noir', name: 'Studio Noir', sourcePresetId: 'luxury-dark-dining', lifecycle: 'draft', description: 'Editorial luxury' })),
   transitionThemeStudioFamily: vi.fn(async () => ({ id: 'studio-noir', name: 'Studio Noir', sourcePresetId: 'luxury-dark-dining', lifecycle: 'published' })),
+  deleteThemeStudioFamily: vi.fn(async () => undefined),
   listThemeStudioFamilies: vi.fn(() => [{ id: 'clinical-calm', isBuiltIn: true }]),
 }));
 
@@ -24,6 +25,7 @@ vi.mock('../theme-studio-store', () => ({
   createThemeStudioFamily: mocks.createThemeStudioFamily,
   updateThemeStudioDraft: mocks.updateThemeStudioDraft,
   transitionThemeStudioFamily: mocks.transitionThemeStudioFamily,
+  deleteThemeStudioFamily: mocks.deleteThemeStudioFamily,
   listThemeStudioFamilies: mocks.listThemeStudioFamilies,
   ThemeStudioError: class ThemeStudioError extends Error {
     constructor(public readonly status: number, message: string) {
@@ -62,9 +64,16 @@ describe('theme studio api route', () => {
       body: JSON.stringify({ action: 'transition', familyId: 'studio-noir', lifecycle: 'published' }),
     }));
 
+    await PATCH(new Request('http://admin.test/global-admin/theme-studio/api', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete-family', familyId: 'studio-noir' }),
+    }));
+
     expect(mocks.createThemeStudioFamily).toHaveBeenCalledWith(expect.objectContaining({ name: 'Studio Noir', sourcePresetId: 'luxury-dark-dining' }), undefined);
     expect(mocks.updateThemeStudioDraft).toHaveBeenCalledWith(expect.objectContaining({ familyId: 'studio-noir', description: 'Editorial luxury' }), undefined);
     expect(mocks.transitionThemeStudioFamily).toHaveBeenCalledWith(expect.objectContaining({ familyId: 'studio-noir', lifecycle: 'published' }), undefined);
+    expect(mocks.deleteThemeStudioFamily).toHaveBeenCalledWith(expect.objectContaining({ familyId: 'studio-noir' }), undefined);
     expect(mocks.record).toHaveBeenCalled();
   });
 });
