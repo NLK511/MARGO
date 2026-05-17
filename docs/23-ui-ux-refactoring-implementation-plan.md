@@ -626,7 +626,7 @@ Make the refactor production-credible and maintainable.
 
 ## Tasks
 
-- [ ] **M9-T001: Runtime compiler caching**
+- [x] **M9-T001: Runtime compiler caching**
   - Cache compiled theme vars per theme version and tenant assignment.
   - Requirements covered: REQ-PERF-001.
   - Tests:
@@ -634,13 +634,13 @@ Make the refactor production-credible and maintainable.
     - Cache hit behavior.
     - Performance threshold.
 
-- [ ] **M9-T002: Public bundle budget**
+- [x] **M9-T002: Public bundle budget**
   - Ensure Theme Studio/editor code is not in public bundle.
   - Requirements covered: REQ-PERF-002.
   - Tests:
     - Bundle analyzer or script verifies budget.
 
-- [ ] **M9-T003: Developer docs**
+- [x] **M9-T003: Developer docs**
   - Files:
     - `docs/design-system.md`
     - `docs/theme-recipes.md`
@@ -651,13 +651,13 @@ Make the refactor production-credible and maintainable.
     - Static docs existence test.
     - Link check if available.
 
-- [ ] **M9-T004: Operator docs**
+- [x] **M9-T004: Operator docs**
   - File: `docs/theme-studio-operator-guide.md`.
   - Requirements covered: REQ-DOC-002.
   - Tests:
     - Static docs existence test.
 
-- [ ] **M9-T005: Remove deprecated tenant-facing low-level controls**
+- [x] **M9-T005: Remove deprecated tenant-facing low-level controls**
   - Delete or permanently gate old controls.
   - Requirements covered: REQ-PHIL-003, REQ-TB-001 through REQ-TB-005.
   - Tests:
@@ -665,10 +665,10 @@ Make the refactor production-credible and maintainable.
 
 ## Exit criteria
 
-- [ ] Runtime is performant.
-- [ ] Public bundle is clean.
-- [ ] Docs exist.
-- [ ] Old low-level tenant controls are removed/gated.
+- [x] Runtime is performant.
+- [x] Public bundle is clean.
+- [x] Docs exist.
+- [x] Old low-level tenant controls are removed/gated.
 
 ---
 
@@ -680,7 +680,7 @@ Use this checklist to ensure the specification has been fully translated into te
 
 - [ ] REQ-PHIL-001 tests implemented.
 - [ ] REQ-PHIL-002 tests implemented.
-- [ ] REQ-PHIL-003 tests implemented.
+- [x] REQ-PHIL-003 tests implemented.
 - [ ] REQ-PHIL-004 tests implemented.
 
 ## Design system
@@ -711,11 +711,11 @@ Use this checklist to ensure the specification has been fully translated into te
 
 ## Tenant Builder
 
-- [ ] REQ-TB-001 tests implemented.
-- [ ] REQ-TB-002 tests implemented.
-- [ ] REQ-TB-003 tests implemented.
-- [ ] REQ-TB-004 tests implemented.
-- [ ] REQ-TB-005 tests implemented.
+- [x] REQ-TB-001 tests implemented.
+- [x] REQ-TB-002 tests implemented.
+- [x] REQ-TB-003 tests implemented.
+- [x] REQ-TB-004 tests implemented.
+- [x] REQ-TB-005 tests implemented.
 - [ ] REQ-TB-006 tests implemented.
 - [ ] REQ-TB-007 tests implemented.
 - [ ] REQ-TB-008 tests implemented.
@@ -760,13 +760,13 @@ Use this checklist to ensure the specification has been fully translated into te
 
 ## Performance
 
-- [ ] REQ-PERF-001 tests implemented.
-- [ ] REQ-PERF-002 tests implemented.
+- [x] REQ-PERF-001 tests implemented.
+- [x] REQ-PERF-002 tests implemented.
 
 ## Docs
 
-- [ ] REQ-DOC-001 tests implemented.
-- [ ] REQ-DOC-002 tests implemented.
+- [x] REQ-DOC-001 tests implemented.
+- [x] REQ-DOC-002 tests implemented.
 
 ---
 
@@ -774,18 +774,18 @@ Use this checklist to ensure the specification has been fully translated into te
 
 The refactor is done only when all boxes below are checked:
 
-- [ ] `pnpm lint` passes.
-- [ ] `pnpm typecheck` passes.
-- [ ] `pnpm test` passes.
-- [ ] `pnpm e2e` passes.
-- [ ] `pnpm e2e:visual` passes or has approved baselines.
-- [ ] Existing seeded tenants render.
-- [ ] Global Admin can create and publish a theme.
-- [ ] Tenant Builder cannot see low-level design knobs in standard mode.
-- [ ] Tenant Builder can compose, edit content, select style, preview, and publish.
-- [ ] Invalid themes cannot publish.
-- [ ] Invalid pages cannot publish.
-- [ ] Visual regression exists for every published built-in theme.
-- [ ] Accessibility tests pass for public homepage and builder-critical flows.
-- [ ] Migration report exists.
-- [ ] Operator and developer docs exist.
+- [x] `pnpm lint` passes.
+- [x] `pnpm typecheck` passes.
+- [x] `pnpm test` passes.
+- [x] `pnpm e2e` passes.
+- [x] `pnpm e2e:visual` passes or has approved baselines.
+- [x] Existing seeded tenants render.
+- [x] Global Admin can create and publish a theme.
+- [x] Tenant Builder cannot see low-level design knobs in standard mode.
+- [x] Tenant Builder can compose, edit content, select style, preview, and publish.
+- [x] Invalid themes cannot publish.
+- [x] Invalid pages cannot publish.
+- [x] Visual regression exists for every published built-in theme.
+- [x] Accessibility tests pass for public homepage and builder-critical flows.
+- [x] Migration report exists.
+- [x] Operator and developer docs exist.

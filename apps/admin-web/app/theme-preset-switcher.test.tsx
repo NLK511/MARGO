@@ -51,8 +51,9 @@ describe('branding editor regression coverage', () => {
     expect(html).toContain('data-nav-brand-slot="both"');
     expect(html).toContain('data-header-spacing="overlay"');
     expect(html).toContain('data-card-radius="square"');
-    expect(html).toContain('Menu item spacing');
-    expect(html).toContain('type="number"');
+    expect(html).not.toContain('Menu item spacing');
+    expect(html).not.toContain('Block defaults');
+    expect(html).not.toContain('H1 font');
     expect(html).toContain('/uploads/page-bg.webp');
     expect(html).toContain('/uploads/card-bg.webp');
     expect(html).toContain('/uploads/hero-bg.webp');
@@ -70,6 +71,7 @@ describe('branding editor regression coverage', () => {
   it('keeps shared editor sections, numeric font size, and stable nav item keys wired in source', () => {
     const source = readFileSync(join(process.cwd(), 'app/theme-preset-switcher.tsx'), 'utf8');
 
+    expect(source).toContain('showAdvancedControls');
     expect(source).toContain('branding-details');
     expect(source).toContain('fontSizeInputValue(form.blockFontSize, 18)');
     expect(source).toContain('Very small');

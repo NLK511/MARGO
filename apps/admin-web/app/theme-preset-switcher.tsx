@@ -120,6 +120,7 @@ export function ThemePresetSwitcher({
   initialThemeOverrides = {},
   initialLogoUrl = '',
   initialFaviconUrl = '',
+  showAdvancedControls = false,
 }: {
   initialPresetId: string;
   tenantName: string;
@@ -127,6 +128,7 @@ export function ThemePresetSwitcher({
   initialThemeOverrides?: Record<string, unknown>;
   initialLogoUrl?: string | null;
   initialFaviconUrl?: string | null;
+  showAdvancedControls?: boolean;
 }) {
   const router = useRouter();
   const { pushToast } = useAdminToast();
@@ -406,73 +408,77 @@ export function ThemePresetSwitcher({
             </label>
             <NavLinksEditor label="Menu items" items={form.navLinks} onChange={(items) => setField('navLinks', items)} />
             <SocialLinksEditor label="Social buttons" items={form.navSocialLinks} onChange={(items) => setField('navSocialLinks', items)} />
-            <label>
-              Menu item spacing
-              <input type="number" min="0" step="1" value={form.menuItemGap} onChange={(event) => setField('menuItemGap', event.target.value)} />
-            </label>
+            {showAdvancedControls ? (
+              <label>
+                Menu item spacing
+                <input type="number" min="0" step="1" value={form.menuItemGap} onChange={(event) => setField('menuItemGap', event.target.value)} />
+              </label>
+            ) : null}
           </fieldset>
           </details>
 
-          <details className="branding-details" open>
-            <summary>Menu typography</summary>
-            <fieldset className="layout-tuning-group layout-tuning-group--full">
-            <label>
-              Menu font
-              <select value={form.menuFontFamily} onChange={(event) => setField('menuFontFamily', event.target.value)}>
-                <option value="">Default</option>
-                {fontOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Menu font color
-              <input type="color" value={normalizeColor(form.menuFontColor) ?? '#10233A'} onChange={(event) => setField('menuFontColor', event.target.value)} />
-            </label>
-            <label>
-              Menu font size
-              <select value={form.menuFontSize} onChange={(event) => setField('menuFontSize', event.target.value)}>
-                {blockSizeOptions.map((option) => (
-                  <option key={option.value || 'default'} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Menu interline
-              <select value={form.menuInterline} onChange={(event) => setField('menuInterline', event.target.value)}>
-                {blockInterlineOptions.map((option) => (
-                  <option key={option.value || 'default'} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Menu margin
-              <select value={form.menuMargin} onChange={(event) => setField('menuMargin', event.target.value)}>
-                {blockSpacingOptions.map((option) => (
-                  <option key={option.value || 'default'} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Menu padding
-              <select value={form.menuPadding} onChange={(event) => setField('menuPadding', event.target.value)}>
-                {blockSpacingOptions.map((option) => (
-                  <option key={option.value || 'default'} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </fieldset>
-          </details>
+          {showAdvancedControls ? (
+            <details className="branding-details" open>
+              <summary>Menu typography</summary>
+              <fieldset className="layout-tuning-group layout-tuning-group--full">
+              <label>
+                Menu font
+                <select value={form.menuFontFamily} onChange={(event) => setField('menuFontFamily', event.target.value)}>
+                  <option value="">Default</option>
+                  {fontOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Menu font color
+                <input type="color" value={normalizeColor(form.menuFontColor) ?? '#10233A'} onChange={(event) => setField('menuFontColor', event.target.value)} />
+              </label>
+              <label>
+                Menu font size
+                <select value={form.menuFontSize} onChange={(event) => setField('menuFontSize', event.target.value)}>
+                  {blockSizeOptions.map((option) => (
+                    <option key={option.value || 'default'} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Menu interline
+                <select value={form.menuInterline} onChange={(event) => setField('menuInterline', event.target.value)}>
+                  {blockInterlineOptions.map((option) => (
+                    <option key={option.value || 'default'} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Menu margin
+                <select value={form.menuMargin} onChange={(event) => setField('menuMargin', event.target.value)}>
+                  {blockSpacingOptions.map((option) => (
+                    <option key={option.value || 'default'} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Menu padding
+                <select value={form.menuPadding} onChange={(event) => setField('menuPadding', event.target.value)}>
+                  {blockSpacingOptions.map((option) => (
+                    <option key={option.value || 'default'} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </fieldset>
+            </details>
+          ) : null}
 
           <label>
             Hero style
@@ -589,67 +595,73 @@ export function ThemePresetSwitcher({
             />
           </div>
 
-          <FontSlotField label="Body font" value={form.fontSans} color={form.fontSansColor} onValueChange={(value) => setField('fontSans', value)} onColorChange={(value) => setField('fontSansColor', value)} />
-          <FontSlotField label="Display font" value={form.fontDisplay} color={form.fontDisplayColor} onValueChange={(value) => setField('fontDisplay', value)} onColorChange={(value) => setField('fontDisplayColor', value)} />
-          <FontSlotField label="H1 font" value={form.fontH1} color={form.fontH1Color} placeholder="Fallback to display font" onValueChange={(value) => setField('fontH1', value)} onColorChange={(value) => setField('fontH1Color', value)} />
-          <FontSlotField label="H2 font" value={form.fontH2} color={form.fontH2Color} placeholder="Fallback to display font" onValueChange={(value) => setField('fontH2', value)} onColorChange={(value) => setField('fontH2Color', value)} />
-          <FontSlotField label="H3 font" value={form.fontH3} color={form.fontH3Color} placeholder="Fallback to display font" onValueChange={(value) => setField('fontH3', value)} onColorChange={(value) => setField('fontH3Color', value)} />
-          <FontSlotField label="Paragraph font" value={form.fontParagraph} color={form.fontParagraphColor} placeholder="Fallback to body font" onValueChange={(value) => setField('fontParagraph', value)} onColorChange={(value) => setField('fontParagraphColor', value)} />
+          {showAdvancedControls ? (
+            <>
+              <FontSlotField label="Body font" value={form.fontSans} color={form.fontSansColor} onValueChange={(value) => setField('fontSans', value)} onColorChange={(value) => setField('fontSansColor', value)} />
+              <FontSlotField label="Display font" value={form.fontDisplay} color={form.fontDisplayColor} onValueChange={(value) => setField('fontDisplay', value)} onColorChange={(value) => setField('fontDisplayColor', value)} />
+              <FontSlotField label="H1 font" value={form.fontH1} color={form.fontH1Color} placeholder="Fallback to display font" onValueChange={(value) => setField('fontH1', value)} onColorChange={(value) => setField('fontH1Color', value)} />
+              <FontSlotField label="H2 font" value={form.fontH2} color={form.fontH2Color} placeholder="Fallback to display font" onValueChange={(value) => setField('fontH2', value)} onColorChange={(value) => setField('fontH2Color', value)} />
+              <FontSlotField label="H3 font" value={form.fontH3} color={form.fontH3Color} placeholder="Fallback to display font" onValueChange={(value) => setField('fontH3', value)} onColorChange={(value) => setField('fontH3Color', value)} />
+              <FontSlotField label="Paragraph font" value={form.fontParagraph} color={form.fontParagraphColor} placeholder="Fallback to body font" onValueChange={(value) => setField('fontParagraph', value)} onColorChange={(value) => setField('fontParagraphColor', value)} />
+            </>
+          ) : null}
 
-          <details className="branding-details" open>
-            <summary>Block defaults</summary>
-            <fieldset className="layout-tuning-group layout-tuning-group--full">
-            <label>
-              Block font
-              <select value={form.blockFontFamily} onChange={(event) => setField('blockFontFamily', event.target.value)}>
-                <option value="">Default</option>
-                {fontOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Block font color
-              <input type="color" value={normalizeColor(form.blockFontColor) ?? '#10233A'} onChange={(event) => setField('blockFontColor', event.target.value)} />
-            </label>
-            <label>
-              Block font size
-              <input type="number" min="8" max="96" step="1" value={fontSizeInputValue(form.blockFontSize, 18)} onChange={(event) => setField('blockFontSize', event.target.value)} />
-            </label>
-            <label>
-              Interline
-              <select value={form.blockInterline} onChange={(event) => setField('blockInterline', event.target.value)}>
-                {blockInterlineOptions.map((option) => (
-                  <option key={option.value || 'default'} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Block margin size
-              <select value={form.blockMargin} onChange={(event) => setField('blockMargin', event.target.value)}>
-                {blockSpacingOptions.map((option) => (
-                  <option key={option.value || 'default'} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Block padding size
-              <select value={form.blockPadding} onChange={(event) => setField('blockPadding', event.target.value)}>
-                {blockSpacingOptions.map((option) => (
-                  <option key={option.value || 'default'} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </fieldset>
-          </details>
+          {showAdvancedControls ? (
+            <details className="branding-details" open>
+              <summary>Block defaults</summary>
+              <fieldset className="layout-tuning-group layout-tuning-group--full">
+              <label>
+                Block font
+                <select value={form.blockFontFamily} onChange={(event) => setField('blockFontFamily', event.target.value)}>
+                  <option value="">Default</option>
+                  {fontOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Block font color
+                <input type="color" value={normalizeColor(form.blockFontColor) ?? '#10233A'} onChange={(event) => setField('blockFontColor', event.target.value)} />
+              </label>
+              <label>
+                Block font size
+                <input type="number" min="8" max="96" step="1" value={fontSizeInputValue(form.blockFontSize, 18)} onChange={(event) => setField('blockFontSize', event.target.value)} />
+              </label>
+              <label>
+                Interline
+                <select value={form.blockInterline} onChange={(event) => setField('blockInterline', event.target.value)}>
+                  {blockInterlineOptions.map((option) => (
+                    <option key={option.value || 'default'} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Block margin size
+                <select value={form.blockMargin} onChange={(event) => setField('blockMargin', event.target.value)}>
+                  {blockSpacingOptions.map((option) => (
+                    <option key={option.value || 'default'} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Block padding size
+                <select value={form.blockPadding} onChange={(event) => setField('blockPadding', event.target.value)}>
+                  {blockSpacingOptions.map((option) => (
+                    <option key={option.value || 'default'} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </fieldset>
+            </details>
+          ) : null}
 
           <ImageField
             label="Page background image"

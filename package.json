@@ -21,7 +21,9 @@
     "restore": "bash scripts/restore.sh",
     "db:migrate": "pnpm --filter @margo/db db:migrate",
     "db:seed": "pnpm --filter @margo/db db:seed",
-    "theme:migrate": "pnpm --filter @margo/db theme:migrate"
+    "theme:migrate": "pnpm --filter @margo/db theme:migrate",
+    "bundle:public": "node scripts/check-public-bundle.mjs",
+    "docs:check": "vitest run tests/hardening/m9-hardening.test.ts --passWithNoTests"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
