@@ -678,36 +678,36 @@ Use this checklist to ensure the specification has been fully translated into te
 
 ## Philosophy
 
-- [ ] REQ-PHIL-001 tests implemented.
-- [ ] REQ-PHIL-002 tests implemented.
+- [x] REQ-PHIL-001 tests implemented.
+- [x] REQ-PHIL-002 tests implemented.
 - [x] REQ-PHIL-003 tests implemented.
-- [ ] REQ-PHIL-004 tests implemented.
+- [x] REQ-PHIL-004 tests implemented.
 
 ## Design system
 
-- [ ] REQ-DS-001 tests implemented.
-- [ ] REQ-DS-002 tests implemented.
-- [ ] REQ-DS-003 tests implemented.
-- [ ] REQ-DS-004 tests implemented.
-- [ ] REQ-DS-005 tests implemented.
-- [ ] REQ-DS-006 tests implemented.
-- [ ] REQ-DS-007 tests implemented.
-- [ ] REQ-DS-008 tests implemented.
-- [ ] REQ-DS-009 tests implemented.
-- [ ] REQ-DS-010 tests implemented.
-- [ ] REQ-DS-011 tests implemented.
+- [x] REQ-DS-001 tests implemented.
+- [x] REQ-DS-002 tests implemented.
+- [x] REQ-DS-003 tests implemented.
+- [x] REQ-DS-004 tests implemented.
+- [x] REQ-DS-005 tests implemented.
+- [x] REQ-DS-006 tests implemented.
+- [x] REQ-DS-007 tests implemented.
+- [x] REQ-DS-008 tests implemented.
+- [x] REQ-DS-009 tests implemented.
+- [x] REQ-DS-010 tests implemented.
+- [x] REQ-DS-011 tests implemented.
 
 ## Theme Studio
 
-- [ ] REQ-THEME-001 tests implemented.
-- [ ] REQ-THEME-002 tests implemented.
-- [ ] REQ-THEME-003 tests implemented.
-- [ ] REQ-THEME-004 tests implemented.
-- [ ] REQ-THEME-005 tests implemented.
-- [ ] REQ-THEME-006 tests implemented.
-- [ ] REQ-THEME-007 tests implemented.
-- [ ] REQ-THEME-008 tests implemented.
-- [ ] REQ-THEME-009 tests implemented.
+- [x] REQ-THEME-001 tests implemented.
+- [x] REQ-THEME-002 tests implemented.
+- [x] REQ-THEME-003 tests implemented.
+- [x] REQ-THEME-004 tests implemented.
+- [x] REQ-THEME-005 tests implemented.
+- [x] REQ-THEME-006 tests implemented.
+- [x] REQ-THEME-007 tests implemented.
+- [x] REQ-THEME-008 tests implemented.
+- [x] REQ-THEME-009 tests implemented.
 
 ## Tenant Builder
 
@@ -716,35 +716,35 @@ Use this checklist to ensure the specification has been fully translated into te
 - [x] REQ-TB-003 tests implemented.
 - [x] REQ-TB-004 tests implemented.
 - [x] REQ-TB-005 tests implemented.
-- [ ] REQ-TB-006 tests implemented.
-- [ ] REQ-TB-007 tests implemented.
-- [ ] REQ-TB-008 tests implemented.
+- [x] REQ-TB-006 tests implemented.
+- [x] REQ-TB-007 tests implemented.
+- [x] REQ-TB-008 tests implemented.
 
 ## Blocks
 
-- [ ] REQ-BLOCK-001 tests implemented.
-- [ ] REQ-BLOCK-002 tests implemented.
-- [ ] REQ-BLOCK-003 tests implemented.
-- [ ] REQ-BLOCK-004 tests implemented.
-- [ ] REQ-BLOCK-005 tests implemented.
-- [ ] REQ-BLOCK-006 tests implemented.
-- [ ] REQ-BLOCK-007 tests implemented.
+- [x] REQ-BLOCK-001 tests implemented.
+- [x] REQ-BLOCK-002 tests implemented.
+- [x] REQ-BLOCK-003 tests implemented.
+- [x] REQ-BLOCK-004 tests implemented.
+- [x] REQ-BLOCK-005 tests implemented.
+- [x] REQ-BLOCK-006 tests implemented.
+- [x] REQ-BLOCK-007 tests implemented.
 
 ## Lint and publish gates
 
-- [ ] REQ-LINT-001 tests implemented.
-- [ ] REQ-LINT-002 tests implemented.
-- [ ] REQ-LINT-003 tests implemented.
-- [ ] REQ-LINT-004 tests implemented.
-- [ ] REQ-LINT-005 tests implemented.
-- [ ] REQ-LINT-006 tests implemented.
-- [ ] REQ-LINT-007 tests implemented.
+- [x] REQ-LINT-001 tests implemented.
+- [x] REQ-LINT-002 tests implemented.
+- [x] REQ-LINT-003 tests implemented.
+- [x] REQ-LINT-004 tests implemented.
+- [x] REQ-LINT-005 tests implemented.
+- [x] REQ-LINT-006 tests implemented.
+- [x] REQ-LINT-007 tests implemented.
 
 ## Visual regression
 
-- [ ] REQ-VIS-001 tests implemented.
-- [ ] REQ-VIS-002 tests implemented.
-- [ ] REQ-VIS-003 tests implemented.
+- [x] REQ-VIS-001 tests implemented.
+- [x] REQ-VIS-002 tests implemented.
+- [x] REQ-VIS-003 tests implemented.
 
 ## Migration
 
@@ -754,9 +754,9 @@ Use this checklist to ensure the specification has been fully translated into te
 
 ## Security
 
-- [ ] REQ-SEC-001 tests implemented.
-- [ ] REQ-SEC-002 tests implemented.
-- [ ] REQ-SEC-003 tests implemented.
+- [x] REQ-SEC-001 tests implemented.
+- [x] REQ-SEC-002 tests implemented.
+- [x] REQ-SEC-003 tests implemented.
 
 ## Performance
 

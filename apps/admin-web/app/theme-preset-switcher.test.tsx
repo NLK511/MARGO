@@ -68,6 +68,18 @@ describe('branding editor regression coverage', () => {
     expect(css).toContain(".image-field-card:hover .image-preview-overlay");
   });
 
+  it('reveals advanced controls only when explicitly enabled', () => {
+    const html = renderToStaticMarkup(
+      <AdminToastProvider>
+        <ThemePresetSwitcher initialPresetId="editorial-bistro" tenantName="Maison Test" showAdvancedControls />
+      </AdminToastProvider>,
+    );
+
+    expect(html).toContain('Menu item spacing');
+    expect(html).toContain('Block defaults');
+    expect(html).toContain('H1 font');
+  });
+
   it('keeps shared editor sections, numeric font size, and stable nav item keys wired in source', () => {
     const source = readFileSync(join(process.cwd(), 'app/theme-preset-switcher.tsx'), 'utf8');
 
