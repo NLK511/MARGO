@@ -216,6 +216,96 @@ a {
   box-shadow: none;
 }
 
+.frontpage[data-tenant-theme='chef'] {
+  --page-padding: clamp(18px, 3vw, 36px);
+  --content-max: 1320px;
+}
+
+.frontpage[data-tenant-theme='chef'] .site-nav {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  max-width: min(1320px, calc(100% - 24px));
+  padding: 18px 0 10px;
+}
+
+.frontpage[data-tenant-theme='chef'] .site-nav-links {
+  gap: 18px;
+}
+
+.frontpage[data-tenant-theme='chef'] .brand-logotype {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.frontpage[data-tenant-theme='chef'] .hero {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 94%, transparent), color-mix(in srgb, var(--color-bg) 96%, transparent)),
+    var(--hero-background-image);
+  padding: clamp(48px, 7vw, 96px) clamp(24px, 4vw, 56px) clamp(36px, 5vw, 72px);
+}
+
+.frontpage[data-tenant-theme='chef'] .hero-copy {
+  max-width: 680px;
+}
+
+.frontpage[data-tenant-theme='chef'] .hero-panel {
+  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  box-shadow: none;
+  padding: clamp(20px, 3vw, 28px);
+}
+
+.frontpage[data-tenant-theme='chef'] [data-block-id='about'] {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  margin: clamp(5.5rem, 10vw, 9rem) auto clamp(4rem, 8vw, 6.5rem);
+  max-width: 880px;
+  padding: 0;
+}
+
+.frontpage[data-tenant-theme='chef'] [data-block-id='about'] h2,
+.frontpage[data-tenant-theme='chef'] [data-block-id='press'] h2 {
+  margin-bottom: clamp(1.4rem, 3vw, 2.4rem);
+}
+
+.frontpage[data-tenant-theme='chef'] [data-block-id='chef'] {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  gap: clamp(28px, 5vw, 64px);
+  margin: 0 auto clamp(5rem, 8vw, 8rem);
+  max-width: 1180px;
+  padding: 0;
+}
+
+.frontpage[data-tenant-theme='chef'] [data-block-id='chef'] .split-media-copy {
+  max-width: 620px;
+}
+
+.frontpage[data-tenant-theme='chef'] [data-block-id='chef'] .split-media-copy h2 {
+  margin-bottom: clamp(1rem, 2.2vw, 2rem);
+}
+
+.frontpage[data-tenant-theme='chef'] [data-block-id='chef'] .split-media-visual {
+  min-height: clamp(420px, 55vw, 760px);
+  border-radius: 24px;
+}
+
+.frontpage[data-tenant-theme='chef'] [data-block-id='press'] {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  margin: clamp(1rem, 4vw, 2rem) auto clamp(5rem, 8vw, 8rem);
+  max-width: 900px;
+  padding: 0;
+}
+
+.frontpage[data-tenant-theme='chef'] .service-grid,
+.frontpage[data-tenant-theme='chef'] .location-grid {
+  gap: 18px;
+}
+
 .brand {
   align-items: center;
   color: var(--color-primary);
@@ -544,6 +634,10 @@ a {
   color: var(--block-text-color, var(--font-h2-color, var(--font-display-color, var(--color-text))));
   font-family: var(--block-font-family, var(--font-h2, var(--font-display)));
   margin-bottom: clamp(1rem, 2.4vw, 2rem);
+}
+
+.rich-text p {
+  max-width: 72ch;
 }
 
 .hero h1 {

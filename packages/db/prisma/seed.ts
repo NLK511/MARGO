@@ -715,6 +715,7 @@ function buildChefPageBlocks(tenantId: string, pageId: string, locationName: str
       variant: 'default',
       position: 1,
       props: json({
+        eyebrow: 'Le chef',
         title: 'Le déroulement de votre dîner privé clé en main',
         body: 'De la préparation au service, tout est orchestré pour vous laisser profiter pleinement de votre soirée.',
         titleTextStyle: { fontFamily: 'Cormorant Garamond', fontSize: 'clamp(2.8rem, 5.5vw, 5.5rem)', lineHeight: '0.92', textAlign: 'left' },
@@ -735,6 +736,7 @@ function buildChefPageBlocks(tenantId: string, pageId: string, locationName: str
         titleTextStyle: { fontFamily: 'Cormorant Garamond', fontSize: 'clamp(2.4rem, 4.5vw, 4.6rem)', lineHeight: '0.95', textAlign: 'left' },
         textStyle: { fontSize: '1.08rem', lineHeight: '1.95' },
         textSpacing: { margin: '0', padding: '0' },
+        mediaSpacing: { margin: '0', padding: '0' },
       }) as Prisma.InputJsonValue,
     },
     {

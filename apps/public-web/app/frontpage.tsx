@@ -171,7 +171,7 @@ function FrontpageBlock({
       const panelMeta = stringArrayProp(props, 'panelMeta');
       const heroImage = stringProp(props, 'backgroundImage', '');
       return (
-        <section className={`block hero hero-${block.variant}`} style={blockStyle}>
+        <section className={`block hero hero-${block.variant}`} data-block-id={block.id} data-block-type={block.type} style={blockStyle}>
           <div className="hero-copy">
             <p className="eyebrow">{stringProp(props, 'eyebrow', 'Welcome')}</p>
             <h1>{stringProp(props, 'headline', 'Welcome')}</h1>
@@ -204,7 +204,7 @@ function FrontpageBlock({
     case 'service-list': {
       const titleStyle = resolveTitleStyle(props);
       return (
-        <section id="services" className="block section-card" style={blockStyle}>
+        <section id="services" className="block section-card" data-block-id={block.id} data-block-type={block.type} style={blockStyle}>
           <BlockHeading title={stringProp(props, 'title', 'What we offer')} titleStyle={titleStyle} />
           {services.length ? (
             <div className="service-grid">
@@ -246,7 +246,7 @@ function FrontpageBlock({
     case 'location': {
       const titleStyle = resolveTitleStyle(props);
       return (
-        <section id="location" className="block section-card" style={blockStyle}>
+        <section id="location" className="block section-card" data-block-id={block.id} data-block-type={block.type} style={blockStyle}>
           <BlockHeading title={stringProp(props, 'title', 'Location and hours')} titleStyle={titleStyle} />
           {locations.length ? (
             <div className="location-grid">
@@ -280,6 +280,8 @@ function FrontpageBlock({
       return (
         <section
           className={`block image-block image-block-${fit}`}
+          data-block-id={block.id}
+          data-block-type={block.type}
           data-image-fit={fit}
           style={{ ...(blockStyleWithoutSpacing as CSSProperties), '--image-block-gutter': imageGutter ?? '18px' } as CSSProperties}
         >
@@ -337,7 +339,7 @@ function FrontpageBlock({
         </div>
       );
       return (
-        <section className={`block split-media-block split-media-${mediaSide}`} style={blockStyle}>
+        <section className={`block split-media-block split-media-${mediaSide}`} data-block-id={block.id} data-block-type={block.type} style={blockStyle}>
           {mediaSide === 'image-right' ? text : media}
           {mediaSide === 'image-right' ? media : text}
         </section>
@@ -346,7 +348,7 @@ function FrontpageBlock({
     case 'cta': {
       const titleStyle = resolveTitleStyle(props);
       return (
-        <section className="block cta-block" style={blockStyle}>
+        <section className="block cta-block" data-block-id={block.id} data-block-type={block.type} style={blockStyle}>
           <h2 style={titleStyle}>{stringProp(props, 'title', 'Ready to start?')}</h2>
           <p>{stringProp(props, 'body', 'Get in touch with our team today.')}</p>
           {renderBlockActions(props, { primaryLabel: stringProp(props, 'label', hasBooking ? 'Book now' : 'Contact us'), primaryHref: hasBooking ? `/t/${tenantSlug}/booking` : '#contact' })}
@@ -356,7 +358,7 @@ function FrontpageBlock({
     case 'rich-text': {
       const titleStyle = resolveTitleStyle(props);
       return (
-        <section className="block rich-text" style={blockStyle}>
+        <section className="block rich-text" data-block-id={block.id} data-block-type={block.type} style={blockStyle}>
           <h2 style={titleStyle}>{stringProp(props, 'title', 'About')}</h2>
           <p>{stringProp(props, 'body', '')}</p>
           {renderBlockActions(props)}
@@ -366,7 +368,7 @@ function FrontpageBlock({
     case 'contact-form': {
       const titleStyle = resolveTitleStyle(props);
       return (
-        <section id="contact" className="block section-card contact-placeholder" style={blockStyle}>
+        <section id="contact" className="block section-card contact-placeholder" data-block-id={block.id} data-block-type={block.type} style={blockStyle}>
           <BlockHeading title={stringProp(props, 'title', 'Send us a message')} titleStyle={titleStyle} />
           <form aria-label="Contact form placeholder">
             <input disabled placeholder="Your name" />
