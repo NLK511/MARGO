@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShellCard } from '@margo/ui';
 import {
@@ -124,7 +124,7 @@ export function PageEditorClient({
     });
   }
 
-  async function savePage(nextStatus: 'draft' | 'published') {
+  const savePage = useCallback(async (nextStatus: 'draft' | 'published') => {
     if (nextStatus === 'published' && blockingGovernanceIssues.length > 0) {
       const message = 'Fix the blocking quality issues before publishing. Draft saves are still allowed.';
       setMessage(message);
@@ -164,7 +164,19 @@ export function PageEditorClient({
         router.replace(`/tenant/pages/${payload.pageId}`);
       }
     });
-  }
+  }, [blockingGovernanceIssues.length, blocks, pageId, pushToast, router, seoDescription, seoTitle, startTransition, title, slug]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+        event.preventDefault();
+        void savePage(status);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [savePage, status]);
 
   function toggleBlockCollapsed(blockId: string) {
     setCollapsedBlockIds((current) => {
@@ -400,6 +412,7 @@ export function PageEditorClient({
           <button type="button" className="primary-admin-button" onClick={() => savePage('published')} disabled={isPending || blockingGovernanceIssues.length > 0} title={blockingGovernanceIssues.length > 0 ? 'Fix blocking quality issues before publishing.' : undefined}>
             Publish
           </button>
+          <p className="form-help">Shortcut: Ctrl/Cmd+S saves the current page state.</p>
         </div>
       </form>
 

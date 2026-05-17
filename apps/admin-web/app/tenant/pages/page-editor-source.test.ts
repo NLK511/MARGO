@@ -12,6 +12,8 @@ describe('page editor source safeguards', () => {
     expect(source).toContain('mediaType');
     expect(source).toContain('videoUrl');
     expect(source).toContain('toggleBlockCollapsed');
+    expect(source).toContain('handleKeyDown');
+    expect(source).toContain("(event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's'");
     expect(source).toContain("{isCollapsed ? 'Expand' : 'Minimize'}");
     expect(source).not.toContain('{serializedBlocks}');
     expect(css).toContain('.page-block-editor-card');
@@ -23,6 +25,7 @@ describe('page editor source safeguards', () => {
 
     expect(source).toContain("const textAlignOptions = ['left', 'center', 'right', 'justify'] as const;");
     expect(source).toContain('renderTextSettingsPanel');
+    expect(source).toContain('Shortcut: Ctrl/Cmd+S saves the current page state.');
     expect(source).toContain('titleTextStyleProps');
     expect(source).toContain('updateTitleTextStyle');
     expect(source).toContain('evaluatePageBlockGovernance');
