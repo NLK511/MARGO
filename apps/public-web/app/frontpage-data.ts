@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import type { TenantFrontpageModel } from './frontpage';
+import { resolvePublicThemePreset } from './public-theme';
 
 export async function getFrontpageForCurrentRequest(path = '/') {
   const requestHeaders = await headers();
@@ -30,6 +31,8 @@ export async function getFrontpageForHostAndPath(hostname: string | null, path: 
       : await publicPageService.findPublishedPage({ tenantId: tenant.tenantId, slug: pageSlug, locale: pageLocale });
   if (!page) return null;
 
+  const themePreset = await resolvePublicThemePreset(tenant.themePresetId ?? 'clinical-calm');
+
   return {
     tenant: {
       slug: tenant.slug,
@@ -43,6 +46,7 @@ export async function getFrontpageForHostAndPath(hostname: string | null, path: 
       faviconUrl: tenant.faviconUrl,
       homeHref: tenant.resolutionMethod === 'development-prefix' ? `/t/${tenant.slug}` : `/${tenant.locale}`,
     },
+    themePreset,
     page: await injectMaisonNoireCarousel(tenant.slug, page),
   };
 }

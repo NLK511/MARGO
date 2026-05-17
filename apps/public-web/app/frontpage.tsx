@@ -3,8 +3,8 @@ import type { CSSProperties, ReactNode } from 'react';
 import { CarouselBlock } from './carousel-block';
 import type { PublicPageBlockRecord, PublicPageLocationRecord, PublicPageRecord, PublicPageServiceRecord } from '@margo/db';
 import { getCarouselPresetDefaults, getCarouselPresetSlides } from '@margo/core';
-import { compileThemeStyleAttribute, createThemeRuntimeSurface, getThemePreset, mergeTheme, type ThemeOverrides } from '@margo/themes';
-import { resolveThemePresetWithStudioOverrides } from '@margo/themes/theme-studio-overrides';
+import { compileThemeStyleAttribute, createThemeRuntimeSurface, getThemePreset, mergeTheme, type ThemeOverrides, type ThemePreset } from '@margo/themes';
+import { getFallbackPublicThemePreset } from './public-theme';
 
 export interface TenantFrontpageModel {
   tenant: {
@@ -19,11 +19,12 @@ export interface TenantFrontpageModel {
     faviconUrl?: string | null;
     homeHref?: string;
   };
+  themePreset?: ThemePreset;
   page: PublicPageRecord;
 }
 
 export function FrontpageShell({ model }: { model: TenantFrontpageModel }) {
-  const baseTheme = resolveThemePresetWithStudioOverrides(model.tenant.themePresetId, (warning) => console.warn(warning));
+  const baseTheme = model.themePreset ?? getFallbackPublicThemePreset(model.tenant.themePresetId);
   const themeOverrides = normalizeThemeOverrides(model.tenant.themeOverrides);
   const layoutConfig = toRecord(model.tenant.layoutConfig);
   const blockDefaults = toRecord(layoutConfig.blockDefaults);

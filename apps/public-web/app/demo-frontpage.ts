@@ -1,5 +1,6 @@
 import { createCarouselPresetProps } from '@margo/core';
 import type { TenantFrontpageModel } from './frontpage';
+import { getFallbackPublicThemePreset } from './public-theme';
 
 export const demoFrontpage: TenantFrontpageModel = {
   tenant: {
@@ -19,6 +20,7 @@ export const demoFrontpage: TenantFrontpageModel = {
     },
     homeHref: '/t/bistro-frontpage',
   },
+  themePreset: getFallbackPublicThemePreset('editorial-bistro'),
   page: {
     id: 'demo-home',
     tenantId: 'demo-tenant',
@@ -109,6 +111,7 @@ export const chefDemoFrontpage: TenantFrontpageModel = {
     logoUrl: 'https://chefmichelhelene.com/wp-content/uploads/2025/08/Michel-Helene-noir-scaled.png',
     homeHref: '/t/chef',
   },
+  themePreset: getFallbackPublicThemePreset('chef'),
   page: {
     id: 'demo-home-chef',
     tenantId: 'demo-chef',
@@ -192,6 +195,7 @@ export const maisonNoireDemoFrontpage: TenantFrontpageModel = {
     faviconUrl: '/demo-assets/luxury/favicon.svg',
     homeHref: '/t/maison-noire',
   },
+  themePreset: getFallbackPublicThemePreset('luxury-dark-dining'),
   page: {
     id: 'demo-home-maison-noire',
     tenantId: 'demo-maison-noire',

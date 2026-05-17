@@ -57,6 +57,9 @@ docker_compose() {
 echo "starting docker services..."
 docker_compose up -d --build postgres redis worker
 
+echo "clearing app build caches..."
+rm -rf "$ROOT_DIR/apps/public-web/.next" "$ROOT_DIR/apps/admin-web/.next" "$ROOT_DIR/apps/api/.next"
+
 echo "waiting for postgres..."
 until docker_compose exec -T postgres pg_isready -U margo -d margo >/dev/null 2>&1; do
   sleep 2
