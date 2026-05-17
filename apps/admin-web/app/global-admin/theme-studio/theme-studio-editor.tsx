@@ -43,6 +43,11 @@ export function ThemeStudioEditor({ family, themeFontOptions = buildThemeFontOpt
   const bodyFamily = previewTheme.typography.fontBody ?? previewTheme.typography.fontSans;
   const bodyPadding = state.spacing.pagePadding || state.spacing.cardPadding || '24px';
   const blockGap = state.spacing.blockGap || '16px';
+  const headingColor = previewTheme.typography.fontH1Color ?? previewTheme.typography.fontDisplayColor ?? previewTheme.colors.text;
+  const bodyColor = previewTheme.typography.fontBodyColor ?? previewTheme.colors.textMuted;
+  const paragraphColor = previewTheme.typography.fontParagraphColor ?? previewTheme.typography.fontBodyColor ?? previewTheme.colors.textMuted;
+  const buttonColor = previewTheme.colors.primaryContrast;
+  const buttonBackground = previewTheme.colors.primary;
 
   return (
     <div className="theme-studio-editor-layout">
@@ -222,21 +227,28 @@ export function ThemeStudioEditor({ family, themeFontOptions = buildThemeFontOpt
                 <strong>{state.name || family.name}</strong>
               </div>
             </div>
-            <h2 style={{ fontFamily: 'var(--font-display)' }}>Chef à domicile à Paris</h2>
-            <p style={{ fontFamily: 'var(--font-body)', marginBottom: 0 }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', color: headingColor }}>Chef à domicile à Paris</h2>
+            <p style={{ fontFamily: 'var(--font-body)', color: bodyColor, marginBottom: 0 }}>
               Editorial heading, body copy, and spacing are shown here together so you can judge the theme instantly.
             </p>
+            <div className="theme-studio-preview-palette">
+              {['bg', 'surface', 'primary', 'secondary', 'accent'].map((key) => (
+                <span key={key} className="theme-studio-preview-chip" style={{ backgroundColor: previewTheme.colors[key as keyof typeof previewTheme.colors], color: key === 'primary' ? buttonColor : previewTheme.colors.text }}>
+                  {key}
+                </span>
+              ))}
+            </div>
             <div className="theme-studio-preview-object" style={{ gap: blockGap, padding: bodyPadding }}>
-              <div className="theme-studio-preview-card" style={{ fontFamily: 'var(--font-display)', padding: bodyPadding }}>
+              <div className="theme-studio-preview-card" style={{ fontFamily: 'var(--font-display)', color: headingColor, padding: bodyPadding }}>
                 <span className="preview-eyebrow">H1 sample</span>
-                <strong style={{ fontFamily: 'var(--font-display)' }}>Elegant dining with visible hierarchy</strong>
+                <strong style={{ fontFamily: 'var(--font-display)', color: headingColor }}>Elegant dining with visible hierarchy</strong>
               </div>
               <div className="theme-studio-preview-card" style={{ fontFamily: 'var(--font-body)', padding: bodyPadding }}>
                 <span className="preview-eyebrow">Body sample</span>
-                <p>Spacing, typography, and card rhythm should stay readable when the form changes.</p>
+                <p style={{ color: paragraphColor }}>Spacing, typography, and card rhythm should stay readable when the form changes.</p>
               </div>
             </div>
-            <button type="button">Reserve a table</button>
+            <button type="button" style={{ backgroundColor: buttonBackground, color: buttonColor }}>Reserve a table</button>
           </div>
 
           <div className="theme-studio-preview-summary">
@@ -323,6 +335,7 @@ function buildPreviewTheme(baseTheme: ThemePreset, state: ThemeEditorState, name
     typography: {
       ...baseTheme.typography,
       ...state.typography,
+      ...state.typographyColors,
       headingWeight: Number(state.typography.headingWeight) || baseTheme.typography.headingWeight,
       bodyWeight: Number(state.typography.bodyWeight) || baseTheme.typography.bodyWeight,
     },

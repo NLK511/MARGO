@@ -701,6 +701,21 @@ body {
   gap: 8px;
 }
 
+.theme-studio-preview-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.theme-studio-preview-chip {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 6px 10px;
+  text-transform: uppercase;
+}
+
 .theme-studio-preview-card p,
 .theme-studio-preview-card strong {
   margin: 0;
