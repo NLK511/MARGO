@@ -28,8 +28,8 @@ export async function getAdminTenantRecord(tenantSlug: string): Promise<AdminTen
     displayName: tenant.displayName ?? tenant.slug,
     enabledModules: tenant.modules.filter((module) => module.enabled).map((module) => module.moduleId),
     themePresetId: tenant.branding?.themePresetId ?? 'clinical-calm',
-    layoutConfig: (isPlainObject(tenant.branding?.layoutConfig) ? tenant.branding.layoutConfig : {}) as Record<string, unknown>,
-    themeOverrides: (isPlainObject(tenant.branding?.themeOverrides) ? tenant.branding.themeOverrides : {}) as Record<string, unknown>,
+    layoutConfig: cloneJsonValue(isPlainObject(tenant.branding?.layoutConfig) ? tenant.branding.layoutConfig : {}) as Record<string, unknown>,
+    themeOverrides: cloneJsonValue(isPlainObject(tenant.branding?.themeOverrides) ? tenant.branding.themeOverrides : {}) as Record<string, unknown>,
     logoUrl: tenant.branding?.logoUrl,
     faviconUrl: tenant.branding?.faviconUrl,
   };
@@ -150,6 +150,11 @@ function formatModuleRoutePath(path: string, tenantSlug: string): string {
 
 function getSeoTitle(seo: unknown, fallback: string): string {
   return isPlainObject(seo) && typeof seo.title === 'string' ? seo.title : fallback;
+}
+
+function cloneJsonValue<T>(value: T): T {
+  if (value === null || value === undefined) return value;
+  return typeof structuredClone === 'function' ? structuredClone(value) : (JSON.parse(JSON.stringify(value)) as T);
 }
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

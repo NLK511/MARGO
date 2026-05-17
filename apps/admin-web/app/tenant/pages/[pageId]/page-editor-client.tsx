@@ -445,6 +445,16 @@ function renderBlockFields(
             Title
             <input value={stringProp(block.props, 'title', '')} onChange={(event) => updateBlock(index, { props: { ...block.props, title: event.target.value } })} />
           </label>
+          <details>
+            <summary>Title text</summary>
+            {renderTextSettingsPanel({
+              title: 'Title text',
+              textStyle: titleTextStyleProps(block.props),
+              onTextStyleChange: (patch) => updateBlock(index, { props: updateTitleTextStyle(block.props, patch) }),
+              onTextAlignChange: (value) => updateBlock(index, { props: updateTitleTextStyle(block.props, { textAlign: value }) }),
+              showSpacing: false,
+            })}
+          </details>
           <label>
             Body
             <textarea value={stringProp(block.props, 'body', '')} onChange={(event) => updateBlock(index, { props: { ...block.props, body: event.target.value } })} />
@@ -699,6 +709,16 @@ function renderBlockFields(
             Text section title
             <input value={stringProp(block.props, 'textTitle', '')} onChange={(event) => updateBlock(index, { props: { ...block.props, textTitle: event.target.value } })} />
           </label>
+          <details>
+            <summary>Title text</summary>
+            {renderTextSettingsPanel({
+              title: 'Title text',
+              textStyle: titleTextStyleProps(block.props),
+              onTextStyleChange: (patch) => updateBlock(index, { props: updateTitleTextStyle(block.props, patch) }),
+              onTextAlignChange: (value) => updateBlock(index, { props: updateTitleTextStyle(block.props, { textAlign: value }) }),
+              showSpacing: false,
+            })}
+          </details>
           <label>
             Body
             <textarea value={stringProp(block.props, 'body', '')} onChange={(event) => updateBlock(index, { props: { ...block.props, body: event.target.value } })} />
@@ -1065,6 +1085,17 @@ function blockTextStyleProps(props: Record<string, unknown>): { fontFamily: stri
   };
 }
 
+function titleTextStyleProps(props: Record<string, unknown>): { fontFamily: string; color: string; fontSize: string; lineHeight: string; textAlign: string } {
+  const textStyle = isRecord(props.titleTextStyle) ? props.titleTextStyle : {};
+  return {
+    fontFamily: stringProp(textStyle, 'fontFamily', ''),
+    color: stringProp(textStyle, 'color', ''),
+    fontSize: fontSizeFieldValue(stringProp(textStyle, 'fontSize', ''), defaultFontSizePx),
+    lineHeight: stringProp(textStyle, 'lineHeight', '1.6'),
+    textAlign: stringProp(textStyle, 'textAlign', ''),
+  };
+}
+
 function buttonTextStyleProps(props: Record<string, unknown>): { fontFamily: string; color: string; fontSize: string; lineHeight: string; textAlign: string } {
   const textStyle = isRecord(props.buttonTextStyle) ? props.buttonTextStyle : props;
   return {
@@ -1126,6 +1157,16 @@ function updateBlockTextStyle(props: Record<string, unknown>, patch: Partial<{ f
     ...props,
     textStyle: {
       ...(isRecord(props.textStyle) ? props.textStyle : {}),
+      ...patch,
+    },
+  };
+}
+
+function updateTitleTextStyle(props: Record<string, unknown>, patch: Partial<{ fontFamily: string; color: string; fontSize: string; lineHeight: string; textAlign: string }>) {
+  return {
+    ...props,
+    titleTextStyle: {
+      ...(isRecord(props.titleTextStyle) ? props.titleTextStyle : {}),
       ...patch,
     },
   };
@@ -1206,7 +1247,7 @@ function createDefaultBlockForType(type: PageBlockType, label: string): EditorBl
     id: crypto.randomUUID(),
     type,
     variant: definition?.defaultVariant ?? 'default',
-    props: definition ? definition.createDefaultProps(label) : createDefaultPageBlockProps(type, label),
+    props: cloneJsonValue(definition ? definition.createDefaultProps(label) : createDefaultPageBlockProps(type, label)),
   };
 }
 
@@ -1215,7 +1256,7 @@ function normalizeSeo(seo: unknown): { title?: string; description?: string } {
 }
 
 function normalizeProps(props: unknown): Record<string, unknown> {
-  return isRecord(props) ? props : {};
+  return isRecord(props) ? cloneJsonValue(props) : {};
 }
 
 function stringProp(props: Record<string, unknown>, key: string, fallback: string): string {
@@ -1234,6 +1275,11 @@ function clampNumber(value: string, min: number, max: number, fallback: number):
   const parsed = Number.parseInt(value, 10);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.min(max, Math.max(min, parsed));
+}
+
+function cloneJsonValue<T>(value: T): T {
+  if (value === null || value === undefined) return value;
+  return typeof structuredClone === 'function' ? structuredClone(value) : (JSON.parse(JSON.stringify(value)) as T);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

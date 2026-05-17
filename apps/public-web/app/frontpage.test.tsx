@@ -203,6 +203,44 @@ describe('frontpage rendering', () => {
     expect(html).toContain('--block-padding:1rem');
   });
 
+  it('applies title text styling to block headings', () => {
+    const model = {
+      ...demoFrontpage,
+      page: {
+        ...demoFrontpage.page,
+        blocks: [
+          {
+            id: 'split',
+            type: 'split-media',
+            variant: 'image-right',
+            position: 0,
+            props: {
+              title: 'Split layout',
+              textTitle: 'Styled title',
+              titleTextStyle: { fontFamily: 'Fraunces', color: '#123456', fontSize: '28px' },
+              body: 'Text and image in balanced columns.',
+              imageUrl: 'https://example.com/split.jpg',
+            },
+          },
+          {
+            id: 'service-list',
+            type: 'service-list',
+            variant: 'cards',
+            position: 1,
+            props: { title: 'Styled services', titleTextStyle: { fontFamily: 'Fraunces', color: '#123456', fontSize: '28px' } },
+          },
+        ],
+      },
+    };
+    const html = renderToStaticMarkup(<FrontpageShell model={model} />);
+
+    expect(html).toContain('Styled title');
+    expect(html).toContain('Styled services');
+    expect(html).toContain('font-family:Fraunces');
+    expect(html).toContain('color:#123456');
+    expect(html).toContain('font-size:28px');
+  });
+
   it('keeps menu bar margins independent from block margins', () => {
     const model = {
       ...demoFrontpage,

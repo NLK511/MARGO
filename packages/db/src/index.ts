@@ -329,14 +329,14 @@ function mapPublicPageRecord(page: PublicPageWithRelations): PublicPageRecord {
     slug: page.slug,
     locale: page.locale,
     title: page.title,
-    seo: page.seo,
+    seo: cloneJsonValue(page.seo),
     status: page.status,
     layoutPreset: page.layoutPreset,
     blocks: page.blocks.map((block) => ({
       id: block.id,
       type: block.type,
       variant: block.variant,
-      props: block.props,
+      props: cloneJsonValue(block.props),
       position: block.position,
     })),
     services: page.tenant.services.map((service) => ({
@@ -349,11 +349,16 @@ function mapPublicPageRecord(page: PublicPageWithRelations): PublicPageRecord {
     })),
     locations: page.tenant.locations.map((location) => ({
       name: location.name,
-      address: location.address,
+      address: cloneJsonValue(location.address),
       phone: location.phone,
       email: location.email,
     })),
   };
+}
+
+function cloneJsonValue<T>(value: T): T {
+  if (value === null || value === undefined) return value;
+  return typeof structuredClone === 'function' ? structuredClone(value) : (JSON.parse(JSON.stringify(value)) as T);
 }
 
 export function createTenantBrandingService(client: TenantBrandingClient = prisma) {

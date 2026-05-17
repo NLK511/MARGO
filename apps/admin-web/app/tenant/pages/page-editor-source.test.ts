@@ -22,6 +22,8 @@ describe('page editor source safeguards', () => {
 
     expect(source).toContain("const textAlignOptions = ['left', 'center', 'right', 'justify'] as const;");
     expect(source).toContain('renderTextSettingsPanel');
+    expect(source).toContain('titleTextStyleProps');
+    expect(source).toContain('updateTitleTextStyle');
     expect(source).toContain('type="number" min={fontSizeInputMin} max={fontSizeInputMax} step={1}');
     expect(source).toContain("const imageButtonPositionOptions = ['top-left', 'top-center', 'top-right', 'middle-left', 'center', 'middle-right', 'bottom-left', 'bottom-center', 'bottom-right'] as const;");
     expect(source).toContain("const imageButtonStyleOptions = ['primary', 'secondary', 'ghost'] as const;");

@@ -131,6 +131,7 @@ Tenant branding must be able to define reusable defaults for content blocks, inc
 - font size defaults
 - font color defaults
 - navigation item gap presets
+- title font family, size, and color defaults
 
 Blocks inherit these values unless explicitly overridden at block level.
 Margin controls should offer a smooth scale from very small to the existing standard size, and zero/very small values must persist correctly through save and preview.

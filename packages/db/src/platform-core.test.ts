@@ -45,6 +45,22 @@ describe('public page service', () => {
     expect(page).toMatchObject({ title: 'Demo homepage', blocks: [{ type: 'hero' }], services: [{ slug: 'consult' }], locations: [{ name: 'Main' }] });
   });
 
+  it('returns cloned page payloads so editing one response cannot mutate another', async () => {
+    const fixture = pageFixture('published');
+    const findFirst = vi.fn(async () => fixture);
+    const service = createPublicPageService({ publicPage: { findFirst, findMany: vi.fn(), update: vi.fn() } });
+
+    const first = await service.findPublishedPage({ tenantId: uuid, slug: 'home', locale: 'en' });
+    expect(first?.blocks[0]?.props).not.toBe(fixture.blocks[0]!.props);
+
+    if (!first || !first.blocks[0]) throw new Error('Expected a first block');
+    (first.blocks[0].props as Record<string, unknown>).headline = 'Changed';
+
+    const second = await service.findPublishedPage({ tenantId: uuid, slug: 'home', locale: 'en' });
+    expect(second?.blocks[0]?.props).toMatchObject({ headline: 'Hello' });
+    expect(fixture.blocks[0]!.props).toMatchObject({ headline: 'Hello' });
+  });
+
   it('does not return draft pages to the public lookup', async () => {
     const findFirst = vi.fn(async () => null);
     const service = createPublicPageService({ publicPage: { findFirst, findMany: vi.fn(), update: vi.fn() } });

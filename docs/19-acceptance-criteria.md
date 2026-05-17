@@ -56,6 +56,10 @@ Given a tenant admin overrides block typography or spacing,
 When they save and preview,
 Then the block uses the selected font, color, numeric font size, text alignment, margins, padding, and interline values.
 
+Given a tenant admin customizes a block title,
+When they save and preview,
+Then the title uses the selected font, color, and numeric font size.
+
 Given branding-level typography or spacing defaults exist,
 When a block does not override them,
 Then the block inherits those defaults.
@@ -67,6 +71,10 @@ Then the sections can be expanded or minimized to reduce clutter.
 Given the branding block spacing controls are shown,
 When the admin edits them,
 Then the margin size can be selected explicitly and with a smooth progression from very small to the existing standard size, and zero or tiny values persist after save.
+
+Given page payloads are loaded through the public page service,
+When one caller mutates a returned block payload,
+Then subsequent callers still receive an isolated copy.
 
 Given the navigation bar is rendered,
 When block margins are changed,

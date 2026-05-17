@@ -197,10 +197,11 @@ function FrontpageBlock({
         </section>
       );
     }
-    case 'service-list':
+    case 'service-list': {
+      const titleStyle = resolveTitleStyle(props);
       return (
         <section id="services" className="block section-card" style={blockStyle}>
-          <BlockHeading title={stringProp(props, 'title', 'What we offer')} />
+          <BlockHeading title={stringProp(props, 'title', 'What we offer')} titleStyle={titleStyle} />
           <div className="service-grid">
             {services.map((service) => (
               <article key={service.slug} className="service-card">
@@ -213,6 +214,7 @@ function FrontpageBlock({
           {renderBlockActions(props)}
         </section>
       );
+    }
     case 'carousel': {
       const title = stringProp(props, 'title', 'Featured content');
       return (
@@ -230,10 +232,11 @@ function FrontpageBlock({
         />
       );
     }
-    case 'location':
+    case 'location': {
+      const titleStyle = resolveTitleStyle(props);
       return (
         <section id="location" className="block section-card" style={blockStyle}>
-          <BlockHeading title={stringProp(props, 'title', 'Location and hours')} />
+          <BlockHeading title={stringProp(props, 'title', 'Location and hours')} titleStyle={titleStyle} />
           <div className="location-grid">
             {locations.map((location) => (
               <article key={location.name} className="location-card">
@@ -248,6 +251,7 @@ function FrontpageBlock({
           {renderBlockActions(props)}
         </section>
       );
+    }
     case 'image': {
       const imageUrl = stringProp(props, 'imageUrl', '');
       const fit = block.variant === 'framed' ? 'framed' : 'cover';
@@ -299,6 +303,7 @@ function FrontpageBlock({
         interline: blockStyle.lineHeight as string | undefined,
       });
       const mediaStyle = resolveSpacingOnlyStyle({ spacing: toRecord(props.mediaSpacing) }, { margin: '', padding: '' });
+      const titleStyle = resolveTitleStyle(props);
       const textTitle = stringProp(props, 'textTitle', stringProp(props, 'title', 'A split media block'));
       const media = (
         <div className="split-media-visual" aria-hidden={stringProp(props, 'alt', '') ? 'false' : 'true'} style={{ ...(mediaStyle as CSSProperties), ...(mediaType !== 'video' && imageUrl ? { backgroundImage: `url('${escapeCssUrl(imageUrl)}')` } : {}) }}>
@@ -308,7 +313,7 @@ function FrontpageBlock({
       );
       const text = (
         <div className="split-media-copy" style={textStyle}>
-          <h2>{textTitle}</h2>
+          <h2 style={titleStyle}>{textTitle}</h2>
           {stringProp(props, 'body', '') ? <p>{stringProp(props, 'body', '')}</p> : null}
           {renderBlockActions(props)}
         </div>
@@ -320,26 +325,31 @@ function FrontpageBlock({
         </section>
       );
     }
-    case 'cta':
+    case 'cta': {
+      const titleStyle = resolveTitleStyle(props);
       return (
         <section className="block cta-block" style={blockStyle}>
-          <h2>{stringProp(props, 'title', 'Ready to start?')}</h2>
+          <h2 style={titleStyle}>{stringProp(props, 'title', 'Ready to start?')}</h2>
           <p>{stringProp(props, 'body', 'Get in touch with our team today.')}</p>
           {renderBlockActions(props, { primaryLabel: stringProp(props, 'label', hasBooking ? 'Book now' : 'Contact us'), primaryHref: hasBooking ? `/t/${tenantSlug}/booking` : '#contact' })}
         </section>
       );
-    case 'rich-text':
+    }
+    case 'rich-text': {
+      const titleStyle = resolveTitleStyle(props);
       return (
         <section className="block rich-text" style={blockStyle}>
-          <h2>{stringProp(props, 'title', 'About')}</h2>
+          <h2 style={titleStyle}>{stringProp(props, 'title', 'About')}</h2>
           <p>{stringProp(props, 'body', '')}</p>
           {renderBlockActions(props)}
         </section>
       );
-    case 'contact-form':
+    }
+    case 'contact-form': {
+      const titleStyle = resolveTitleStyle(props);
       return (
         <section id="contact" className="block section-card contact-placeholder" style={blockStyle}>
-          <BlockHeading title={stringProp(props, 'title', 'Send us a message')} />
+          <BlockHeading title={stringProp(props, 'title', 'Send us a message')} titleStyle={titleStyle} />
           <form aria-label="Contact form placeholder">
             <input disabled placeholder="Your name" />
             <input disabled placeholder="Email" />
@@ -351,16 +361,17 @@ function FrontpageBlock({
           {renderBlockActions(props)}
         </section>
       );
+    }
     default:
       return null;
   }
 }
 
-function BlockHeading({ eyebrow, title }: { eyebrow?: string; title: string }) {
+function BlockHeading({ eyebrow, title, titleStyle }: { eyebrow?: string; title: string; titleStyle?: CSSProperties }) {
   return (
     <div className="block-heading">
       {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
-      <h2>{title}</h2>
+      <h2 style={titleStyle}>{title}</h2>
     </div>
   );
 }
@@ -456,6 +467,19 @@ function resolveBlockStyle(props: Record<string, unknown>, defaults: Record<stri
     margin: toRecord(defaults.spacing).margin as string | undefined,
     padding: toRecord(defaults.spacing).padding as string | undefined,
     interline: toRecord(defaults.spacing).interline as string | undefined,
+  });
+}
+
+function resolveTitleStyle(props: Record<string, unknown>): CSSProperties {
+  return resolveTextAndSpacingStyle(toRecord(props.titleTextStyle), {}, {
+    fontFamily: undefined,
+    color: undefined,
+    fontSize: undefined,
+    lineHeight: undefined,
+    textAlign: undefined,
+    margin: '',
+    padding: '',
+    interline: undefined,
   });
 }
 

@@ -108,6 +108,7 @@ All blocks that render text must support per-block overrides for:
 - line height / interline spacing
 - margins
 - padding
+- block title styling (font family, size, color)
 
 These values should have sensible defaults and be exposed in the editor. Font size uses a numeric input, while text alignment uses buttons for faster editing.
 
