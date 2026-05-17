@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { compileThemeCssVariables, type ThemePreset } from '@margo/themes';
 import { type ThemeStudioFamilyView } from './theme-studio-store';
+import { collectThemeColorIssues, buildThemeColorSuggestions, type ThemeColorIssue, type ThemeColorSuggestion } from './theme-studio-color-suggestions';
 import {
   assetFields,
   buildThemeFontOptions,
@@ -34,11 +35,13 @@ type ThemeEditorState = {
 
 export function ThemeStudioEditor({ family, themeFontOptions = buildThemeFontOptions(), saveAction }: ThemeStudioEditorProps) {
   const [state, setState] = useState<ThemeEditorState>(() => buildEditorState(family));
+  const [dismissedSuggestionIds, setDismissedSuggestionIds] = useState<Record<string, true>>({});
 
   const previewTheme = useMemo(() => buildPreviewTheme(family.theme, state, family.name), [family, state]);
   const previewVars = useMemo(() => compileThemeCssVariables(previewTheme), [previewTheme]);
   const previewStyle = useMemo(() => Object.fromEntries(Object.entries(previewVars)) as React.CSSProperties, [previewVars]);
   const helperColors = useMemo(() => collectHelperColors(previewTheme), [previewTheme]);
+  const colorIssuesByField = useMemo(() => groupColorIssues(collectThemeColorIssues(previewTheme)), [previewTheme]);
   const headingFamily = previewTheme.typography.fontH1 ?? previewTheme.typography.fontDisplay ?? previewTheme.typography.fontSans;
   const bodyFamily = previewTheme.typography.fontBody ?? previewTheme.typography.fontSans;
   const bodyPadding = state.spacing.pagePadding || state.spacing.cardPadding || '24px';
@@ -79,16 +82,30 @@ export function ThemeStudioEditor({ family, themeFontOptions = buildThemeFontOpt
           <legend>Color palette</legend>
           <p className="form-help">Use the picker and swatches to keep the palette readable while you tune contrast.</p>
           <div className="theme-studio-color-grid">
-            {colorFields.map(([key, label]) => (
-              <ColorField
-                key={key}
-                label={label}
-                name={`colors.${key}`}
-                value={stringThemeValue(state.colors[key])}
-                helpers={helperColors}
-                onChange={(value) => setState((current) => ({ ...current, colors: { ...current.colors, [key]: value } }))}
-              />
-            ))}
+            {colorFields.map(([key, label]) => {
+              const issue = colorIssuesByField[key]?.[0];
+              const suggestions = buildColorSuggestionsForField({
+                fieldKey: key,
+                currentValue: stringThemeValue(state.colors[key]),
+                fallbackValue: family.theme.colors[key],
+                issue,
+                helperColors,
+              }).filter((suggestion) => !dismissedSuggestionIds[suggestion.id]);
+              return (
+                <ColorField
+                  key={key}
+                  label={label}
+                  name={`colors.${key}`}
+                  value={stringThemeValue(state.colors[key])}
+                  helpers={helperColors}
+                  issue={issue}
+                  suggestions={suggestions}
+                  onChange={(value) => setState((current) => ({ ...current, colors: { ...current.colors, [key]: value } }))}
+                  onAcceptSuggestion={(value) => setState((current) => ({ ...current, colors: { ...current.colors, [key]: value } }))}
+                  onDismissSuggestion={(id) => setDismissedSuggestionIds((current) => ({ ...current, [id]: true }))}
+                />
+              );
+            })}
           </div>
         </fieldset>
 
@@ -106,16 +123,30 @@ export function ThemeStudioEditor({ family, themeFontOptions = buildThemeFontOpt
                 />
               </label>
             ))}
-            {typographyColorFields.map(([key, label]) => (
-              <ColorField
-                key={key}
-                label={label}
-                name={`typography.${key}`}
-                value={stringThemeValue(state.typographyColors[key])}
-                helpers={helperColors}
-                onChange={(value) => setState((current) => ({ ...current, typographyColors: { ...current.typographyColors, [key]: value } }))}
-              />
-            ))}
+            {typographyColorFields.map(([key, label]) => {
+              const issue = colorIssuesByField[key]?.[0];
+              const suggestions = buildColorSuggestionsForField({
+                fieldKey: key,
+                currentValue: stringThemeValue(state.typographyColors[key]),
+                fallbackValue: family.theme.typography[key] ? String(family.theme.typography[key]) : family.theme.colors.text,
+                issue,
+                helperColors,
+              }).filter((suggestion) => !dismissedSuggestionIds[suggestion.id]);
+              return (
+                <ColorField
+                  key={key}
+                  label={label}
+                  name={`typography.${key}`}
+                  value={stringThemeValue(state.typographyColors[key])}
+                  helpers={helperColors}
+                  issue={issue}
+                  suggestions={suggestions}
+                  onChange={(value) => setState((current) => ({ ...current, typographyColors: { ...current.typographyColors, [key]: value } }))}
+                  onAcceptSuggestion={(value) => setState((current) => ({ ...current, typographyColors: { ...current.typographyColors, [key]: value } }))}
+                  onDismissSuggestion={(id) => setDismissedSuggestionIds((current) => ({ ...current, [id]: true }))}
+                />
+              );
+            })}
             <label>
               Heading weight
               <input
@@ -280,13 +311,21 @@ function ColorField({
   name,
   value,
   helpers,
+  issue,
+  suggestions,
   onChange,
+  onAcceptSuggestion,
+  onDismissSuggestion,
 }: {
   label: string;
   name: string;
   value: string;
   helpers: string[];
+  issue?: ThemeColorIssue;
+  suggestions: ThemeColorSuggestion[];
   onChange: (value: string) => void;
+  onAcceptSuggestion: (value: string) => void;
+  onDismissSuggestion: (id: string) => void;
 }) {
   const pickerValue = normalizeColor(value);
   const swatches = Array.from(new Set([pickerValue, ...helpers])).slice(0, 7);
@@ -302,6 +341,26 @@ function ColorField({
           <button key={swatch} type="button" className="theme-studio-color-swatch" style={{ backgroundColor: swatch }} onClick={() => onChange(swatch)} aria-label={`Use ${swatch} for ${label}`} />
         ))}
       </div>
+      {issue && suggestions.length ? (
+        <div className="theme-studio-suggestion-stack">
+          <p className="form-help theme-studio-suggestion-help">{issue.message}</p>
+          {suggestions.map((suggestion) => (
+            <article key={suggestion.id} className="theme-studio-suggestion-card">
+              <div className="theme-studio-suggestion-swatch" style={{ backgroundColor: suggestion.value }} />
+              <div className="theme-studio-suggestion-copy">
+                <strong>{suggestion.title}</strong>
+                <p>{suggestion.description}</p>
+                <code>{suggestion.value}</code>
+                {typeof suggestion.contrast === 'number' ? <span>{suggestion.contrast.toFixed(1)}:1 contrast</span> : null}
+              </div>
+              <div className="theme-studio-suggestion-actions">
+                <button type="button" className="button-link" onClick={() => onAcceptSuggestion(suggestion.value)}>Accept</button>
+                <button type="button" className="button-link button-link-danger" onClick={() => onDismissSuggestion(suggestion.id)}>Dismiss</button>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : null}
     </label>
   );
 }
@@ -371,4 +430,40 @@ function collectHelperColors(theme: ThemePreset): string[] {
     theme.colors.danger,
     theme.colors.primaryContrast,
   ]));
+}
+
+function groupColorIssues(issues: ThemeColorIssue[]): Record<string, ThemeColorIssue[]> {
+  return issues.reduce<Record<string, ThemeColorIssue[]>>((acc, issue) => {
+    (acc[issue.fieldKey] ??= []).push(issue);
+    return acc;
+  }, {});
+}
+
+function buildColorSuggestionsForField(input: {
+  fieldKey: string;
+  currentValue: string;
+  fallbackValue: string;
+  helperColors: string[];
+  issue?: ThemeColorIssue;
+}): ThemeColorSuggestion[] {
+  const suggestions = buildThemeColorSuggestions({
+    fieldKey: input.fieldKey,
+    currentValue: input.currentValue,
+    fallbackValue: input.fallbackValue,
+    issue: input.issue,
+  });
+
+  if (suggestions.length >= 2) return suggestions;
+
+  const helperAlternatives = input.helperColors
+    .filter((color) => color.toLowerCase() !== input.currentValue.toLowerCase())
+    .slice(0, 2);
+
+  return [...suggestions, ...helperAlternatives.map((value, index) => ({
+    id: `${input.fieldKey}:helper-${index}:${value}`,
+    title: index === 0 ? 'Palette alternative' : 'Second palette option',
+    description: 'A nearby preset palette color with solid contrast.',
+    value,
+    contrast: input.issue?.contrastAgainst ? undefined : undefined,
+  }))].slice(0, 2);
 }
