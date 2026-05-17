@@ -275,6 +275,76 @@ const tenants: SeedTenant[] = [
     ],
   },
   {
+    slug: 'chef',
+    legalName: 'Chef Michel Hélène SAS',
+    displayName: 'Chef Michel Hélène',
+    clinicMode: false,
+    hostname: 'chef.localhost',
+    modules: ['frontpage', 'booking', 'notifications', 'quote-request'],
+    themePresetId: 'chef',
+    layoutPreset: 'editorial',
+    layoutConfig: {
+      nav: 'centered',
+      navSticky: true,
+      navBrandSlot: 'both',
+      navRightText: '06 18 75 47 31',
+      navLinks: [
+        { label: 'ACCUEIL', href: '/' },
+        { label: 'LE CHEF', href: '#about' },
+        { label: 'MENUS', href: '#services' },
+        { label: 'GALERIE', href: '#gallery' },
+        { label: 'PRESSE', href: '#press' },
+        { label: 'RÉSERVATION', href: '#reservation' },
+      ],
+      navSocialLinks: ['https://www.instagram.com/chef_michel_helene/', 'https://www.facebook.com/chefadomicilemichelhelene'],
+      hero: 'full-bleed',
+      contentWidth: 'wide',
+      sectionRhythm: 'spacious',
+      sectionBorder: 'thin',
+      cardStyle: 'flat',
+      headerSpacing: 'margin',
+    },
+    branding: {
+      logoUrl: 'https://chefmichelhelene.com/wp-content/uploads/2025/08/Michel-Helene-noir-scaled.png',
+    },
+    location: {
+      name: 'Chef Michel Hélène',
+      timezone: 'Europe/Paris',
+      address: { street: 'Paris', city: 'Paris', country: 'FR' },
+      phone: '+33618754731',
+      email: 'contact@chefmichelhelene.com',
+    },
+    page: {
+      title: 'Chef à domicile à Paris',
+      heroHeadline: 'Chef à domicile à Paris',
+      heroBody: 'Chef à domicile à Paris pour des dîners d’exception. 17 ans d’expérience en gastronomie, une expérience raffinée et confidentielle.',
+      ctaLabel: 'Réservation',
+    },
+    services: [
+      {
+        slug: 'menu-degustation',
+        name: 'Menu dégustation',
+        description: 'Un menu gastronomique sur mesure pour une soirée d’exception.',
+        verticalType: 'restaurant',
+        durationMinutes: 120,
+      },
+      {
+        slug: 'diner-prive',
+        name: 'Dîner privé',
+        description: 'Un dîner privé clé en main à domicile ou en réception privée.',
+        verticalType: 'restaurant',
+        durationMinutes: 150,
+      },
+      {
+        slug: 'reception-privee',
+        name: 'Réception privée',
+        description: 'Une prestation haut de gamme pour vos événements privés.',
+        verticalType: 'restaurant',
+        durationMinutes: 180,
+      },
+    ],
+  },
+  {
     slug: 'oak-clinic',
     legalName: 'Oak Clinic SELARL',
     displayName: 'Oak Clinic',
@@ -544,6 +614,10 @@ async function seedTenant(seed: SeedTenant) {
 }
 
 function buildDefaultPageBlocks(seed: SeedTenant, tenantId: string, pageId: string, locationName: string) {
+  if (seed.slug === 'chef') {
+    return buildChefPageBlocks(tenantId, pageId, locationName);
+  }
+
   return [
     {
       tenantId,
@@ -606,6 +680,120 @@ function buildDefaultPageBlocks(seed: SeedTenant, tenantId: string, pageId: stri
       props: seed.modules.includes('booking')
         ? (json({ title: seed.page.ctaLabel, body: 'Choose a convenient time online.', label: seed.page.ctaLabel }) as Prisma.InputJsonValue)
         : (json({ title: 'Contact us' }) as Prisma.InputJsonValue),
+    },
+  ];
+}
+
+function buildChefPageBlocks(tenantId: string, pageId: string, locationName: string) {
+  return [
+    {
+      tenantId,
+      pageId,
+      type: 'hero',
+      variant: 'split-image',
+      position: 0,
+      props: json({
+        eyebrow: 'Chef à domicile à Paris',
+        headline: 'Chef à domicile à Paris',
+        body: 'Chef à domicile à Paris pour des dîners d’exception. 17 ans d’expérience en gastronomie, une expérience raffinée et confidentielle.',
+        ctaLabel: 'Réservation',
+        secondaryLabel: 'Découvrir le chef',
+        secondaryHref: '#about',
+        panelLabel: 'Service privé',
+        panelTitle: 'Un chef privé à votre service, chez vous ou lors de vos réceptions privées',
+        panelBody: 'Une cuisine d’exception, discrète et sur-mesure, pensée pour les moments importants.',
+        highlights: ['Menus gastronomiques', 'Service clé en main', 'Paris et île-de-France'],
+        panelMeta: ['17 ans d’expérience', 'Chef privé'],
+        backgroundImage: 'https://chefmichelhelene.com/wp-content/uploads/2023/12/Chef_a_Domicile_Paris.jpg',
+      }) as Prisma.InputJsonValue,
+    },
+    {
+      tenantId,
+      pageId,
+      type: 'rich-text',
+      variant: 'default',
+      position: 1,
+      props: json({
+        title: 'Le déroulement de votre dîner privé clé en main',
+        body: 'De la préparation au service, tout est orchestré pour vous laisser profiter pleinement de votre soirée.',
+      }) as Prisma.InputJsonValue,
+    },
+    {
+      tenantId,
+      pageId,
+      type: 'split-media',
+      variant: 'image-right',
+      position: 2,
+      props: json({
+        title: 'Le chef',
+        body: 'Cuisine discrète, précision des cuissons et soin du détail pour une expérience intime et haut de gamme.',
+        imageUrl: 'https://chefmichelhelene.com/wp-content/uploads/2024/02/Chef_Michel_Helene.jpg',
+        alt: 'Chef Michel Hélène',
+      }) as Prisma.InputJsonValue,
+    },
+    {
+      tenantId,
+      pageId,
+      type: 'service-list',
+      variant: 'cards',
+      position: 3,
+      props: json({ title: 'Menus gastronomiques à domicile à Paris' }) as Prisma.InputJsonValue,
+    },
+    {
+      tenantId,
+      pageId,
+      type: 'carousel',
+      variant: 'testimonials',
+      position: 4,
+      props: json(createCarouselPresetProps('testimonials', {
+        eyebrow: 'Une expérience saluée par mes clients',
+        title: 'Une expérience saluée par mes clients',
+        body: 'Moments partagés autour de la gastronomie.',
+      })) as Prisma.InputJsonValue,
+    },
+    {
+      tenantId,
+      pageId,
+      type: 'image',
+      variant: 'cover',
+      position: 5,
+      props: json({
+        caption: 'Moments partagés autour de la gastronomie',
+        imageUrl: 'https://chefmichelhelene.com/wp-content/uploads/2024/07/presentationviande_chefMichelHelene-scaled.jpg',
+        buttonLabel: 'Voir la galerie',
+        buttonHref: '#gallery',
+      }) as Prisma.InputJsonValue,
+    },
+    {
+      tenantId,
+      pageId,
+      type: 'rich-text',
+      variant: 'default',
+      position: 6,
+      props: json({
+        title: 'Moments partagés autour de la gastronomie',
+        body: 'Une présence presse, des maisons partenaires et des clients qui reviennent pour l’expérience.',
+      }) as Prisma.InputJsonValue,
+    },
+    {
+      tenantId,
+      pageId,
+      type: 'location',
+      variant: 'card',
+      position: 7,
+      props: json({ locationName: locationName, title: 'Dîners privés et prestations à domicile' }) as Prisma.InputJsonValue,
+    },
+    {
+      tenantId,
+      pageId,
+      type: 'cta',
+      variant: 'banner',
+      position: 8,
+      props: json({
+        title: 'Réservez votre prochain dîner avec un chef à domicile à Paris',
+        body: 'Contactez-nous pour imaginer une prestation sur mesure.',
+        label: 'Réservation',
+      }) as Prisma.InputJsonValue,
     },
   ];
 }

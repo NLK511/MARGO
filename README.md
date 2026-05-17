@@ -49,6 +49,7 @@ Demo edits to theme/pages/quote-request config are snapshotted in `.margo/demo-s
 Seed tenants:
 
 - `bistro-frontpage` — frontpage-only restaurant
+- `chef` — chef à domicile / editorial reservation site
 - `table-and-co` — restaurant with booking
 - `oak-clinic` — clinic with booking + CRM
 

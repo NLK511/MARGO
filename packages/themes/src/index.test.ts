@@ -17,13 +17,14 @@ import {
 } from './index';
 
 describe('theme presets', () => {
-  it('defines the five MVP visual presets', () => {
+  it('defines the built-in visual presets', () => {
     expect(themePresets.map((preset) => preset.id)).toEqual([
       'clinical-calm',
       'editorial-bistro',
       'organic-wellness',
       'neo-brutalist-local',
       'luxury-dark-dining',
+      'chef',
     ]);
   });
 

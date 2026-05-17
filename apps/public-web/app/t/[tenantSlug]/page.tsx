@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { BrandedMissingPage, FrontpageShell } from '../../frontpage';
 import { getFrontpageForCurrentRequest } from '../../frontpage-data';
+import { getDemoFrontpageModel } from '../../demo-frontpage';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,8 +19,10 @@ export default async function TenantHomePage({ params }: TenantPageProps) {
 
   try {
     const model = await getFrontpageForCurrentRequest(`/t/${tenantSlug}`);
-    return model ? <FrontpageShell model={model} /> : <BrandedMissingPage tenantName={tenantSlug} />;
+    const demo = getDemoFrontpageModel(tenantSlug);
+    return model ? <FrontpageShell model={model} /> : demo ? <FrontpageShell model={demo} /> : <BrandedMissingPage tenantName={tenantSlug} />;
   } catch {
-    return <BrandedMissingPage tenantName={tenantSlug} />;
+    const demo = getDemoFrontpageModel(tenantSlug);
+    return demo ? <FrontpageShell model={demo} /> : <BrandedMissingPage tenantName={tenantSlug} />;
   }
 }

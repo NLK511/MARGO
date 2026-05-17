@@ -73,6 +73,13 @@ export const themeCatalog = [
     lifecycle: 'draft',
     recipe: { density: 'spacious', nav: 'overlay', hero: 'full-bleed', radius: 'round' },
   },
+  {
+    id: 'chef',
+    name: 'Chef',
+    personality: 'soft',
+    lifecycle: 'published',
+    recipe: { density: 'spacious', nav: 'centered', hero: 'full-bleed', radius: 'round' },
+  },
 ] as const satisfies readonly ThemeCatalogItem[];
 
 export const defaultThemeCatalogItem = themeCatalog[0]!;
